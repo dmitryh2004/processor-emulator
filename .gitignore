@@ -1,0 +1,177 @@
+# =========================================
+# Visual Studio 2022
+# =========================================
+
+# Пользовательские настройки Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Кэш Visual C++
+ipch/
+*.VC.db
+*.VC.VC.opendb
+*.VC.opendb
+*.ncb
+*.sdf
+*.opensdf
+*.opendb
+*.aps
+
+# Файлы профилирования и диагностики
+*.psess
+*.vsp
+*.vspx
+*.sap
+*.e2e
+
+# Файлы IntelliSense и расширений
+*.VC.db-shm
+*.VC.db-wal
+_ReSharper*/
+*.DotSettings.user
+
+
+# =========================================
+# CMake
+# =========================================
+
+# Основные каталоги сборки
+build/
+build-*/
+out/
+out-*/
+cmake-build-*/
+
+# Часто используемые конфигурации
+Debug/
+Release/
+RelWithDebInfo/
+MinSizeRel/
+
+# Многоуровневые каталоги конфигураций
+**/Debug/
+**/Release/
+**/RelWithDebInfo/
+**/MinSizeRel/
+
+# Сгенерированные файлы CMake
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+install_manifest.txt
+CTestTestfile.cmake
+_compile_commands.json
+compile_commands.json
+Makefile
+_deps/
+
+# Локальные настройки CMake
+CMakeSettings.json
+CMakeUserPresets.json
+
+
+# =========================================
+# C++ / MSVC
+# =========================================
+
+# Объектные файлы
+*.obj
+*.o
+*.lo
+*.slo
+
+# Предкомпилированные заголовки
+*.pch
+*.gch
+
+# Отладочная информация
+*.pdb
+*.idb
+*.ilk
+*.ipch
+
+# Скомпилированные библиотеки
+*.lib
+*.a
+*.la
+*.lai
+*.dll
+*.so
+*.dylib
+
+# Исполняемые файлы
+*.exe
+*.out
+*.app
+
+# Файлы покрытия и профилирования
+*.pgc
+*.pgd
+*.pgc
+*.pgd
+
+# Логи сборки
+*.log
+*.tlog
+*.lastbuildstate
+
+
+# =========================================
+# Тесты
+# =========================================
+
+Testing/
+TestResults/
+*.trx
+CTestTestfile.cmake
+
+
+# =========================================
+# SFML
+# =========================================
+
+# Если SFML собирается через FetchContent или ExternalProject
+sfml-src/
+sfml-build/
+SFML-build/
+_external/
+
+# Если SFML устанавливается в локальную папку проекта
+third_party/sfml/build/
+vendor/sfml/build/
+
+# Локальные бинарники SFML
+# Уберите эти правила, если вы храните DLL в репозитории
+bin/*.dll
+lib/*.lib
+lib/*.dll
+
+
+# =========================================
+# Прочее
+# =========================================
+
+# Временные файлы
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
+# Файлы операционной системы
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Каталоги IDE
+.vscode/
+.idea/
+
+# Локальные файлы окружения
+.env
+.env.*
