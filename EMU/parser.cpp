@@ -105,9 +105,9 @@ namespace emu{
 	}
 }
 
-#ifdef TESTING
+//#ifdef TESTING
 
 int main(){
 	std::cout<<emu::parse("hello");
 }
-#endif
+//#endif

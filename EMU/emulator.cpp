@@ -133,7 +133,7 @@ namespace emu{
 	}
 }
 
-#ifdef TESTING
+//#ifdef TESTING
 int main(){ 
 	emu::load_program("hello");
 	std::cout<<"Начальная память: ";
@@ -163,5 +163,5 @@ int main(){
 	emu::show_insides(0);
 }
 
-#endif
+//#endif
 
