@@ -90,3 +90,24 @@ const sf::SoundBuffer& ResourceManager::GetSoundBuffer(std::string_view path) {
     return m_soundBuffers[key] = std::move(buffer);
 }
 
+const sf::Shader& ResourceManager::GetShader(std::string_view path, sf::Shader::Type shaderType)
+{
+    std::string key(path);
+
+    auto it = m_shaders.find(key);
+    if (it != m_shaders.end()) {
+        return it->second;
+    }
+
+    sf::Shader shader;
+    try {
+        shader.loadFromFile(key, shaderType);
+        std::cout << "[Success] Loaded shader: " << path << std::endl;
+    }
+    catch (const sf::Exception& e) {
+        std::cerr << "[Error] Failed to load shader: " << path << ". Exception: " << e.what() << std::endl;
+    }
+
+    return m_shaders[key] = std::move(shader);
+}
+

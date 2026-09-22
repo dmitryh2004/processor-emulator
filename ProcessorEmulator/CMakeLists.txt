@@ -12,10 +12,12 @@ set(SFML_DIR "C:/lib/SFML-3.1.0/lib/cmake/SFML")
 # ИСПРАВЛЕНИЕ 2: СТРОКУ add_compile_definitions(SFML_STATIC) УДАЛИЛИ, так как библиотека динамическая
 
 find_package(SFML 3 COMPONENTS Graphics Window System Audio REQUIRED)
+find_package(OpenGL REQUIRED)
 
-add_executable(${PROJECT_NAME} "ProcessorEmulator.cpp" "ProcessorEmulator.h" "ResourceManager.h" "ResourceManager.cpp")
+add_executable(${PROJECT_NAME} "ProcessorEmulator.cpp" "ProcessorEmulator.h" "ResourceManager.h" "ResourceManager.cpp" "SFML/BaseObject.h" "SFML/Button.cpp" "SFML/Image.cpp" "SFML/Text.cpp" "SFML/Panel.cpp")
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics SFML::Window SFML::Audio SFML::System)
+target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics OpenGL::GL)
 
 if(WIN32)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
@@ -31,5 +33,13 @@ if(WIN32)
         "${CMAKE_CURRENT_SOURCE_DIR}/Assets"
         "$<TARGET_FILE_DIR:${PROJECT_NAME}>/Assets"
         COMMENT "Синхронизация папки ресурсов Assets..."
+    )
+    
+    # Автоматическое копирование всей папки SFML/Shaders в выходную директорию
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_CURRENT_SOURCE_DIR}/SFML/Shaders"
+        "$<TARGET_FILE_DIR:${PROJECT_NAME}>/SFML/Shaders"
+        COMMENT "Синхронизация папки SFML/Shaders..."
     )
 endif()

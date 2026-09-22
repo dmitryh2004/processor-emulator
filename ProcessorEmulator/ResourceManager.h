@@ -20,10 +20,12 @@ public:
 
     // Получить буфер звука (для sf::Sound)
     const sf::SoundBuffer& GetSoundBuffer(std::string_view path);
+    const sf::Shader& GetShader(std::string_view path, sf::Shader::Type shaderType);
 
 private:
     std::unordered_map<std::string, sf::Font> m_fonts;
     std::unordered_map<std::string, sf::Texture> m_textures;
     std::unordered_map<std::string, sf::Music> m_music;
-    std::unordered_map<std::string, sf::SoundBuffer> m_soundBuffers; // Новый контейнер
+    std::unordered_map<std::string, sf::SoundBuffer> m_soundBuffers;
+    std::unordered_map<std::string, sf::Shader> m_shaders;
 };
