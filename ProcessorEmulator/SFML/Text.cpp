@@ -3,14 +3,14 @@
 
 class Text : public BaseObject {
 public:
-    Text(const sf::Font& font,
+    Text(std::string name, const sf::Font& font,
         const sf::String& string = "",
         unsigned int characterSize = 30,
         sf::Vector2f position = sf::Vector2f(0.f, 0.f),
         float rotation = 0.f,
         sf::Vector2f scale = sf::Vector2f(1.f, 1.f))
         // Размер текста динамический, поэтому в конструктор базы передаем (0, 0)
-        : BaseObject(sf::Vector2f(0.f, 0.f), position, rotation, scale),
+        : BaseObject(name, sf::Vector2f(0.f, 0.f), position, rotation, scale),
         m_text(font)
     {
         m_text.setString(string);

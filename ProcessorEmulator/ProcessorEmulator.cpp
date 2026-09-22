@@ -22,21 +22,60 @@ int main()
 
     const sf::Shader& shader = resources.GetShader("SFML/Shaders/BaseShader.frag", sf::Shader::Type::Fragment);
 
-    Image bgSprite = Image(sf::Vector2f(1440.f, 900.f), backgroundTexture);
+    // background sprite
+    Image bgSprite = Image("bgSprite", sf::Vector2f(1440.f, 900.f), backgroundTexture);
 
-    std::shared_ptr<Button> button = std::make_shared<Button>(sf::Vector2f(50.f, 50.f), sf::Vector2f(100.f, 0.f), buttonTexture);
-    button->setShader(&shader);
-    button->SetOnClickSound(&clickSound);
+    // top panel - start
+    std::shared_ptr<Button> infoButton = std::make_shared<Button>("infoButton", sf::Vector2f(24.f, 24.f), sf::Vector2f(1406.f, 6.f), buttonTexture);
+    infoButton->setShader(&shader);
+    infoButton->SetOnClickSound(&clickSound);
 
-    std::shared_ptr<Text> header = std::make_shared<Text>(font, L"Эмулятор процессора", 18, sf::Vector2f(10.f, 9.f));
+    std::shared_ptr<Button> startButton = std::make_shared<Button>("startButton", sf::Vector2f(24.f, 24.f), sf::Vector2f(674.f, 6.f), buttonTexture);
+    startButton->setShader(&shader);
+    startButton->SetOnClickSound(&clickSound);
 
-    std::shared_ptr<Panel> panel = std::make_shared<Panel>(sf::Vector2f(1440.f, 36.f));
-    panel->addObject(header, 1);
-    panel->addObject(button, 0);
+    std::shared_ptr<Button> stepButton = std::make_shared<Button>("stepButton", sf::Vector2f(24.f, 24.f), sf::Vector2f(708.f, 6.f), buttonTexture);
+    stepButton->setShader(&shader);
+    stepButton->SetOnClickSound(&clickSound);
+
+    std::shared_ptr<Button> stopButton = std::make_shared<Button>("stopButton", sf::Vector2f(24.f, 24.f), sf::Vector2f(742.f, 6.f), buttonTexture);
+    stopButton->setShader(&shader);
+    stopButton->SetOnClickSound(&clickSound);
+
+    std::shared_ptr<Text> header = std::make_shared<Text>("header", font, L"Эмулятор процессора", 18, sf::Vector2f(10.f, 9.f));
+
+    std::shared_ptr<Panel> panel = std::make_shared<Panel>("headerPanel", sf::Vector2f(1440.f, 36.f));
+    panel->addObject(header);
+    panel->addObject(infoButton);
+    panel->addObject(startButton);
+    panel->addObject(stepButton);
+    panel->addObject(stopButton);
+    // top panel - end
+
+    // code panel - start
+    std::shared_ptr<Button> saveCodeButton = std::make_shared<Button>("saveCodeButton", sf::Vector2f(24.f, 24.f), sf::Vector2f(426.f, 10.f), buttonTexture);
+    saveCodeButton->setShader(&shader);
+    saveCodeButton->SetOnClickSound(&clickSound);
+
+    std::shared_ptr<Button> loadCodeButton = std::make_shared<Button>("loadCodeButton", sf::Vector2f(24.f, 24.f), sf::Vector2f(392.f, 10.f), buttonTexture);
+    loadCodeButton->setShader(&shader);
+    loadCodeButton->SetOnClickSound(&clickSound);
+
+    std::shared_ptr<Text> codePanelHeader = std::make_shared<Text>("codePanelHeader", font, L"Код", 18, sf::Vector2f(10.f, 10.f));
+
+    std::shared_ptr<Panel> codePanel = std::make_shared<Panel>("codePanel", sf::Vector2f(460.f, 544.f), sf::Vector2f(0.f, 46.f));
+    codePanel->addObject(codePanelHeader);
+    codePanel->addObject(saveCodeButton); 
+    codePanel->addObject(loadCodeButton);
+    // code panel - end
 
     sf::Clock clock;
     while (window.isOpen())
     {
+        // get mouse position
+        sf::Vector2i mousePosInt = sf::Mouse::getPosition(window);
+        sf::Vector2f mousePosFloat = sf::Vector2f(static_cast<float>(mousePosInt.x), static_cast<float>(mousePosInt.y));
+
         while (const std::optional event = window.pollEvent())
         {
             // Закрытие окна
@@ -44,25 +83,18 @@ int main()
                 window.close();
             }
 
-            // Проверка клика мыши
-            /*
-            if (const auto* mouseClick = event->getIf<sf::Event::MouseButtonPressed>()) {
-                if (mouseClick->button == sf::Mouse::Button::Left) {
-                    clickSound.play();
-                }
-            }
-            */
-
-            button->checkForEvents(*event, window);
+            panel->checkForEvents(*event, window, mousePosFloat);
+            codePanel->checkForEvents(*event, window, mousePosFloat);
         }
         
         sf::Time deltaTime = clock.restart();
-        button->update(deltaTime);
+        panel->update(deltaTime);
+        codePanel->update(deltaTime);
         
         window.clear();
         window.draw(bgSprite);
-        window.draw(*header);
-        window.draw(*button);
+        window.draw(*panel);
+        window.draw(*codePanel);
         window.display();
     }
 
