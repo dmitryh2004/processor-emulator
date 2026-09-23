@@ -71,14 +71,19 @@ namespace emu{
 	
 	std::string run_program(){
 		//int outr, inpr, *ir, ira, mdr, mar, ac, pc;
-		int REGS[7]={0,0,0,0,0,0,0}, t, c, lim=10; //OUT, IR, MAR, MDR, AC, PC, F
+		int REGS[7]={0,0,0,0,0,0,0}, t, c, k, lim=50; //OUT, IR, MAR, MDR, AC, PC, F
 		//char copy[8], *soup;//[AA][LL][BB][FF][1MEMADDR]
-		while(REGS[5]<size){ if(!REGS[5]) lim--;
+		while(REGS[5]<size){ lim--;
 			REGS[1]=program[REGS[5]];
 			REGS[5]++;
-			REGS[2]=REGS[1]&ADDR;REGS[1]>>=16;
+			k=REGS[1]&ADDR;
+			k=(REGS[2]=(k)? k:REGS[2]);
+			REGS[1]>>=16;
+			//std::cout<<REGS[2]<<" "<<data[REGS[2]
 			REGS[3]=data[REGS[2]];
 			//std::cout<<std::hex<<((REGS[1]&ADDR)>>12)<<"\n";
+			//std::cout<<"\n";
+			//for(unsigned int i=0; i<7; i++) std::cout<<std::setw(8)<<std::hex<<(REGS[i]&ADDR); std::cout<<"\n";
 			switch((REGS[1]&ADDR)>>12){
 				case MOV: REGS[(REGS[1]>>8)&MASK]=REGS[(REGS[1]>>4)&MASK]; break;
 				case INC: REGS[(REGS[1]>>8)&MASK]=REGS[(REGS[1]>>4)&MASK]+1; break;
@@ -102,7 +107,7 @@ namespace emu{
 			//std::cout<<"C: "<<((REGS[1]>>8)&MASK)<<"\n";
 			//std::cout<<"A: "<<((REGS[1]>>4)&MASK)<<"\n";
 			//std::cout<<"B: "<<(REGS[1]&MASK)<<"\n";
-			data[REGS[2]]=REGS[3];
+			if(k==REGS[2]) data[REGS[2]]=REGS[3];
 			/*for(unsigned int i=0; i<8; i++) copy[i]=program[REGS[7]+i];
 			std::cout<<copy<<"\n";
 			ir=instructions(copy); REGS[7]+=8;
@@ -129,13 +134,13 @@ namespace emu{
 		}return "output data: "+std::to_string(REGS[0]);
 	}
 	void show_insides(bool a){
-		for(unsigned int i=0; i<6; i++) std::cout<<data[i]<<" "; std::cout<<"\n";
+		for(unsigned int i=0; i<20; i++) std::cout<<data[i]<<" "; std::cout<<"\n";
 	}
 }
 
 //#ifdef TESTING
 int main(){ 
-	emu::load_program("hello");
+	emu::load_program("p1");
 	std::cout<<"Начальная память: ";
 	emu::show_insides(0);
 	std::cout<<"Существующие операции по нумерации:\n";

@@ -1,6 +1,7 @@
+LOAD 0x00; start
 DEC 0x01; loads num from data and -- it
-JL 0x0C; tries to jump if data is now negative
-JE 0x0C; tries to jump if its equal
+JL 0x0D; tries to jump if data is now negative
+JE 0x0D; tries to jump if its equal
 STOR 0x01; return result to memory
 LOAD 0x03
 STOR 0x04
@@ -9,6 +10,6 @@ STOR 0x03
 LOAD 0x04
 ADD 0x03
 STOR 0x02
-JMP 0x0; jumps back to beginning
+JMP 0x01; jumps back to beginning
 LOAD 0x02
 STOR OUT; puts AC in OUT

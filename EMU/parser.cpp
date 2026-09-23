@@ -108,6 +108,6 @@ namespace emu{
 //#ifdef TESTING
 
 int main(){
-	std::cout<<emu::parse("hello");
+	std::cout<<emu::parse("p1");
 }
 //#endif
