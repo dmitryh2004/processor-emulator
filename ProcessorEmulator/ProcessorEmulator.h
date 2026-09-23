@@ -10,10 +10,11 @@
 #include <SFML/Audio.hpp>
 
 #include "SFML/BaseObject.h"
-#include "SFML/Button.cpp"
-#include "SFML/Image.cpp"
-#include "SFML/Text.cpp"
-#include "SFML/Panel.cpp"
+#include "SFML/Button.h"
+#include "SFML/Image.h"
+#include "SFML/Text.h"
+#include "SFML/Panel.h"
+#include "SFML/InputField.h"
 
 #include "SFML/Utilites/SFMLUtility.h"
 

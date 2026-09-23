@@ -16,7 +16,8 @@ int main()
     const sf::Texture& buttonTexture = resources.GetTexture("Assets/Sprites/ButtonTexture.png");
     const sf::Texture& infoButtonTexture = resources.GetTexture("Assets/Sprites/infoButtonSprite.png");
 
-    const sf::Font& font = resources.GetFont("Assets/Fonts/Rubik-Medium.ttf");
+    const sf::Font& textFont = resources.GetFont("Assets/Fonts/Rubik-Medium.ttf");
+    const sf::Font& codeFont = resources.GetFont("Assets/Fonts/Courier-New.ttf");
 
     sf::Music& bgMusic = resources.GetMusic("Assets/Sounds/background-music.mp3");
     bgMusic.setLooping(true);
@@ -82,7 +83,7 @@ int main()
 
     std::shared_ptr<Text> header = std::make_shared<Text>(
         "header",
-        font,
+        textFont,
         panel->getSize(),
         L"Эмулятор процессора",
         18,
@@ -109,7 +110,7 @@ int main()
     std::shared_ptr<Button> saveCodeButton = std::make_shared<Button>("saveCodeButton",
         sf::Vector2f(24.f, 24.f),
         codePanel->getSize(),
-        sf::Vector2f(-10.f, 0.f),
+        sf::Vector2f(-10.f, 10.f),
         buttonTexture,
         buttonTexture,
         BaseObject::Anchor::TopRight,
@@ -121,7 +122,7 @@ int main()
     std::shared_ptr<Button> loadCodeButton = std::make_shared<Button>("loadCodeButton",
         sf::Vector2f(24.f, 24.f),
         codePanel->getSize(),
-        sf::Vector2f(-44.f, 0.f),
+        sf::Vector2f(-44.f, 10.f),
         buttonTexture,
         buttonTexture,
         BaseObject::Anchor::TopRight,
@@ -132,16 +133,28 @@ int main()
 
     std::shared_ptr<Text> codePanelHeader = std::make_shared<Text>(
         "header",
-        font,
+        textFont,
         codePanel->getSize(),
         L"Код",
         18,
-        sf::Vector2f(10.f, 0.f)
+        sf::Vector2f(10.f, 22.f),
+        BaseObject::Anchor::TopLeft,
+        BaseObject::Anchor::CenterLeft
+    );
+
+    std::shared_ptr<InputField> codeField = std::make_shared<InputField>(
+        "codeField",
+        sf::Vector2f(460.f, 500.f),
+        codePanel->getSize(),
+        codeFont,
+        18,
+        sf::Vector2f(0.f, 44.f)
     );
 
     codePanel->addObject(codePanelHeader);
     codePanel->addObject(saveCodeButton); 
     codePanel->addObject(loadCodeButton);
+    codePanel->addObject(codeField);
     // code panel - end
 
     sf::Clock clock;
