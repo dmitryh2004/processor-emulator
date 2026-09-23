@@ -97,6 +97,11 @@ public:
                 bool shiftPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) ||
                     sf::Keyboard::isKeyPressed(sf::Keyboard::Key::RShift);
 
+                // Узнаем границы выделения (если оно есть)
+                size_t selMin = std::min(m_selectionStart, m_selectionEnd);
+                size_t selMax = std::max(m_selectionStart, m_selectionEnd);
+                bool hasSelection = (m_selectionStart != m_selectionEnd);
+
                 // Ctrl + A (Выделить всё)
                 if (keyEvent->code == sf::Keyboard::Key::A && ctrlPressed) {
                     m_selectionStart = 0;
@@ -113,6 +118,16 @@ public:
                     }
                     return;
                 }
+                // Ctrl + X (Вырезать) — ДОБАВЛЕНО
+                else if (keyEvent->code == sf::Keyboard::Key::X && ctrlPressed) {
+                    sf::String selected = getSelectedText();
+                    if (!selected.isEmpty()) {
+                        sf::Clipboard::setString(selected); // Копируем в буфер
+                        deleteSelectedText();               // Удаляем из поля ввода
+                        rebuildVertices();
+                    }
+                    return;
+                }
                 // Ctrl + V (Вставить)
                 else if (keyEvent->code == sf::Keyboard::Key::V && ctrlPressed) {
                     deleteSelectedText();
@@ -126,22 +141,46 @@ public:
 
                 // Навигация стрелочками
                 if (keyEvent->code == sf::Keyboard::Key::Left) {
-                    if (m_cursorIndex > 0) {
-                        m_cursorIndex--;
-                        if (shiftPressed) m_selectionEnd = m_cursorIndex;
-                        else clearSelection();
-                        resetCursorBlink();
-                        rebuildVertices();
+                    if (shiftPressed) {
+                        // Расширяем выделение влево
+                        if (m_cursorIndex > 0) {
+                            m_cursorIndex--;
+                            m_selectionEnd = m_cursorIndex;
+                        }
                     }
+                    else {
+                        // ИСПРАВЛЕНО: Сброс выделения при движении влево
+                        if (hasSelection) {
+                            m_cursorIndex = selMin; // Встаем на левый край выделения
+                        }
+                        else if (m_cursorIndex > 0) {
+                            m_cursorIndex--;        // Обычное смещение, если ничего не выделено
+                        }
+                        clearSelection();
+                    }
+                    resetCursorBlink();
+                    rebuildVertices();
                 }
                 else if (keyEvent->code == sf::Keyboard::Key::Right) {
-                    if (m_cursorIndex < m_string.getSize()) {
-                        m_cursorIndex++;
-                        if (shiftPressed) m_selectionEnd = m_cursorIndex;
-                        else clearSelection();
-                        resetCursorBlink();
-                        rebuildVertices();
+                    if (shiftPressed) {
+                        // Расширяем выделение вправо
+                        if (m_cursorIndex < m_string.getSize()) {
+                            m_cursorIndex++;
+                            m_selectionEnd = m_cursorIndex;
+                        }
                     }
+                    else {
+                        // ИСПРАВЛЕНО: Сброс выделения при движении вправо
+                        if (hasSelection) {
+                            m_cursorIndex = selMax; // Встаем на правый край выделения
+                        }
+                        else if (m_cursorIndex < m_string.getSize()) {
+                            m_cursorIndex++;        // Обычное смещение, если ничего не выделено
+                        }
+                        clearSelection();
+                    }
+                    resetCursorBlink();
+                    rebuildVertices();
                 }
                 else if (keyEvent->code == sf::Keyboard::Key::Up || keyEvent->code == sf::Keyboard::Key::Down) {
                     moveCursorUpDown(keyEvent->code == sf::Keyboard::Key::Up ? -1 : 1);
@@ -149,7 +188,7 @@ public:
                     else clearSelection();
                 }
                 else if (keyEvent->code == sf::Keyboard::Key::Delete) {
-                    if (m_selectionStart != m_selectionEnd) {
+                    if (hasSelection) {
                         deleteSelectedText();
                     }
                     else if (m_cursorIndex < m_string.getSize()) {
@@ -158,6 +197,7 @@ public:
                     rebuildVertices();
                 }
             }
+
 
             // БЛОК Б: Независимая обработка текстового ввода (TextEntered)
             if (auto* textEvent = event.getIf<sf::Event::TextEntered>()) {
