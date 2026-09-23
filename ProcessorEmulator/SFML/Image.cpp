@@ -3,12 +3,16 @@
 
 class Image : public BaseObject {
 public:
-    Image(std::string name, sf::Vector2f size,
+    Image(std::string name,
+        sf::Vector2f size,
         const sf::Texture& texture,
-        sf::Vector2f position = sf::Vector2f(0.f, 0.f),
+        sf::Vector2f parentSize,
+        sf::Vector2f offset = sf::Vector2f(0.f, 0.f),
+        Anchor parentAnchor = Anchor::TopLeft,
+        Anchor localAnchor = Anchor::TopLeft,
         float rotation = 0.f,
         sf::Vector2f scale = sf::Vector2f(1.f, 1.f))
-        : BaseObject(name, size, position, rotation, scale),
+        : BaseObject(name, size, parentSize, offset, parentAnchor, localAnchor, rotation, scale),
         m_sprite(texture)
     {
         updateSpriteScale(); // Подгоняем спрайт под размер m_size

@@ -3,18 +3,27 @@
 
 class Text : public BaseObject {
 public:
-    Text(std::string name, const sf::Font& font,
+    Text(std::string name,
+        const sf::Font& font,
+        sf::Vector2f parentSize,
         const sf::String& string = "",
         unsigned int characterSize = 30,
-        sf::Vector2f position = sf::Vector2f(0.f, 0.f),
+        sf::Vector2f offset = sf::Vector2f(0.f, 0.f),
+        Anchor parentAnchor = Anchor::TopLeft,
+        Anchor localAnchor = Anchor::TopLeft,
         float rotation = 0.f,
         sf::Vector2f scale = sf::Vector2f(1.f, 1.f))
         // Размер текста динамический, поэтому в конструктор базы передаем (0, 0)
-        : BaseObject(name, sf::Vector2f(0.f, 0.f), position, rotation, scale),
+        : BaseObject(name, sf::Vector2f(0.f, 0.f), parentSize, offset, parentAnchor, localAnchor, rotation, scale),
         m_text(font)
     {
         m_text.setString(string);
         m_text.setCharacterSize(characterSize);
+
+        // Если вам нужно, чтобы localAnchor учитывал реальный размер текста после его создания:
+        // sf::FloatRect bounds = m_text.getLocalBounds();
+        // sf::Vector2f realSize(bounds.size.x, bounds.size.y); // В SFML 3.x у Rect есть поле size
+        // Здесь можно вызвать фабричный метод или вручную скорректировать setPosition()
     }
 
     // Сеттер для объекта sf::Text целиком

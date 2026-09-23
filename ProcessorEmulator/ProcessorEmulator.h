@@ -15,4 +15,6 @@
 #include "SFML/Text.cpp"
 #include "SFML/Panel.cpp"
 
+#include "SFML/Utilites/SFMLUtility.h"
+
 // TODO: установите здесь ссылки на дополнительные заголовки, требующиеся для программы.

@@ -8,11 +8,16 @@
 
 class Panel : public BaseObject {
 public:
-    Panel(std::string name, sf::Vector2f size,
-        sf::Vector2f position = sf::Vector2f(0.f, 0.f),
+    Panel(std::string name,
+        sf::Vector2f size,
+        sf::Vector2f parentSize,
+        sf::Vector2f offset = sf::Vector2f(0.f, 0.f),
+        Anchor parentAnchor = Anchor::TopLeft,
+        Anchor localAnchor = Anchor::TopLeft,
         float rotation = 0.f,
         sf::Vector2f scale = sf::Vector2f(1.f, 1.f))
-        : BaseObject(name, size, position, rotation, scale), m_isClippingEnabled(true)
+        : BaseObject(name, size, parentSize, offset, parentAnchor, localAnchor, rotation, scale),
+        m_isClippingEnabled(true)
     {
     }
 

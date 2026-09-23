@@ -90,7 +90,7 @@ const sf::SoundBuffer& ResourceManager::GetSoundBuffer(std::string_view path) {
     return m_soundBuffers[key] = std::move(buffer);
 }
 
-const sf::Shader& ResourceManager::GetShader(std::string_view path, sf::Shader::Type shaderType)
+sf::Shader& ResourceManager::GetShader(std::string_view path, sf::Shader::Type shaderType)
 {
     std::string key(path);
 

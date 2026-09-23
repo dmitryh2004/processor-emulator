@@ -20,7 +20,7 @@ public:
 
     // Получить буфер звука (для sf::Sound)
     const sf::SoundBuffer& GetSoundBuffer(std::string_view path);
-    const sf::Shader& GetShader(std::string_view path, sf::Shader::Type shaderType);
+    sf::Shader& GetShader(std::string_view path, sf::Shader::Type shaderType);
 
 private:
     std::unordered_map<std::string, sf::Font> m_fonts;

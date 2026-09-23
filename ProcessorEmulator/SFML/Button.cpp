@@ -4,11 +4,18 @@
 
 class Button : public BaseObject {
 public:
-    Button(std::string name, sf::Vector2f size, sf::Vector2f position, const sf::Texture& texture)
-        : BaseObject(name, size, position)
+    Button(std::string name,
+        sf::Vector2f size,
+        sf::Vector2f parentSize,
+        sf::Vector2f offset,
+        const sf::Texture& backgroundTexture,
+        const sf::Texture& foregroundTexture,
+        Anchor parentAnchor = Anchor::TopLeft,
+        Anchor localAnchor = Anchor::TopLeft)
+        : BaseObject(name, size, parentSize, offset, parentAnchor, localAnchor), m_fgTexture(&foregroundTexture)
     {
         m_shape.setSize(getSize());
-        m_shape.setTexture(&texture); // Привязываем текстуру к форме
+        m_shape.setTexture(&backgroundTexture); // Привязываем текстуру к форме
         onHoverSound = onClickSound = nullptr;
     }
 
@@ -17,6 +24,9 @@ public:
     }
     void SetOnClickSound(sf::Sound* sound) {
         onClickSound = sound;
+    }
+    void setForegroundTexture(const sf::Texture& texture) {
+        m_fgTexture = &texture;
     }
 
     void checkForEvents(const sf::Event& event, const sf::RenderWindow& window, sf::Vector2f localMousePos) override {
@@ -56,13 +66,28 @@ public:
     }
 protected:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
-        // Рисуем внутреннюю форму с учетом этих трансформаций
+        // 1. Применяем трансформации базы
         states = prepareStates(states);
+
+        // 2. Получаем неконстантный указатель для изменения Uniform-переменных
+        sf::Shader* shader = getShader();
+
+        if (shader && m_fgTexture) {
+            // Теперь компилятор пропустит вызовы, так как shader не константный
+            shader->setUniform("fgTexture", *m_fgTexture);
+
+            if (m_shape.getTexture()) {
+                shader->setUniform("bgTexture", *m_shape.getTexture());
+            }
+        }
+
+        // 3. Рисуем форму с подготовленными состояниями
         target.draw(m_shape, states);
     }
 
 private:
     sf::RectangleShape m_shape;
+    const sf::Texture* m_fgTexture;
     bool m_isHovered = false;
     sf::Sound* onHoverSound = nullptr;
     sf::Sound* onClickSound = nullptr;
