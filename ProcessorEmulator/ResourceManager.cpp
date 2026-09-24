@@ -3,13 +3,13 @@
 const sf::Font& ResourceManager::GetFont(std::string_view path) {
     std::string key(path);
 
-    // Ищем, не загружали ли мы этот шрифт ранее
+    // РС‰РµРј, РЅРµ Р·Р°РіСЂСѓР¶Р°Р»Рё Р»Рё РјС‹ СЌС‚РѕС‚ С€СЂРёС„С‚ СЂР°РЅРµРµ
     auto it = m_fonts.find(key);
     if (it != m_fonts.end()) {
-        return it->second; // Нашли! Возвращаем уже существующий
+        return it->second; // РќР°С€Р»Рё! Р’РѕР·РІСЂР°С‰Р°РµРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№
     }
 
-    // Если не нашли, загружаем с диска
+    // Р•СЃР»Рё РЅРµ РЅР°С€Р»Рё, Р·Р°РіСЂСѓР¶Р°РµРј СЃ РґРёСЃРєР°
     sf::Font font;
     try {
         font.openFromFile(key);
@@ -17,11 +17,11 @@ const sf::Font& ResourceManager::GetFont(std::string_view path) {
     }
     catch (const sf::Exception& e) {
         std::cerr << "[Error] Failed to load font: " << path << ". Exception: " << e.what() << std::endl;
-        // В случае критической ошибки SFML 3 вернет пустой объект,
-        // но программа не упадет жестко во время игры
+        // Р’ СЃР»СѓС‡Р°Рµ РєСЂРёС‚РёС‡РµСЃРєРѕР№ РѕС€РёР±РєРё SFML 3 РІРµСЂРЅРµС‚ РїСѓСЃС‚РѕР№ РѕР±СЉРµРєС‚,
+        // РЅРѕ РїСЂРѕРіСЂР°РјРјР° РЅРµ СѓРїР°РґРµС‚ Р¶РµСЃС‚РєРѕ РІРѕ РІСЂРµРјСЏ РёРіСЂС‹
     }
 
-    // Сохраняем в карту и возвращаем ссылку на созданный элемент
+    // РЎРѕС…СЂР°РЅСЏРµРј РІ РєР°СЂС‚Сѓ Рё РІРѕР·РІСЂР°С‰Р°РµРј СЃСЃС‹Р»РєСѓ РЅР° СЃРѕР·РґР°РЅРЅС‹Р№ СЌР»РµРјРµРЅС‚
     return m_fonts[key] = std::move(font);
 }
 
@@ -48,17 +48,17 @@ const sf::Texture& ResourceManager::GetTexture(std::string_view path) {
 sf::Music& ResourceManager::GetMusic(std::string_view path) {
     std::string key(path);
 
-    // Ищем, не загружали ли трек ранее
+    // РС‰РµРј, РЅРµ Р·Р°РіСЂСѓР¶Р°Р»Рё Р»Рё С‚СЂРµРє СЂР°РЅРµРµ
     auto it = m_music.find(key);
     if (it != m_music.end()) {
         return it->second;
     }
 
-    // Создаем пустой объект sf::Music прямо внутри карты (адрес фиксируется)
+    // РЎРѕР·РґР°РµРј РїСѓСЃС‚РѕР№ РѕР±СЉРµРєС‚ sf::Music РїСЂСЏРјРѕ РІРЅСѓС‚СЂРё РєР°СЂС‚С‹ (Р°РґСЂРµСЃ С„РёРєСЃРёСЂСѓРµС‚СЃСЏ)
     auto [insertedIt, success] = m_music.emplace(key, sf::Music{});
     sf::Music& music = insertedIt->second;
 
-    // Настраиваем уже созданный по фиксированному адресу объект
+    // РќР°СЃС‚СЂР°РёРІР°РµРј СѓР¶Рµ СЃРѕР·РґР°РЅРЅС‹Р№ РїРѕ С„РёРєСЃРёСЂРѕРІР°РЅРЅРѕРјСѓ Р°РґСЂРµСЃСѓ РѕР±СЉРµРєС‚
     try {
         music.openFromFile(key);
         std::cout << "[Success] Loaded music file: " << path << std::endl;

@@ -13,49 +13,49 @@ public:
         Anchor localAnchor = Anchor::TopLeft,
         float rotation = 0.f,
         sf::Vector2f scale = sf::Vector2f(1.f, 1.f))
-        // Размер текста динамический, поэтому в конструктор базы передаем (0, 0)
+        // Р Р°Р·РјРµСЂ С‚РµРєСЃС‚Р° РґРёРЅР°РјРёС‡РµСЃРєРёР№, РїРѕСЌС‚РѕРјСѓ РІ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ Р±Р°Р·С‹ РїРµСЂРµРґР°РµРј (0, 0)
         : BaseObject(name, sf::Vector2f(0.f, 0.f), parentSize, offset, parentAnchor, localAnchor, rotation, scale),
         m_text(font)
     {
         m_text.setString(string);
         m_text.setCharacterSize(characterSize);
 
-        // Если вам нужно, чтобы localAnchor учитывал реальный размер текста после его создания:
+        // Р•СЃР»Рё РІР°Рј РЅСѓР¶РЅРѕ, С‡С‚РѕР±С‹ localAnchor СѓС‡РёС‚С‹РІР°Р» СЂРµР°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ С‚РµРєСЃС‚Р° РїРѕСЃР»Рµ РµРіРѕ СЃРѕР·РґР°РЅРёСЏ:
         // sf::FloatRect bounds = m_text.getLocalBounds();
-        // sf::Vector2f realSize(bounds.size.x, bounds.size.y); // В SFML 3.x у Rect есть поле size
-        // Здесь можно вызвать фабричный метод или вручную скорректировать setPosition()
+        // sf::Vector2f realSize(bounds.size.x, bounds.size.y); // Р’ SFML 3.x Сѓ Rect РµСЃС‚СЊ РїРѕР»Рµ size
+        // Р—РґРµСЃСЊ РјРѕР¶РЅРѕ РІС‹Р·РІР°С‚СЊ С„Р°Р±СЂРёС‡РЅС‹Р№ РјРµС‚РѕРґ РёР»Рё РІСЂСѓС‡РЅСѓСЋ СЃРєРѕСЂСЂРµРєС‚РёСЂРѕРІР°С‚СЊ setPosition()
     }
 
-    // Сеттер для объекта sf::Text целиком
+    // РЎРµС‚С‚РµСЂ РґР»СЏ РѕР±СЉРµРєС‚Р° sf::Text С†РµР»РёРєРѕРј
     void setText(const sf::Text& text) {
         m_text = text;
     }
 
-    // Геттер для sf::Text
+    // Р“РµС‚С‚РµСЂ РґР»СЏ sf::Text
     sf::Text& getText() {
         return m_text;
     }
 
-    // Константный геттер для sf::Text
+    // РљРѕРЅСЃС‚Р°РЅС‚РЅС‹Р№ РіРµС‚С‚РµСЂ РґР»СЏ sf::Text
     const sf::Text& getText() const {
         return m_text;
     }
 
-    // Быстрый сеттер для изменения строки текста
+    // Р‘С‹СЃС‚СЂС‹Р№ СЃРµС‚С‚РµСЂ РґР»СЏ РёР·РјРµРЅРµРЅРёСЏ СЃС‚СЂРѕРєРё С‚РµРєСЃС‚Р°
     void setString(const sf::String& string) {
         m_text.setString(string);
     }
 
-    // Быстрый геттер строки текста
+    // Р‘С‹СЃС‚СЂС‹Р№ РіРµС‚С‚РµСЂ СЃС‚СЂРѕРєРё С‚РµРєСЃС‚Р°
     sf::String getString() const {
         return m_text.getString();
     }
 
 protected:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
-        // Применяем трансформации и шейдер базового класса
+        // РџСЂРёРјРµРЅСЏРµРј С‚СЂР°РЅСЃС„РѕСЂРјР°С†РёРё Рё С€РµР№РґРµСЂ Р±Р°Р·РѕРІРѕРіРѕ РєР»Р°СЃСЃР°
         states = prepareStates(states);
-        // Отрисовываем внутренний текст с новыми состояниями
+        // РћС‚СЂРёСЃРѕРІС‹РІР°РµРј РІРЅСѓС‚СЂРµРЅРЅРёР№ С‚РµРєСЃС‚ СЃ РЅРѕРІС‹РјРё СЃРѕСЃС‚РѕСЏРЅРёСЏРјРё
         target.draw(m_text, states);
     }
 

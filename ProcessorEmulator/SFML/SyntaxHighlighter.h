@@ -22,7 +22,7 @@ class SyntaxHighlighter {
 public:
     SyntaxHighlighter() = default;
 
-    // Загрузка цветовой схемы из файла конфигурации .conf
+    // Р—Р°РіСЂСѓР·РєР° С†РІРµС‚РѕРІРѕР№ СЃС…РµРјС‹ РёР· С„Р°Р№Р»Р° РєРѕРЅС„РёРіСѓСЂР°С†РёРё .conf
     bool loadFromConf(const std::string& filepath) {
         std::ifstream file(filepath);
         if (!file.is_open()) {
@@ -37,17 +37,17 @@ public:
         while (std::getline(file, line)) {
             lineNumber++;
 
-            // 1. Удаляем пробелы в самом начале строки для удобства выравнивания в файле
+            // 1. РЈРґР°Р»СЏРµРј РїСЂРѕР±РµР»С‹ РІ СЃР°РјРѕРј РЅР°С‡Р°Р»Рµ СЃС‚СЂРѕРєРё РґР»СЏ СѓРґРѕР±СЃС‚РІР° РІС‹СЂР°РІРЅРёРІР°РЅРёСЏ РІ С„Р°Р№Р»Рµ
             line.erase(line.begin(), std::find_if(line.begin(), line.end(), [](unsigned char ch) {
                 return !std::isspace(ch);
             }));
 
-            // 2. Игнорируем пустые строки и комментарии, начинающиеся с //
+            // 2. РРіРЅРѕСЂРёСЂСѓРµРј РїСѓСЃС‚С‹Рµ СЃС‚СЂРѕРєРё Рё РєРѕРјРјРµРЅС‚Р°СЂРёРё, РЅР°С‡РёРЅР°СЋС‰РёРµСЃСЏ СЃ //
             if (line.empty() || (line.size() >= 2 && line.compare(0, 2, "//") == 0)) {
                 continue;
             }
 
-            // 3. Находим первый пробел, разделяющий [HEX] и [Регулярное выражение]
+            // 3. РќР°С…РѕРґРёРј РїРµСЂРІС‹Р№ РїСЂРѕР±РµР», СЂР°Р·РґРµР»СЏСЋС‰РёР№ [HEX] Рё [Р РµРіСѓР»СЏСЂРЅРѕРµ РІС‹СЂР°Р¶РµРЅРёРµ]
             size_t spacePos = line.find(' ');
             if (spacePos == std::string::npos || spacePos == 0) {
                 std::cerr << "[SyntaxHighlighter] Line " << lineNumber << " missing separator space." << std::endl;
@@ -57,14 +57,14 @@ public:
             std::string hexStr = line.substr(0, spacePos);
             std::string regexPattern = line.substr(spacePos + 1);
 
-            // 4. Парсим HEX-код в sf::Color
+            // 4. РџР°СЂСЃРёРј HEX-РєРѕРґ РІ sf::Color
             sf::Color color;
             if (!parseHexColor(hexStr, color)) {
                 std::cerr << "[SyntaxHighlighter] Line " << lineNumber << " has invalid HEX color: " << hexStr << std::endl;
                 continue;
             }
 
-            // 5. Проверяем корректность регулярного выражения перед сохранением
+            // 5. РџСЂРѕРІРµСЂСЏРµРј РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚СЊ СЂРµРіСѓР»СЏСЂРЅРѕРіРѕ РІС‹СЂР°Р¶РµРЅРёСЏ РїРµСЂРµРґ СЃРѕС…СЂР°РЅРµРЅРёРµРј
             try {
                 m_rules.emplace_back(regexPattern, color);
             }
@@ -110,11 +110,11 @@ public:
 private:
     std::vector<SyntaxRule> m_rules;
 
-    // Вспомогательный метод парсинга HEX-строк (поддерживает #RRGGBB, #RRGGBBAA, RRGGBB, RRGGBBAA)
+    // Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Р№ РјРµС‚РѕРґ РїР°СЂСЃРёРЅРіР° HEX-СЃС‚СЂРѕРє (РїРѕРґРґРµСЂР¶РёРІР°РµС‚ #RRGGBB, #RRGGBBAA, RRGGBB, RRGGBBAA)
     bool parseHexColor(std::string hex, sf::Color& outColor) {
         if (hex.empty()) return false;
 
-        // Удаляем решетку, если она есть
+        // РЈРґР°Р»СЏРµРј СЂРµС€РµС‚РєСѓ, РµСЃР»Рё РѕРЅР° РµСЃС‚СЊ
         if (hex[0] == '#') {
             hex.erase(0, 1);
         }
@@ -123,7 +123,7 @@ private:
             return false;
         }
 
-        // Проверяем, что все символы являются валидными шестнадцатеричными цифрами
+        // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РІСЃРµ СЃРёРјРІРѕР»С‹ СЏРІР»СЏСЋС‚СЃСЏ РІР°Р»РёРґРЅС‹РјРё С€РµСЃС‚РЅР°РґС†Р°С‚РµСЂРёС‡РЅС‹РјРё С†РёС„СЂР°РјРё
         for (char c : hex) {
             if (!std::isxdigit(static_cast<unsigned char>(c))) return false;
         }
@@ -137,7 +137,7 @@ private:
             outColor.r = static_cast<uint8_t>((hexValue >> 16) & 0xFF);
             outColor.g = static_cast<uint8_t>((hexValue >> 8) & 0xFF);
             outColor.b = static_cast<uint8_t>(hexValue & 0xFF);
-            outColor.a = 255; // Полноценная непрозрачность по умолчанию
+            outColor.a = 255; // РџРѕР»РЅРѕС†РµРЅРЅР°СЏ РЅРµРїСЂРѕР·СЂР°С‡РЅРѕСЃС‚СЊ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
         }
         else if (hex.size() == 8) {
             outColor.r = static_cast<uint8_t>((hexValue >> 24) & 0xFF);

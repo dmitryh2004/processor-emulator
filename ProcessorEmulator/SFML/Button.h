@@ -15,7 +15,7 @@ public:
         : BaseObject(name, size, parentSize, offset, parentAnchor, localAnchor), m_fgTexture(&foregroundTexture)
     {
         m_shape.setSize(getSize());
-        m_shape.setTexture(&backgroundTexture); // Привязываем текстуру к форме
+        m_shape.setTexture(&backgroundTexture); // РџСЂРёРІСЏР·С‹РІР°РµРј С‚РµРєСЃС‚СѓСЂСѓ Рє С„РѕСЂРјРµ
         onHoverSound = onClickSound = nullptr;
     }
 
@@ -30,10 +30,10 @@ public:
     }
 
     void checkForEvents(const sf::Event& event, const sf::RenderWindow& window, sf::Vector2f localMousePos) override {
-        // Границы кнопки в её СОБСТВЕННЫХ локальных координатах
+        // Р“СЂР°РЅРёС†С‹ РєРЅРѕРїРєРё РІ РµС‘ РЎРћР‘РЎРўР’Р•РќРќР«РҐ Р»РѕРєР°Р»СЊРЅС‹С… РєРѕРѕСЂРґРёРЅР°С‚Р°С…
         sf::FloatRect localBounds(getPosition(), getSize());
 
-        // Проверка наведения мыши по локальным координатам
+        // РџСЂРѕРІРµСЂРєР° РЅР°РІРµРґРµРЅРёСЏ РјС‹С€Рё РїРѕ Р»РѕРєР°Р»СЊРЅС‹Рј РєРѕРѕСЂРґРёРЅР°С‚Р°Рј
         if (localBounds.contains(localMousePos)) {
             if (!m_isHovered) {
                 m_isHovered = true;
@@ -42,10 +42,10 @@ public:
                 }
             }
 
-            // Проверяем нажатие в SFML 3.x
+            // РџСЂРѕРІРµСЂСЏРµРј РЅР°Р¶Р°С‚РёРµ РІ SFML 3.x
             if (const auto* mouseButtonPressed = event.getIf<sf::Event::MouseButtonPressed>()) {
                 if (mouseButtonPressed->button == sf::Mouse::Button::Left) {
-                    std::cout << "[" << getName() << "] Элемент нажат на локальных координатах: " << localMousePos.x << ", " << localMousePos.y << std::endl;
+                    std::cout << "[" << getName() << "] Р­Р»РµРјРµРЅС‚ РЅР°Р¶Р°С‚ РЅР° Р»РѕРєР°Р»СЊРЅС‹С… РєРѕРѕСЂРґРёРЅР°С‚Р°С…: " << localMousePos.x << ", " << localMousePos.y << std::endl;
 
                     if (onClickSound != nullptr) {
                         onClickSound->play();
@@ -62,18 +62,18 @@ public:
 
 
     void update(sf::Time deltaTime) override {
-        // Здесь может быть какая-то покадровая логика, например, легкое покачивание или пульсация
+        // Р—РґРµСЃСЊ РјРѕР¶РµС‚ Р±С‹С‚СЊ РєР°РєР°СЏ-С‚Рѕ РїРѕРєР°РґСЂРѕРІР°СЏ Р»РѕРіРёРєР°, РЅР°РїСЂРёРјРµСЂ, Р»РµРіРєРѕРµ РїРѕРєР°С‡РёРІР°РЅРёРµ РёР»Рё РїСѓР»СЊСЃР°С†РёСЏ
     }
 protected:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
-        // 1. Применяем трансформации базы
+        // 1. РџСЂРёРјРµРЅСЏРµРј С‚СЂР°РЅСЃС„РѕСЂРјР°С†РёРё Р±Р°Р·С‹
         states = prepareStates(states);
 
-        // 2. Получаем неконстантный указатель для изменения Uniform-переменных
+        // 2. РџРѕР»СѓС‡Р°РµРј РЅРµРєРѕРЅСЃС‚Р°РЅС‚РЅС‹Р№ СѓРєР°Р·Р°С‚РµР»СЊ РґР»СЏ РёР·РјРµРЅРµРЅРёСЏ Uniform-РїРµСЂРµРјРµРЅРЅС‹С…
         sf::Shader* shader = getShader();
 
         if (shader && m_fgTexture) {
-            // Теперь компилятор пропустит вызовы, так как shader не константный
+            // РўРµРїРµСЂСЊ РєРѕРјРїРёР»СЏС‚РѕСЂ РїСЂРѕРїСѓСЃС‚РёС‚ РІС‹Р·РѕРІС‹, С‚Р°Рє РєР°Рє shader РЅРµ РєРѕРЅСЃС‚Р°РЅС‚РЅС‹Р№
             shader->setUniform("fgTexture", *m_fgTexture);
 
             if (m_shape.getTexture()) {
@@ -81,7 +81,7 @@ protected:
             }
         }
 
-        // 3. Рисуем форму с подготовленными состояниями
+        // 3. Р РёСЃСѓРµРј С„РѕСЂРјСѓ СЃ РїРѕРґРіРѕС‚РѕРІР»РµРЅРЅС‹РјРё СЃРѕСЃС‚РѕСЏРЅРёСЏРјРё
         target.draw(m_shape, states);
     }
 

@@ -18,7 +18,7 @@ public:
     const sf::Texture& GetTexture(std::string_view path);
     sf::Music& GetMusic(std::string_view path);
 
-    // Получить буфер звука (для sf::Sound)
+    // РџРѕР»СѓС‡РёС‚СЊ Р±СѓС„РµСЂ Р·РІСѓРєР° (РґР»СЏ sf::Sound)
     const sf::SoundBuffer& GetSoundBuffer(std::string_view path);
     sf::Shader& GetShader(std::string_view path, sf::Shader::Type shaderType);
 

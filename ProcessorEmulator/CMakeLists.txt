@@ -14,7 +14,7 @@ set(SFML_DIR "C:/lib/SFML-3.1.0/lib/cmake/SFML")
 find_package(SFML 3 COMPONENTS Graphics Window System Audio REQUIRED)
 find_package(OpenGL REQUIRED)
 
-add_executable(${PROJECT_NAME} "ProcessorEmulator.cpp" "ProcessorEmulator.h" "ResourceManager.h" "ResourceManager.cpp" "SFML/BaseObject.h" "SFML/Button.h" "SFML/Image.h" "SFML/Text.h" "SFML/Panel.h" "SFML/Utilites/SFMLUtility.cpp" "SFML/Utilites/SFMLUtility.h" "SFML/InputField.h" "SFML/SyntaxHighlighter.h")
+add_executable(${PROJECT_NAME} "ProcessorEmulator.cpp" "ProcessorEmulator.h" "ResourceManager.h" "ResourceManager.cpp" "SFML/BaseObject.h" "SFML/Button.h" "SFML/Image.h" "SFML/Text.h" "SFML/Panel.h" "SFML/Utilites/SFMLUtility.cpp" "SFML/Utilites/SFMLUtility.h" "SFML/InputField.h" "SFML/SyntaxHighlighter.h" "SFML/PortableFileDialogs.h")
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics SFML::Window SFML::Audio SFML::System)
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics OpenGL::GL)

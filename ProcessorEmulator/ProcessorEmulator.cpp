@@ -1,4 +1,4 @@
-﻿#include "ProcessorEmulator.h"
+#include "ProcessorEmulator.h"
 #include "ResourceManager.h"
 
 int main()

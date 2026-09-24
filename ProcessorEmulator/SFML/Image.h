@@ -15,39 +15,39 @@ public:
         : BaseObject(name, size, parentSize, offset, parentAnchor, localAnchor, rotation, scale),
         m_sprite(texture)
     {
-        updateSpriteScale(); // Ïîäãîíÿåì ñïðàéò ïîä ðàçìåð m_size
+        updateSpriteScale(); // ÐŸÐ¾Ð´Ð³Ð¾Ð½ÑÐµÐ¼ ÑÐ¿Ñ€Ð°Ð¹Ñ‚ Ð¿Ð¾Ð´ Ñ€Ð°Ð·Ð¼ÐµÑ€ m_size
     }
 
-    // Ñåòòåð äëÿ ïîëíîé çàìåíû ñïðàéòà
+    // Ð¡ÐµÑ‚Ñ‚ÐµÑ€ Ð´Ð»Ñ Ð¿Ð¾Ð»Ð½Ð¾Ð¹ Ð·Ð°Ð¼ÐµÐ½Ñ‹ ÑÐ¿Ñ€Ð°Ð¹Ñ‚Ð°
     void setSprite(const sf::Sprite& sprite) {
         m_sprite = sprite;
         updateSpriteScale();
     }
 
-    // Óäîáíûé ñåòòåð òåêñòóðû íàïðÿìóþ â ñïðàéò
+    // Ð£Ð´Ð¾Ð±Ð½Ñ‹Ð¹ ÑÐµÑ‚Ñ‚ÐµÑ€ Ñ‚ÐµÐºÑÑ‚ÑƒÑ€Ñ‹ Ð½Ð°Ð¿Ñ€ÑÐ¼ÑƒÑŽ Ð² ÑÐ¿Ñ€Ð°Ð¹Ñ‚
     void setTexture(const sf::Texture& texture, bool resetRect = false) {
         m_sprite.setTexture(texture, resetRect);
         updateSpriteScale();
     }
 
-    // Ãåòòåð äëÿ ñïðàéòà
+    // Ð“ÐµÑ‚Ñ‚ÐµÑ€ Ð´Ð»Ñ ÑÐ¿Ñ€Ð°Ð¹Ñ‚Ð°
     sf::Sprite& getSprite() { return m_sprite; }
     const sf::Sprite& getSprite() const { return m_sprite; }
 
 protected:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
-        // Ïðèìåíÿåì ïîçèöèþ, ïîâîðîò, ìàñøòàá è øåéäåð èç BaseObject
+        // ÐŸÑ€Ð¸Ð¼ÐµÐ½ÑÐµÐ¼ Ð¿Ð¾Ð·Ð¸Ñ†Ð¸ÑŽ, Ð¿Ð¾Ð²Ð¾Ñ€Ð¾Ñ‚, Ð¼Ð°ÑÑˆÑ‚Ð°Ð± Ð¸ ÑˆÐµÐ¹Ð´ÐµÑ€ Ð¸Ð· BaseObject
         states = prepareStates(states);
-        // Îòðèñîâûâàåì âíóòðåííèé îòìàñøòàáèðîâàííûé ñïðàéò
+        // ÐžÑ‚Ñ€Ð¸ÑÐ¾Ð²Ñ‹Ð²Ð°ÐµÐ¼ Ð²Ð½ÑƒÑ‚Ñ€ÐµÐ½Ð½Ð¸Ð¹ Ð¾Ñ‚Ð¼Ð°ÑÑˆÑ‚Ð°Ð±Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ñ‹Ð¹ ÑÐ¿Ñ€Ð°Ð¹Ñ‚
         target.draw(m_sprite, states);
     }
 
 private:
-    // Âñïîìîãàòåëüíûé ìåòîä äëÿ ïîäãîíêè òåêñòóðû ïîä ðàçìåð m_size
+    // Ð’ÑÐ¿Ð¾Ð¼Ð¾Ð³Ð°Ñ‚ÐµÐ»ÑŒÐ½Ñ‹Ð¹ Ð¼ÐµÑ‚Ð¾Ð´ Ð´Ð»Ñ Ð¿Ð¾Ð´Ð³Ð¾Ð½ÐºÐ¸ Ñ‚ÐµÐºÑÑ‚ÑƒÑ€Ñ‹ Ð¿Ð¾Ð´ Ñ€Ð°Ð·Ð¼ÐµÑ€ m_size
     void updateSpriteScale() {
         sf::Vector2f targetSize = getSize();
 
-        // Ïîëó÷àåì ëîêàëüíûå ãðàíèöû ñïðàéòà (ó÷èòûâàþò textureRect, åñëè îí çàäàí)
+        // ÐŸÐ¾Ð»ÑƒÑ‡Ð°ÐµÐ¼ Ð»Ð¾ÐºÐ°Ð»ÑŒÐ½Ñ‹Ðµ Ð³Ñ€Ð°Ð½Ð¸Ñ†Ñ‹ ÑÐ¿Ñ€Ð°Ð¹Ñ‚Ð° (ÑƒÑ‡Ð¸Ñ‚Ñ‹Ð²Ð°ÑŽÑ‚ textureRect, ÐµÑÐ»Ð¸ Ð¾Ð½ Ð·Ð°Ð´Ð°Ð½)
         sf::FloatRect bounds = m_sprite.getLocalBounds();
 
         if (bounds.size.x > 0.f && bounds.size.y > 0.f) {

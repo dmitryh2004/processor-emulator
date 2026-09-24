@@ -4,7 +4,7 @@
 #include <cmath>
 #include <algorithm>
 #include "SyntaxHighlighter.h"
-#include <SFML/OpenGL.hpp> // Добавлено для glScissor
+#include <SFML/OpenGL.hpp> // Р”РѕР±Р°РІР»РµРЅРѕ РґР»СЏ glScissor
 
 class InputField : public BaseObject {
 public:
@@ -18,25 +18,25 @@ public:
         Anchor localAnchor = Anchor::TopLeft)
         : BaseObject(name, size, parentSize, offset, parentAnchor, localAnchor),
         m_font(&font), m_characterSize(characterSize), m_isActive(false), m_cursorIndex(0),
-        m_scrollOffset(0.f, 0.f), m_lineNumbersWidth(50.f) // Начальная ширина панели номеров строк
+        m_scrollOffset(0.f, 0.f), m_lineNumbersWidth(50.f) // РќР°С‡Р°Р»СЊРЅР°СЏ С€РёСЂРёРЅР° РїР°РЅРµР»Рё РЅРѕРјРµСЂРѕРІ СЃС‚СЂРѕРє
     {
-        // Настройка фона
+        // РќР°СЃС‚СЂРѕР№РєР° С„РѕРЅР°
         m_background.setSize(getSize());
         m_background.setFillColor(sf::Color(30, 30, 30));
         m_background.setOutlineColor(sf::Color(100, 100, 100));
         m_background.setOutlineThickness(1.f);
 
-        // Настройка фона панели номеров строк
+        // РќР°СЃС‚СЂРѕР№РєР° С„РѕРЅР° РїР°РЅРµР»Рё РЅРѕРјРµСЂРѕРІ СЃС‚СЂРѕРє
         m_lineNumbersBackground.setFillColor(sf::Color(40, 40, 40));
         m_lineNumbersBackground.setOutlineColor(sf::Color(60, 60, 60));
         m_lineNumbersBackground.setOutlineThickness(1.f);
 
-        // Настройка геометрии букв и выделения
+        // РќР°СЃС‚СЂРѕР№РєР° РіРµРѕРјРµС‚СЂРёРё Р±СѓРєРІ Рё РІС‹РґРµР»РµРЅРёСЏ
         m_vertices.setPrimitiveType(sf::PrimitiveType::Triangles);
         m_selectionVertices.setPrimitiveType(sf::PrimitiveType::Triangles);
         m_lineNumbersVertices.setPrimitiveType(sf::PrimitiveType::Triangles);
 
-        // Настройка курсора
+        // РќР°СЃС‚СЂРѕР№РєР° РєСѓСЂСЃРѕСЂР°
         m_cursor.setSize({ 2.f, static_cast<float>(m_characterSize) });
         m_cursor.setFillColor(sf::Color::White);
 
@@ -69,14 +69,14 @@ public:
 
         sf::Vector2f worldMousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 
-        // Переводим координаты из пространства родительской Panel в локальное пространство InputField
+        // РџРµСЂРµРІРѕРґРёРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РёР· РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР° СЂРѕРґРёС‚РµР»СЊСЃРєРѕР№ Panel РІ Р»РѕРєР°Р»СЊРЅРѕРµ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ InputField
         sf::Vector2f trueLocalMouse = getTransform().getInverse().transformPoint(localMousePos);
 
-        // 1. Обработка прокрутки колесиком мыши
+        // 1. РћР±СЂР°Р±РѕС‚РєР° РїСЂРѕРєСЂСѓС‚РєРё РєРѕР»РµСЃРёРєРѕРј РјС‹С€Рё
         if (auto* scrollEvent = event.getIf<sf::Event::MouseWheelScrolled>()) {
             if (globalBounds.contains(worldMousePos)) {
                 if (scrollEvent->wheel == sf::Mouse::Wheel::Vertical) {
-                    // Вертикальный скролл (обычный или с Shift для горизонтального, если мышь поддерживает)
+                    // Р’РµСЂС‚РёРєР°Р»СЊРЅС‹Р№ СЃРєСЂРѕР»Р» (РѕР±С‹С‡РЅС‹Р№ РёР»Рё СЃ Shift РґР»СЏ РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕРіРѕ, РµСЃР»Рё РјС‹С€СЊ РїРѕРґРґРµСЂР¶РёРІР°РµС‚)
                     float delta = scrollEvent->delta * m_font->getLineSpacing(m_characterSize) * 1.5f;
                     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift)) {
                         m_scrollOffset.x = std::max(0.f, m_scrollOffset.x - delta);
@@ -89,14 +89,14 @@ public:
             }
         }
 
-        // 2. Обработка мыши (Клик, Отпускание, Выделение)
+        // 2. РћР±СЂР°Р±РѕС‚РєР° РјС‹С€Рё (РљР»РёРє, РћС‚РїСѓСЃРєР°РЅРёРµ, Р’С‹РґРµР»РµРЅРёРµ)
         if (auto* mouseBtnEvent = event.getIf<sf::Event::MouseButtonPressed>()) {
             if (globalBounds.contains(worldMousePos)) {
                 if (mouseBtnEvent->button == sf::Mouse::Button::Left) {
                     setActive(true);
                     m_isSelectingWithMouse = true;
 
-                    // Учитываем прокрутку при клике мышкой
+                    // РЈС‡РёС‚С‹РІР°РµРј РїСЂРѕРєСЂСѓС‚РєСѓ РїСЂРё РєР»РёРєРµ РјС‹С€РєРѕР№
                     sf::Vector2f scrolledMouse = trueLocalMouse + m_scrollOffset;
                     m_cursorIndex = findClosestCharIndex(scrolledMouse);
                     m_selectionStart = m_cursorIndex;
@@ -124,7 +124,7 @@ public:
             rebuildVertices();
         }
 
-        // 3. Обработка клавиатуры (Только если поле активно)
+        // 3. РћР±СЂР°Р±РѕС‚РєР° РєР»Р°РІРёР°С‚СѓСЂС‹ (РўРѕР»СЊРєРѕ РµСЃР»Рё РїРѕР»Рµ Р°РєС‚РёРІРЅРѕ)
         if (m_isActive) {
             if (auto* keyEvent = event.getIf<sf::Event::KeyPressed>()) {
                 bool ctrlPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LControl) ||
@@ -174,7 +174,7 @@ public:
                     return;
                 }
 
-                // Навигация
+                // РќР°РІРёРіР°С†РёСЏ
                 if (keyEvent->code == sf::Keyboard::Key::Left) {
                     if (shiftPressed) {
                         if (m_cursorIndex > 0) { m_cursorIndex--; m_selectionEnd = m_cursorIndex; }
@@ -241,7 +241,7 @@ public:
                     scrollToCursor();
                 }
                 else if (unicode >= 32 && unicode != 127) {
-                    // Текст
+                    // РўРµРєСЃС‚
                     deleteSelectedText();
                     m_string.insert(m_cursorIndex, sf::String(unicode));
                     m_cursorIndex++;
@@ -280,12 +280,12 @@ private:
            m_showCursor = true;
            m_cursorTimer = sf::Time::Zero;
        }
-       // Автоматическая подгонка ширины колонки номеров строк в зависимости от их количества
+       // РђРІС‚РѕРјР°С‚РёС‡РµСЃРєР°СЏ РїРѕРґРіРѕРЅРєР° С€РёСЂРёРЅС‹ РєРѕР»РѕРЅРєРё РЅРѕРјРµСЂРѕРІ СЃС‚СЂРѕРє РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РёС… РєРѕР»РёС‡РµСЃС‚РІР°
        void updateLineNumbersWidth(size_t totalLines) {
            int digits = 1;
            size_t temp = totalLines;
            while (temp /= 10) digits++;
-           // Примерно по 12 пикселей на цифру + отступы (минимум 40px)
+           // РџСЂРёРјРµСЂРЅРѕ РїРѕ 12 РїРёРєСЃРµР»РµР№ РЅР° С†РёС„СЂСѓ + РѕС‚СЃС‚СѓРїС‹ (РјРёРЅРёРјСѓРј 40px)
            m_lineNumbersWidth = std::max(40.f, digits * 12.f + 15.f);
            m_lineNumbersBackground.setSize({
             m_lineNumbersWidth, getSize().y }
@@ -296,7 +296,7 @@ private:
            m_charPositions.clear();
            m_lineNumbersVertices.clear();
            if (!m_font) return;
-           // Определяем динамическую ширину панели под нумерацию строк
+           // РћРїСЂРµРґРµР»СЏРµРј РґРёРЅР°РјРёС‡РµСЃРєСѓСЋ С€РёСЂРёРЅСѓ РїР°РЅРµР»Рё РїРѕРґ РЅСѓРјРµСЂР°С†РёСЋ СЃС‚СЂРѕРє
            size_t totalLines = 1;
            for (size_t i = 0;
                i < m_string.getSize();
@@ -304,7 +304,7 @@ private:
                if (m_string[i] == '\n') totalLines++;
            }
            updateLineNumbersWidth(totalLines);
-           // Текст начинается СРАЗУ после панели номеров строк
+           // РўРµРєСЃС‚ РЅР°С‡РёРЅР°РµС‚СЃСЏ РЎР РђР—РЈ РїРѕСЃР»Рµ РїР°РЅРµР»Рё РЅРѕРјРµСЂРѕРІ СЃС‚СЂРѕРє
            const float startX = m_lineNumbersWidth + 5.f;
            const float startY = 5.f;
            float xOffset = startX;
@@ -312,12 +312,12 @@ private:
            float lineSpacing = m_font->getLineSpacing(m_characterSize);
            m_charPositions.resize(m_string.getSize() + 1);
            m_charPositions[0] = { xOffset, yOffset };
-           // Сборка номеров строк (всегда генерируем первую строку)
+           // РЎР±РѕСЂРєР° РЅРѕРјРµСЂРѕРІ СЃС‚СЂРѕРє (РІСЃРµРіРґР° РіРµРЅРµСЂРёСЂСѓРµРј РїРµСЂРІСѓСЋ СЃС‚СЂРѕРєСѓ)
            size_t currentLineNum = 1;
            auto addLineNumberVertices = [&](size_t num, float y) {
                sf::String numStr = std::to_string(num);
                float numX = m_lineNumbersWidth - 10.f;
-               // Выравнивание по правому краю колонки
+               // Р’С‹СЂР°РІРЅРёРІР°РЅРёРµ РїРѕ РїСЂР°РІРѕРјСѓ РєСЂР°СЋ РєРѕР»РѕРЅРєРё
                for (int i = numStr.getSize() - 1; i >= 0; --i) {
                    char32_t c = numStr[i];
                    const sf::Glyph& glyph = m_font->getGlyph(c, m_characterSize, false);
@@ -331,7 +331,7 @@ private:
                    float u2 = u1 + static_cast<float>(glyph.textureRect.size.x);
                    float v2 = v1 + static_cast<float>(glyph.textureRect.size.y);
                    sf::Color numColor(120, 120, 120);
-                   // Серый цвет для номеров
+                   // РЎРµСЂС‹Р№ С†РІРµС‚ РґР»СЏ РЅРѕРјРµСЂРѕРІ
                    m_lineNumbersVertices.append(sf::Vertex({
                    left,  top }
                    , numColor, {
@@ -366,7 +366,7 @@ private:
            }
            ;
            addLineNumberVertices(currentLineNum, yOffset);
-           // Поддержка кириллицы через Юникод-конвертер UTF-8
+           // РџРѕРґРґРµСЂР¶РєР° РєРёСЂРёР»Р»РёС†С‹ С‡РµСЂРµР· Р®РЅРёРєРѕРґ-РєРѕРЅРІРµСЂС‚РµСЂ UTF-8
            sf::U8String utf8Str = m_string.toUtf8();
            std::string ansiStr(utf8Str.begin(), utf8Str.end());
            std::vector<sf::Color> textColors = m_highlighter.highlight(ansiStr);
@@ -446,7 +446,7 @@ private:
            }
            if (m_cursorIndex > m_string.getSize())  m_cursorIndex = m_string.getSize();
            m_cursor.setPosition(m_charPositions[m_cursorIndex]);
-           // Сборка полигонов выделения
+           // РЎР±РѕСЂРєР° РїРѕР»РёРіРѕРЅРѕРІ РІС‹РґРµР»РµРЅРёСЏ
            m_selectionVertices.clear();
            size_t start = std::min(m_selectionStart, m_selectionEnd);
            size_t end = std::max(m_selectionStart, m_selectionEnd);
@@ -485,12 +485,12 @@ private:
            }
            clampScroll();
        }
-       // Автоматическая корректировка камеры вслед за кареткой
+       // РђРІС‚РѕРјР°С‚РёС‡РµСЃРєР°СЏ РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° РєР°РјРµСЂС‹ РІСЃР»РµРґ Р·Р° РєР°СЂРµС‚РєРѕР№
        void scrollToCursor() {
            if (m_charPositions.empty()) return;
            sf::Vector2f cursorBox = m_charPositions[m_cursorIndex];
            float lineSpacing = m_font->getLineSpacing(m_characterSize);
-           // Горизонтальный скролл
+           // Р“РѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅС‹Р№ СЃРєСЂРѕР»Р»
            float minVisibleX = m_scrollOffset.x + m_lineNumbersWidth + 10.f;
            float maxVisibleX = m_scrollOffset.x + getSize().x - 20.f;
            if (cursorBox.x < minVisibleX) {
@@ -499,7 +499,7 @@ private:
            else if (cursorBox.x > maxVisibleX) {
                m_scrollOffset.x = cursorBox.x - getSize().x + 20.f;
            }
-           // Вертикальный скролл
+           // Р’РµСЂС‚РёРєР°Р»СЊРЅС‹Р№ СЃРєСЂРѕР»Р»
            float minVisibleY = m_scrollOffset.y + 5.f;
            float maxVisibleY = m_scrollOffset.y + getSize().y - lineSpacing - 5.f;
            if (cursorBox.y < minVisibleY) {
@@ -545,9 +545,9 @@ protected:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
     sf::RenderStates originalStates = states;
     states = prepareStates(states);
-    // Рисуем общий фон InputField (не подлежит скроллингу)
+    // Р РёСЃСѓРµРј РѕР±С‰РёР№ С„РѕРЅ InputField (РЅРµ РїРѕРґР»РµР¶РёС‚ СЃРєСЂРѕР»Р»РёРЅРіСѓ)
     target.draw(m_background, states);
-    // Настройка OpenGL Scissor-теста для отсечения текста, вылезающего за рамки
+    // РќР°СЃС‚СЂРѕР№РєР° OpenGL Scissor-С‚РµСЃС‚Р° РґР»СЏ РѕС‚СЃРµС‡РµРЅРёСЏ С‚РµРєСЃС‚Р°, РІС‹Р»РµР·Р°СЋС‰РµРіРѕ Р·Р° СЂР°РјРєРё
     bool scissorApplied = false;
     sf::Transform finalTransform = originalStates.transform * getTransform();
     sf::Vector2f mySize = getSize();
@@ -569,32 +569,32 @@ protected:
     else {
         return;
     }
-    // РЕНДЕРИНГ КОНТЕНТА С УЧЕТОМ СКРОЛЛА
+    // Р Р•РќР”Р•Р РРќР“ РљРћРќРўР•РќРўРђ РЎ РЈР§Р•РўРћРњ РЎРљР РћР›Р›Рђ
     sf::RenderStates scrolledStates = states;
-    // Смещаем матрицу рендеринга на вектор скролла (за исключением оси X для номеров строк)
+    // РЎРјРµС‰Р°РµРј РјР°С‚СЂРёС†Сѓ СЂРµРЅРґРµСЂРёРЅРіР° РЅР° РІРµРєС‚РѕСЂ СЃРєСЂРѕР»Р»Р° (Р·Р° РёСЃРєР»СЋС‡РµРЅРёРµРј РѕСЃРё X РґР»СЏ РЅРѕРјРµСЂРѕРІ СЃС‚СЂРѕРє)
     scrolledStates.transform.translate(-m_scrollOffset);
-    // 1. Отрисовка выделения (под текстом)
+    // 1. РћС‚СЂРёСЃРѕРІРєР° РІС‹РґРµР»РµРЅРёСЏ (РїРѕРґ С‚РµРєСЃС‚РѕРј)
     if (m_isActive && m_selectionStart != m_selectionEnd) {
         sf::RenderStates selectStates = scrolledStates;
         selectStates.texture = nullptr;
         target.draw(m_selectionVertices, selectStates);
     }
-    // 2. Отрисовка кода
+    // 2. РћС‚СЂРёСЃРѕРІРєР° РєРѕРґР°
     if (m_font) {
         scrolledStates.texture = &m_font->getTexture(m_characterSize);
         target.draw(m_vertices, scrolledStates);
     }
-    // 3. Отрисовка каретки курсора
+    // 3. РћС‚СЂРёСЃРѕРІРєР° РєР°СЂРµС‚РєРё РєСѓСЂСЃРѕСЂР°
     if (m_isActive && m_showCursor) {
         sf::RenderStates cursorStates = scrolledStates;
         cursorStates.texture = nullptr;
         target.draw(m_cursor, cursorStates);
     }
-    // РЕНДЕРИНГ ПАНЕЛИ НОМЕРОВ СТРОК (она скроллится только по VERTICAL, по HORIZONTAL зафиксирована)
+    // Р Р•РќР”Р•Р РРќР“ РџРђРќР•Р›Р РќРћРњР•Р РћР’ РЎРўР РћРљ (РѕРЅР° СЃРєСЂРѕР»Р»РёС‚СЃСЏ С‚РѕР»СЊРєРѕ РїРѕ VERTICAL, РїРѕ HORIZONTAL Р·Р°С„РёРєСЃРёСЂРѕРІР°РЅР°)
     sf::RenderStates lineNumStates = states;
     target.draw(m_lineNumbersBackground, lineNumStates);
-    // Статичный фон колонки
-    // Применяем вертикальный скролл к цифрам номеров строк
+    // РЎС‚Р°С‚РёС‡РЅС‹Р№ С„РѕРЅ РєРѕР»РѕРЅРєРё
+    // РџСЂРёРјРµРЅСЏРµРј РІРµСЂС‚РёРєР°Р»СЊРЅС‹Р№ СЃРєСЂРѕР»Р» Рє С†РёС„СЂР°Рј РЅРѕРјРµСЂРѕРІ СЃС‚СЂРѕРє
     lineNumStates.transform.translate({
     0.f, -m_scrollOffset.y }
     );
@@ -625,17 +625,17 @@ private:
        size_t m_selectionStart = 0;
        size_t m_selectionEnd = 0;
        bool m_isSelectingWithMouse = false;
-       // НОВЫЕ ПОЛЯ ДЛЯ СКРОЛЛИНГА И НУМЕРАЦИИ
+       // РќРћР’Р«Р• РџРћР›РЇ Р”Р›РЇ РЎРљР РћР›Р›РРќР“Рђ Р РќРЈРњР•Р РђР¦РР
        sf::Vector2f m_scrollOffset;
-       // Текущее смещение камеры (x - горизонтальное, y - вертикальное)
+       // РўРµРєСѓС‰РµРµ СЃРјРµС‰РµРЅРёРµ РєР°РјРµСЂС‹ (x - РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕРµ, y - РІРµСЂС‚РёРєР°Р»СЊРЅРѕРµ)
        sf::Vector2f m_contentSize;
-       // Реальный геометрический размер всего текста в пикселях
+       // Р РµР°Р»СЊРЅС‹Р№ РіРµРѕРјРµС‚СЂРёС‡РµСЃРєРёР№ СЂР°Р·РјРµСЂ РІСЃРµРіРѕ С‚РµРєСЃС‚Р° РІ РїРёРєСЃРµР»СЏС…
        float m_lineNumbersWidth;
-       // Текущая ширина колонки номеров строк
+       // РўРµРєСѓС‰Р°СЏ С€РёСЂРёРЅР° РєРѕР»РѕРЅРєРё РЅРѕРјРµСЂРѕРІ СЃС‚СЂРѕРє
        sf::RectangleShape m_lineNumbersBackground;
-       // Фон для левой колонки номеров
+       // Р¤РѕРЅ РґР»СЏ Р»РµРІРѕР№ РєРѕР»РѕРЅРєРё РЅРѕРјРµСЂРѕРІ
        sf::VertexArray m_lineNumbersVertices;
-       // Текстурированные полигоны для цифр номеров строк
+       // РўРµРєСЃС‚СѓСЂРёСЂРѕРІР°РЅРЅС‹Рµ РїРѕР»РёРіРѕРЅС‹ РґР»СЏ С†РёС„СЂ РЅРѕРјРµСЂРѕРІ СЃС‚СЂРѕРє
        sf::String getSelectedText() const {
            size_t start = std::min(m_selectionStart, m_selectionEnd);
            size_t end = std::max(m_selectionStart, m_selectionEnd);

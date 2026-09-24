@@ -4,7 +4,7 @@
 
 class BaseObject : public sf::Drawable, public sf::Transformable {
 public:
-    // Перечисление для сторон и углов привязки
+    // РџРµСЂРµС‡РёСЃР»РµРЅРёРµ РґР»СЏ СЃС‚РѕСЂРѕРЅ Рё СѓРіР»РѕРІ РїСЂРёРІСЏР·РєРё
     enum class Anchor {
         TopLeft, TopCenter, TopRight,
         CenterLeft, Center, CenterRight,
@@ -13,26 +13,26 @@ public:
 
     BaseObject(std::string name,
         sf::Vector2f size,
-        sf::Vector2f parentSize, // Размеры родителя (объекта или окна)
-        sf::Vector2f offset = sf::Vector2f(0.f, 0.f), // Смещение относительно точки привязки
-        Anchor parentAnchor = Anchor::TopLeft,        // Точка на родителе
-        Anchor localAnchor = Anchor::TopLeft,         // Точка на самом объекте
+        sf::Vector2f parentSize, // Р Р°Р·РјРµСЂС‹ СЂРѕРґРёС‚РµР»СЏ (РѕР±СЉРµРєС‚Р° РёР»Рё РѕРєРЅР°)
+        sf::Vector2f offset = sf::Vector2f(0.f, 0.f), // РЎРјРµС‰РµРЅРёРµ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ С‚РѕС‡РєРё РїСЂРёРІСЏР·РєРё
+        Anchor parentAnchor = Anchor::TopLeft,        // РўРѕС‡РєР° РЅР° СЂРѕРґРёС‚РµР»Рµ
+        Anchor localAnchor = Anchor::TopLeft,         // РўРѕС‡РєР° РЅР° СЃР°РјРѕРј РѕР±СЉРµРєС‚Рµ
         float rotation = 0.f,
         sf::Vector2f scale = sf::Vector2f(1.f, 1.f))
         : name(name), m_size(size), m_shader(nullptr)
     {
-        // 1. Находим мировые координаты точки привязки на родителе
+        // 1. РќР°С…РѕРґРёРј РјРёСЂРѕРІС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ С‚РѕС‡РєРё РїСЂРёРІСЏР·РєРё РЅР° СЂРѕРґРёС‚РµР»Рµ
         sf::Vector2f parentAnchorPos = calculateAnchorPosition(parentAnchor, parentSize);
 
-        // 2. Находим локальные координаты точки привязки внутри самого объекта
+        // 2. РќР°С…РѕРґРёРј Р»РѕРєР°Р»СЊРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ С‚РѕС‡РєРё РїСЂРёРІСЏР·РєРё РІРЅСѓС‚СЂРё СЃР°РјРѕРіРѕ РѕР±СЉРµРєС‚Р°
         sf::Vector2f localAnchorPos = calculateAnchorPosition(localAnchor, m_size);
 
-        // 3. Вычисляем итоговую позицию левого верхнего угла (глобальный Origin) объекта
-        // Позиция = Точка_Родителя + Смещение - Точка_Объекта
+        // 3. Р’С‹С‡РёСЃР»СЏРµРј РёС‚РѕРіРѕРІСѓСЋ РїРѕР·РёС†РёСЋ Р»РµРІРѕРіРѕ РІРµСЂС…РЅРµРіРѕ СѓРіР»Р° (РіР»РѕР±Р°Р»СЊРЅС‹Р№ Origin) РѕР±СЉРµРєС‚Р°
+        // РџРѕР·РёС†РёСЏ = РўРѕС‡РєР°_Р РѕРґРёС‚РµР»СЏ + РЎРјРµС‰РµРЅРёРµ - РўРѕС‡РєР°_РћР±СЉРµРєС‚Р°
         sf::Vector2f finalPosition = parentAnchorPos + offset - localAnchorPos;
 
         setPosition(finalPosition);
-        setRotation(sf::degrees(rotation)); // В SFML 3.x используется sf::Angle
+        setRotation(sf::degrees(rotation)); // Р’ SFML 3.x РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ sf::Angle
         setScale(scale);
     }
 
@@ -48,7 +48,7 @@ public:
         m_shader = shader;
     }
 
-    // Возвращаем неконстантный указатель
+    // Р’РѕР·РІСЂР°С‰Р°РµРј РЅРµРєРѕРЅСЃС‚Р°РЅС‚РЅС‹Р№ СѓРєР°Р·Р°С‚РµР»СЊ
     sf::Shader* getShader() const {
         return m_shader;
     }
@@ -58,7 +58,7 @@ protected:
 
     sf::RenderStates prepareStates(sf::RenderStates states) const {
         states.transform *= getTransform();
-        states.shader = m_shader; // sf::RenderStates::shader в SFML принимает const sf::Shader*, так что это сработает
+        states.shader = m_shader; // sf::RenderStates::shader РІ SFML РїСЂРёРЅРёРјР°РµС‚ const sf::Shader*, С‚Р°Рє С‡С‚Рѕ СЌС‚Рѕ СЃСЂР°Р±РѕС‚Р°РµС‚
         return states;
     }
 
@@ -67,7 +67,7 @@ private:
     sf::Vector2f m_size;
     sf::Shader* m_shader;
 
-    // Вспомогательный метод для расчета координат точки привязки относительно прямоугольника (размера)
+    // Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Р№ РјРµС‚РѕРґ РґР»СЏ СЂР°СЃС‡РµС‚Р° РєРѕРѕСЂРґРёРЅР°С‚ С‚РѕС‡РєРё РїСЂРёРІСЏР·РєРё РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР° (СЂР°Р·РјРµСЂР°)
     sf::Vector2f calculateAnchorPosition(Anchor anchor, sf::Vector2f size) const {
         switch (anchor) {
         case Anchor::TopLeft:      return { 0.f, 0.f };
