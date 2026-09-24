@@ -14,7 +14,7 @@ set(SFML_DIR "C:/lib/SFML-3.1.0/lib/cmake/SFML")
 find_package(SFML 3 COMPONENTS Graphics Window System Audio REQUIRED)
 find_package(OpenGL REQUIRED)
 
-add_executable(${PROJECT_NAME} "ProcessorEmulator.cpp" "ProcessorEmulator.h" "ResourceManager.h" "ResourceManager.cpp" "SFML/BaseObject.h" "SFML/Button.h" "SFML/Image.h" "SFML/Text.h" "SFML/Panel.h" "SFML/Utilites/SFMLUtility.cpp" "SFML/Utilites/SFMLUtility.h" "SFML/InputField.h")
+add_executable(${PROJECT_NAME} "ProcessorEmulator.cpp" "ProcessorEmulator.h" "ResourceManager.h" "ResourceManager.cpp" "SFML/BaseObject.h" "SFML/Button.h" "SFML/Image.h" "SFML/Text.h" "SFML/Panel.h" "SFML/Utilites/SFMLUtility.cpp" "SFML/Utilites/SFMLUtility.h" "SFML/InputField.h" "SFML/SyntaxHighlighter.h")
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics SFML::Window SFML::Audio SFML::System)
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics OpenGL::GL)
@@ -41,5 +41,13 @@ if(WIN32)
         "${CMAKE_CURRENT_SOURCE_DIR}/SFML/Shaders"
         "$<TARGET_FILE_DIR:${PROJECT_NAME}>/SFML/Shaders"
         COMMENT "Синхронизация папки SFML/Shaders..."
+    )
+
+    # Автоматическое копирование всей папки SFML/ColorConfigs в выходную директорию
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_CURRENT_SOURCE_DIR}/SFML/ColorConfigs"
+        "$<TARGET_FILE_DIR:${PROJECT_NAME}>/SFML/ColorConfigs"
+        COMMENT "Синхронизация папки SFML/ColorConfigs..."
     )
 endif()
