@@ -14,7 +14,7 @@ struct SyntaxRule {
     sf::Color color;
 
     SyntaxRule(const std::string& pattern, sf::Color col)
-        : regex(pattern, std::regex_constants::optimize), color(col) {
+        : regex(pattern, std::regex_constants::optimize | std::regex_constants::icase), color(col) {
     }
 };
 

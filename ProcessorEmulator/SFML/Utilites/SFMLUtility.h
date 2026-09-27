@@ -9,4 +9,5 @@
 namespace SFMLUtility {
 	sf::Vector2f CastVector2iToFloat(sf::Vector2i in);
 	sf::Vector2f CastVector2uToFloat(sf::Vector2u in);
+	sf::String operator""_sf(const char* str, std::size_t size);
 }

@@ -11,13 +11,14 @@ int main()
 
     ResourceManager resources;
 
-    const sf::Texture& backgroundTexture = resources.GetTexture("Assets/Sprites/ad 3.png");
+    const sf::Texture& backgroundTexture = resources.GetTexture("Assets/Sprites/background.png");
 
     const sf::Texture& buttonTexture = resources.GetTexture("Assets/Sprites/ButtonTexture.png");
     const sf::Texture& infoButtonTexture = resources.GetTexture("Assets/Sprites/infoButtonSprite.png");
 
     const sf::Font& textFont = resources.GetFont("Assets/Fonts/Rubik-Medium.ttf");
     const sf::Font& codeFont = resources.GetFont("Assets/Fonts/Courier-New.ttf");
+    const sf::Font& registerFont = resources.GetFont("Assets/Fonts/Seven Segment.ttf");
 
     sf::Music& bgMusic = resources.GetMusic("Assets/Sounds/background-music.mp3");
     bgMusic.setLooping(true);
@@ -85,7 +86,7 @@ int main()
         "header",
         textFont,
         panel->getSize(),
-        L"Эмулятор процессора",
+        "Эмулятор процессора"_sf,
         18,
         sf::Vector2f(10.f, 0.f),
         BaseObject::Anchor::CenterLeft,
@@ -107,6 +108,15 @@ int main()
         sf::Vector2f(10.f, 46.f)
     );
 
+    std::shared_ptr<InputField> codeField = std::make_shared<InputField>(
+        "codeField",
+        sf::Vector2f(460.f, 500.f),
+        codePanel->getSize(),
+        codeFont,
+        18,
+        sf::Vector2f(0.f, 44.f)
+    );
+
     std::shared_ptr<Button> saveCodeButton = std::make_shared<Button>("saveCodeButton",
         sf::Vector2f(24.f, 24.f),
         codePanel->getSize(),
@@ -118,6 +128,34 @@ int main()
     );
     saveCodeButton->setShader(&shader);
     saveCodeButton->SetOnClickSound(&clickSound);
+    saveCodeButton->SetOnClickAction([&window, &codeField]() {
+        // Используем pfd::save_file вместо pfd::open_file
+        auto dialog = pfd::save_file("Сохранить как...", ".",
+            { "Кастомный ассемблерный код (*.asmb)", "*.asmb",
+              "Все файлы", "*" });
+
+        if (!dialog.result().empty()) {
+            std::string filePath = dialog.result(); // pfd::save_file возвращает std::string, а не std::vector
+
+            // Проверяем, ввёл ли пользователь расширение .asmb, и добавляем его при необходимости
+            if (filePath.size() < 5 || filePath.substr(filePath.size() - 5) != ".asmb") {
+                filePath += ".asmb";
+            }
+
+            std::cout << "[saveCodeButton] Выбран файл для сохранения: " << filePath << std::endl;
+
+            std::ofstream file(filePath);
+
+            if (!file.is_open()) {
+                std::cerr << "[saveCodeButton] " << std::strerror(errno) << " for path: " << filePath << std::endl;
+                return;
+            }
+
+            file << codeField->getTextString();
+            file.close();
+        }
+    });
+
 
     std::shared_ptr<Button> loadCodeButton = std::make_shared<Button>("loadCodeButton",
         sf::Vector2f(24.f, 24.f),
@@ -130,25 +168,37 @@ int main()
     );
     loadCodeButton->setShader(&shader);
     loadCodeButton->SetOnClickSound(&clickSound);
+    loadCodeButton->SetOnClickAction([&window, &codeField]() {
+        auto dialog = pfd::open_file("Выберите файл для загрузки", ".",
+            { "Кастомный ассемблерный код (*.asmb)", "*.asmb",
+              "Все файлы", "*" });
+
+        if (!dialog.result().empty()) {
+            std::string filePath = dialog.result()[0];
+            std::cout << "[loadCodeButton] Выбран файл для загрузки: " << filePath << std::endl;
+            
+            std::ifstream file(filePath);
+
+            if (!file.is_open()) {
+                std::cerr << "[loadCodeButton] Unable to read file " << filePath << std::endl;
+                return;
+            }
+
+            std::string fileContent = std::string(std::istreambuf_iterator<char>(file),
+                std::istreambuf_iterator<char>());
+            codeField->setTextString(fileContent);
+        }
+    });
 
     std::shared_ptr<Text> codePanelHeader = std::make_shared<Text>(
-        "header",
+        "codeHeader",
         textFont,
         codePanel->getSize(),
-        L"Код",
+        "Код"_sf,
         18,
-        sf::Vector2f(10.f, 22.f),
+        sf::Vector2f(10.f, 18.f),
         BaseObject::Anchor::TopLeft,
         BaseObject::Anchor::CenterLeft
-    );
-
-    std::shared_ptr<InputField> codeField = std::make_shared<InputField>(
-        "codeField",
-        sf::Vector2f(460.f, 500.f),
-        codePanel->getSize(),
-        codeFont,
-        18,
-        sf::Vector2f(0.f, 44.f)
     );
 
     codePanel->addObject(codePanelHeader);
@@ -156,6 +206,336 @@ int main()
     codePanel->addObject(loadCodeButton);
     codePanel->addObject(codeField);
     // code panel - end
+
+    // registers panel - start
+    std::shared_ptr<Panel> registerPanel = std::make_shared<Panel>(
+        "registerPanel",
+        sf::Vector2f(460.f, 544.f),
+        windowSizeFloat,
+        sf::Vector2f(0.f, 46.f),
+        BaseObject::Anchor::TopCenter,
+        BaseObject::Anchor::TopCenter
+    );
+
+    std::shared_ptr<RegisterContainer> outRegister = std::make_shared<RegisterContainer>(
+        "registerContainerOut",
+        "OUT",
+        registerFont,
+        18,
+        registerPanel->getSize(),
+        sf::Vector2f(-24.f, 43.f),
+        BaseObject::Anchor::TopCenter,
+        BaseObject::Anchor::TopCenter
+    );
+
+    std::shared_ptr<RegisterContainer> irRegister = std::make_shared<RegisterContainer>(
+        "registerContainerIR",
+        "IR",
+        registerFont,
+        18,
+        registerPanel->getSize(),
+        sf::Vector2f(-24.f, 74.f),
+        BaseObject::Anchor::TopCenter,
+        BaseObject::Anchor::TopCenter
+    );
+
+    std::shared_ptr<RegisterContainer> marRegister = std::make_shared<RegisterContainer>(
+        "registerContainerMar",
+        "MAR",
+        registerFont,
+        18,
+        registerPanel->getSize(),
+        sf::Vector2f(-24.f, 105.f),
+        BaseObject::Anchor::TopCenter,
+        BaseObject::Anchor::TopCenter
+    );
+
+    std::shared_ptr<RegisterContainer> mdrRegister = std::make_shared<RegisterContainer>(
+        "registerContainerMdr",
+        "MDR",
+        registerFont,
+        18,
+        registerPanel->getSize(),
+        sf::Vector2f(-24.f, 136.f),
+        BaseObject::Anchor::TopCenter,
+        BaseObject::Anchor::TopCenter
+    );
+
+    std::shared_ptr<RegisterContainer> acRegister = std::make_shared<RegisterContainer>(
+        "registerContainerAc",
+        "AC",
+        registerFont,
+        18,
+        registerPanel->getSize(),
+        sf::Vector2f(-24.f, 167.f),
+        BaseObject::Anchor::TopCenter,
+        BaseObject::Anchor::TopCenter
+    );
+
+    std::shared_ptr<RegisterContainer> pcRegister = std::make_shared<RegisterContainer>(
+        "registerContainerPc",
+        "PC",
+        registerFont,
+        18,
+        registerPanel->getSize(),
+        sf::Vector2f(-24.f, 201.f),
+        BaseObject::Anchor::TopCenter,
+        BaseObject::Anchor::TopCenter
+    );
+
+    std::shared_ptr<Text> registerPanelHeader = std::make_shared<Text>(
+        "registerHeader",
+        textFont,
+        registerPanel->getSize(),
+        "Текущее состояние процессора"_sf,
+        18,
+        sf::Vector2f(10.f, 18.f),
+        BaseObject::Anchor::TopLeft,
+        BaseObject::Anchor::CenterLeft
+    );
+
+    registerPanel->addObject(outRegister);
+    registerPanel->addObject(irRegister);
+    registerPanel->addObject(marRegister);
+    registerPanel->addObject(mdrRegister);
+    registerPanel->addObject(acRegister);
+    registerPanel->addObject(pcRegister);
+    registerPanel->addObject(registerPanelHeader);
+    // registers panel - end
+
+    // current command - start
+    std::shared_ptr<Panel> currentCommandPanel = std::make_shared<Panel>(
+        "currentCommandPanel",
+        sf::Vector2f(460.f, 544.f),
+        windowSizeFloat,
+        sf::Vector2f(-10.f, 46.f),
+        BaseObject::Anchor::TopRight,
+        BaseObject::Anchor::TopRight
+    );
+
+    std::shared_ptr<Text> currentCommandHeader = std::make_shared<Text>(
+        "currentCommandHeader",
+        textFont,
+        currentCommandPanel->getSize(),
+        "Текущая команда"_sf,
+        18,
+        sf::Vector2f(10.f, 18.f),
+        BaseObject::Anchor::TopLeft,
+        BaseObject::Anchor::CenterLeft
+    );
+
+    std::shared_ptr<Text> ccMachineCodeKey = std::make_shared<Text>(
+        "ccMachineCodeKey",
+        textFont,
+        currentCommandPanel->getSize(),
+        "Машинный код"_sf,
+        14,
+        sf::Vector2f(10.f, 46.f),
+        BaseObject::Anchor::TopLeft,
+        BaseObject::Anchor::TopLeft
+    );
+
+    std::shared_ptr<Text> ccAssemblerCommandKey = std::make_shared<Text>(
+        "ccAssemblerCommandKey",
+        textFont,
+        currentCommandPanel->getSize(),
+        "Команда ассемблера"_sf,
+        14,
+        sf::Vector2f(10.f, 66.f),
+        BaseObject::Anchor::TopLeft,
+        BaseObject::Anchor::TopLeft
+    );
+
+    std::shared_ptr<Text> ccAssemblerDecodedHeader = std::make_shared<Text>(
+        "ccAssemblerDecodedHeader",
+        textFont,
+        currentCommandPanel->getSize(),
+        "Расшифровка команды:"_sf,
+        14,
+        sf::Vector2f(10.f, 106.f),
+        BaseObject::Anchor::TopLeft,
+        BaseObject::Anchor::TopLeft
+    );
+
+    std::shared_ptr<Text> ccAssemblerOperationKey = std::make_shared<Text>(
+        "ccAssemblerOperationKey",
+        textFont,
+        currentCommandPanel->getSize(),
+        "Операция ассемблера"_sf,
+        14,
+        sf::Vector2f(10.f, 131.f),
+        BaseObject::Anchor::TopLeft,
+        BaseObject::Anchor::TopLeft
+    );
+
+    std::shared_ptr<Text> ccDestinationKey = std::make_shared<Text>(
+        "ccDestinationKey",
+        textFont,
+        currentCommandPanel->getSize(),
+        "Запись"_sf,
+        14,
+        sf::Vector2f(10.f, 151.f),
+        BaseObject::Anchor::TopLeft,
+        BaseObject::Anchor::TopLeft
+    );
+
+    std::shared_ptr<Text> ccOpAKey = std::make_shared<Text>(
+        "ccOpAKey",
+        textFont,
+        currentCommandPanel->getSize(),
+        "Операнд А"_sf,
+        14,
+        sf::Vector2f(10.f, 171.f),
+        BaseObject::Anchor::TopLeft,
+        BaseObject::Anchor::TopLeft
+    );
+
+    std::shared_ptr<Text> ccOpBKey = std::make_shared<Text>(
+        "ccOpBKey",
+        textFont,
+        currentCommandPanel->getSize(),
+        "Операнд B"_sf,
+        14,
+        sf::Vector2f(10.f, 191.f),
+        BaseObject::Anchor::TopLeft,
+        BaseObject::Anchor::TopLeft
+    );
+
+    std::shared_ptr<Text> ccOpAddrKey = std::make_shared<Text>(
+        "ccOpAddrKey",
+        textFont,
+        currentCommandPanel->getSize(),
+        "Адрес"_sf,
+        14,
+        sf::Vector2f(10.f, 211.f),
+        BaseObject::Anchor::TopLeft,
+        BaseObject::Anchor::TopLeft
+    );
+
+    std::shared_ptr<Text> ccDescriptionKey = std::make_shared<Text>(
+        "ccDescriptionKey",
+        textFont,
+        currentCommandPanel->getSize(),
+        "Описание:"_sf,
+        14,
+        sf::Vector2f(10.f, 251.f),
+        BaseObject::Anchor::TopLeft,
+        BaseObject::Anchor::TopLeft
+    );
+
+    // values
+
+    std::shared_ptr<Text> ccMachineCodeValue = std::make_shared<Text>(
+        "ccMachineCodeValue",
+        textFont,
+        currentCommandPanel->getSize(),
+        "0000 0000 0000 0000"_sf,
+        14,
+        sf::Vector2f(10.f, 46.f),
+        BaseObject::Anchor::TopCenter,
+        BaseObject::Anchor::TopLeft
+    );
+
+    std::shared_ptr<Text> ccAssemblerCommandValue = std::make_shared<Text>(
+        "ccAssemblerCommandValue",
+        textFont,
+        currentCommandPanel->getSize(),
+        "STOR"_sf,
+        14,
+        sf::Vector2f(10.f, 66.f),
+        BaseObject::Anchor::TopCenter,
+        BaseObject::Anchor::TopLeft
+    );
+
+    std::shared_ptr<Text> ccAssemblerOperationValue = std::make_shared<Text>(
+        "ccAssemblerOperationValue",
+        textFont,
+        currentCommandPanel->getSize(),
+        "MOV"_sf,
+        14,
+        sf::Vector2f(10.f, 131.f),
+        BaseObject::Anchor::TopCenter,
+        BaseObject::Anchor::TopLeft
+    );
+
+    std::shared_ptr<Text> ccDestinationValue = std::make_shared<Text>(
+        "ccDestinationValue",
+        textFont,
+        currentCommandPanel->getSize(),
+        "Запись"_sf,
+        14,
+        sf::Vector2f(10.f, 151.f),
+        BaseObject::Anchor::TopCenter,
+        BaseObject::Anchor::TopLeft
+    );
+
+    std::shared_ptr<Text> ccOpAValue = std::make_shared<Text>(
+        "ccOpAValue",
+        textFont,
+        currentCommandPanel->getSize(),
+        "Операнд А"_sf,
+        14,
+        sf::Vector2f(10.f, 171.f),
+        BaseObject::Anchor::TopCenter,
+        BaseObject::Anchor::TopLeft
+    );
+
+    std::shared_ptr<Text> ccOpBValue = std::make_shared<Text>(
+        "ccOpBValue",
+        textFont,
+        currentCommandPanel->getSize(),
+        "Операнд B"_sf,
+        14,
+        sf::Vector2f(10.f, 191.f),
+        BaseObject::Anchor::TopCenter,
+        BaseObject::Anchor::TopLeft
+    );
+
+    std::shared_ptr<Text> ccOpAddrValue = std::make_shared<Text>(
+        "ccOpAddrValue",
+        textFont,
+        currentCommandPanel->getSize(),
+        "Адрес"_sf,
+        14,
+        sf::Vector2f(10.f, 211.f),
+        BaseObject::Anchor::TopCenter,
+        BaseObject::Anchor::TopLeft
+    );
+
+    std::shared_ptr<Text> ccDescriptionValue = std::make_shared<Text>(
+        "ccDescriptionValue",
+        textFont,
+        currentCommandPanel->getSize(),
+        "Команда JMP записывает значение A в регистр PC,\n\
+позволяя таким образом реализовать условные\n\
+переходы между блоками программы."_sf,
+        14,
+        sf::Vector2f(10.f, 271.f),
+        BaseObject::Anchor::TopLeft,
+        BaseObject::Anchor::TopLeft
+    );
+
+    currentCommandPanel->addObject(currentCommandHeader);
+    currentCommandPanel->addObject(ccMachineCodeKey);
+    currentCommandPanel->addObject(ccAssemblerCommandKey);
+    currentCommandPanel->addObject(ccAssemblerDecodedHeader);
+    currentCommandPanel->addObject(ccAssemblerOperationKey);
+    currentCommandPanel->addObject(ccDestinationKey);
+    currentCommandPanel->addObject(ccOpAKey);
+    currentCommandPanel->addObject(ccOpBKey);
+    currentCommandPanel->addObject(ccOpAddrKey);
+    currentCommandPanel->addObject(ccDescriptionKey);
+
+
+    currentCommandPanel->addObject(ccMachineCodeValue);
+    currentCommandPanel->addObject(ccAssemblerCommandValue);
+    currentCommandPanel->addObject(ccAssemblerOperationValue);
+    currentCommandPanel->addObject(ccDestinationValue);
+    currentCommandPanel->addObject(ccOpAValue);
+    currentCommandPanel->addObject(ccOpBValue);
+    currentCommandPanel->addObject(ccOpAddrValue);
+    currentCommandPanel->addObject(ccDescriptionValue);
+    // current command - end
 
     sf::Clock clock;
     while (window.isOpen())
@@ -173,16 +553,22 @@ int main()
 
             panel->checkForEvents(*event, window, mousePosFloat);
             codePanel->checkForEvents(*event, window, mousePosFloat);
+            registerPanel->checkForEvents(*event, window, mousePosFloat);
+            currentCommandPanel->checkForEvents(*event, window, mousePosFloat);
         }
         
         sf::Time deltaTime = clock.restart();
         panel->update(deltaTime);
         codePanel->update(deltaTime);
+        registerPanel->update(deltaTime);
+        currentCommandPanel->update(deltaTime);
         
         window.clear();
         window.draw(bgSprite);
         window.draw(*panel);
         window.draw(*codePanel);
+        window.draw(*registerPanel);
+        window.draw(*currentCommandPanel);
         window.display();
     }
 

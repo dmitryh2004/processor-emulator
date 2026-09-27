@@ -15,7 +15,10 @@
 #include "SFML/Text.h"
 #include "SFML/Panel.h"
 #include "SFML/InputField.h"
+#include "SFML/RegisterContainer.h"
 
 #include "SFML/Utilites/SFMLUtility.h"
+#include "SFML/PortableFileDialogs.h"
 
+using namespace SFMLUtility;
 // TODO: установите здесь ссылки на дополнительные заголовки, требующиеся для программы.

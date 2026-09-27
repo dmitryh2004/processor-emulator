@@ -13,8 +13,8 @@ public:
         Anchor localAnchor = Anchor::TopLeft,
         float rotation = 0.f,
         sf::Vector2f scale = sf::Vector2f(1.f, 1.f))
-        // Размер текста динамический, поэтому в конструктор базы передаем (0, 0)
-        : BaseObject(name, sf::Vector2f(0.f, 0.f), parentSize, offset, parentAnchor, localAnchor, rotation, scale),
+        // Размер текста динамический, поэтому в конструктор базы передаем (0, characterSize)
+        : BaseObject(name, sf::Vector2f(0.f, characterSize), parentSize, offset, parentAnchor, localAnchor, rotation, scale),
         m_text(font)
     {
         m_text.setString(string);
