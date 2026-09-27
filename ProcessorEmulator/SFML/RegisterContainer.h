@@ -14,6 +14,7 @@ public:
         const sf::Font& font,
         unsigned int characterSize,
         sf::Vector2f parentSize,
+        sf::Color color = sf::Color::White,
         sf::Vector2f offset = { 0.f, 0.f },
         Anchor parentAnchor = Anchor::TopLeft,
         Anchor localAnchor = Anchor::TopLeft)
@@ -30,19 +31,19 @@ public:
 
         // 1. Имя регистра
         m_textName = std::make_unique<Text>(
-            name + "_lbl", font, getSize(), regName, characterSize,
+            name + "_lbl", font, getSize(), regName, characterSize, color,
             sf::Vector2f(5.f, 0.f), Anchor::CenterLeft, Anchor::CenterLeft
         );
 
         // 2. HEX значение
         m_textHex = std::make_unique<Text>(
-            name + "_hex", font, getSize(), "0x00000000", characterSize,
+            name + "_hex", font, getSize(), "0x00000000", characterSize, color,
             sf::Vector2f(51.f, 0.f), Anchor::CenterLeft, Anchor::CenterLeft
         );
 
         // 3. DEC значение
         m_textDec = std::make_unique<Text>(
-            name + "_dec", font, getSize(), "0", characterSize,
+            name + "_dec", font, getSize(), "0", characterSize, color,
             sf::Vector2f(176.f, 0.f), Anchor::CenterLeft, Anchor::CenterLeft
         );
 

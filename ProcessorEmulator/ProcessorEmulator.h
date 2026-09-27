@@ -5,6 +5,8 @@
 
 #include <iostream>
 #include <optional>
+#include <filesystem>
+#include <clocale>
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>

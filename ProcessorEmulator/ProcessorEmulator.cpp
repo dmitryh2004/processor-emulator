@@ -3,15 +3,24 @@
 
 int main()
 {
+    // initialization - start
+    std::setlocale(LC_ALL, ".UTF-8"); // настройка консоли на отображение сообщений в utf-8
+
     sf::RenderWindow window(sf::VideoMode({ 1440, 900 }), "SFML window", sf::Style::Titlebar | sf::Style::Close);
     window.setSize(sf::Vector2u(1440, 900));
     window.setFramerateLimit(60);
 
     sf::Vector2f windowSizeFloat = SFMLUtility::CastVector2uToFloat(window.getSize());
 
+    sf::Color registerTextColor = sf::Color::Color(0, 192, 0);
+    sf::Color registerTextColorModified = sf::Color::Color(0, 255, 0);
+
+    sf::Color ccTextColor = sf::Color::Color(0, 128, 0);
+
+    // resource initialization - start
     ResourceManager resources;
 
-    const sf::Texture& backgroundTexture = resources.GetTexture("Assets/Sprites/background.png");
+    const sf::Texture& backgroundTexture = resources.GetTexture("Assets/Sprites/background alpha.png");
 
     const sf::Texture& buttonTexture = resources.GetTexture("Assets/Sprites/ButtonTexture.png");
     const sf::Texture& infoButtonTexture = resources.GetTexture("Assets/Sprites/infoButtonSprite.png");
@@ -27,6 +36,9 @@ int main()
     sf::Sound clickSound(resources.GetSoundBuffer("Assets/Sounds/click-sound.mp3"));
 
     sf::Shader& shader = resources.GetShader("SFML/Shaders/BaseShader.frag", sf::Shader::Type::Fragment);
+
+    // resource initialization - end
+    // initialization - end
 
     // background sprite
     Image bgSprite = Image("bgSprite", sf::Vector2f(1440.f, 900.f), backgroundTexture, windowSizeFloat);
@@ -82,18 +94,6 @@ int main()
     stopButton->setShader(&shader);
     stopButton->SetOnClickSound(&clickSound);
 
-    std::shared_ptr<Text> header = std::make_shared<Text>(
-        "header",
-        textFont,
-        panel->getSize(),
-        "Эмулятор процессора"_sf,
-        18,
-        sf::Vector2f(10.f, 0.f),
-        BaseObject::Anchor::CenterLeft,
-        BaseObject::Anchor::CenterLeft
-    );
-
-    panel->addObject(header);
     panel->addObject(infoButton);
     panel->addObject(startButton);
     panel->addObject(stepButton);
@@ -110,11 +110,11 @@ int main()
 
     std::shared_ptr<InputField> codeField = std::make_shared<InputField>(
         "codeField",
-        sf::Vector2f(460.f, 500.f),
+        sf::Vector2f(447.f, 493.f),
         codePanel->getSize(),
         codeFont,
         18,
-        sf::Vector2f(0.f, 44.f)
+        sf::Vector2f(8.f, 44.f)
     );
 
     std::shared_ptr<Button> saveCodeButton = std::make_shared<Button>("saveCodeButton",
@@ -129,25 +129,28 @@ int main()
     saveCodeButton->setShader(&shader);
     saveCodeButton->SetOnClickSound(&clickSound);
     saveCodeButton->SetOnClickAction([&window, &codeField]() {
-        // Используем pfd::save_file вместо pfd::open_file
         auto dialog = pfd::save_file("Сохранить как...", ".",
             { "Кастомный ассемблерный код (*.asmb)", "*.asmb",
               "Все файлы", "*" });
 
         if (!dialog.result().empty()) {
-            std::string filePath = dialog.result(); // pfd::save_file возвращает std::string, а не std::vector
+            std::string filePathStr = dialog.result();
 
-            // Проверяем, ввёл ли пользователь расширение .asmb, и добавляем его при необходимости
-            if (filePath.size() < 5 || filePath.substr(filePath.size() - 5) != ".asmb") {
-                filePath += ".asmb";
+            // Проверяем, ввёл ли пользователь расширение .asmb
+            if (filePathStr.size() < 5 || filePathStr.substr(filePathStr.size() - 5) != ".asmb") {
+                filePathStr += ".asmb";
             }
 
-            std::cout << "[saveCodeButton] Выбран файл для сохранения: " << filePath << std::endl;
+            std::cout << "[saveCodeButton] Save file location: " << filePathStr << std::endl;
 
+            // Преобразуем UTF-8 строку от pfd в кроссплатформенный std::filesystem::path
+            std::filesystem::path filePath = std::filesystem::u8path(filePathStr);
+
+            // Передаем объект path напрямую в поток
             std::ofstream file(filePath);
 
             if (!file.is_open()) {
-                std::cerr << "[saveCodeButton] " << std::strerror(errno) << " for path: " << filePath << std::endl;
+                std::cerr << "[saveCodeButton] " << std::strerror(errno) << " for path: " << filePathStr << std::endl;
                 return;
             }
 
@@ -155,7 +158,6 @@ int main()
             file.close();
         }
     });
-
 
     std::shared_ptr<Button> loadCodeButton = std::make_shared<Button>("loadCodeButton",
         sf::Vector2f(24.f, 24.f),
@@ -174,13 +176,17 @@ int main()
               "Все файлы", "*" });
 
         if (!dialog.result().empty()) {
-            std::string filePath = dialog.result()[0];
-            std::cout << "[loadCodeButton] Выбран файл для загрузки: " << filePath << std::endl;
-            
+            std::string filePathStr = dialog.result()[0];
+            std::cout << "[loadCodeButton] Opening file at location: " << filePathStr << std::endl;
+
+            // Преобразуем UTF-8 строку от pfd в кроссплатформенный std::filesystem::path
+            std::filesystem::path filePath = std::filesystem::u8path(filePathStr);
+
+            // Передаем объект path напрямую в поток
             std::ifstream file(filePath);
 
             if (!file.is_open()) {
-                std::cerr << "[loadCodeButton] Unable to read file " << filePath << std::endl;
+                std::cerr << "[loadCodeButton] Unable to read file " << filePathStr << std::endl;
                 return;
             }
 
@@ -190,18 +196,6 @@ int main()
         }
     });
 
-    std::shared_ptr<Text> codePanelHeader = std::make_shared<Text>(
-        "codeHeader",
-        textFont,
-        codePanel->getSize(),
-        "Код"_sf,
-        18,
-        sf::Vector2f(10.f, 18.f),
-        BaseObject::Anchor::TopLeft,
-        BaseObject::Anchor::CenterLeft
-    );
-
-    codePanel->addObject(codePanelHeader);
     codePanel->addObject(saveCodeButton); 
     codePanel->addObject(loadCodeButton);
     codePanel->addObject(codeField);
@@ -223,7 +217,8 @@ int main()
         registerFont,
         18,
         registerPanel->getSize(),
-        sf::Vector2f(-24.f, 43.f),
+        registerTextColor,
+        sf::Vector2f(-24.f, 46.f),
         BaseObject::Anchor::TopCenter,
         BaseObject::Anchor::TopCenter
     );
@@ -234,7 +229,8 @@ int main()
         registerFont,
         18,
         registerPanel->getSize(),
-        sf::Vector2f(-24.f, 74.f),
+        registerTextColor,
+        sf::Vector2f(-24.f, 77.f),
         BaseObject::Anchor::TopCenter,
         BaseObject::Anchor::TopCenter
     );
@@ -245,7 +241,8 @@ int main()
         registerFont,
         18,
         registerPanel->getSize(),
-        sf::Vector2f(-24.f, 105.f),
+        registerTextColor,
+        sf::Vector2f(-24.f, 108.f),
         BaseObject::Anchor::TopCenter,
         BaseObject::Anchor::TopCenter
     );
@@ -256,7 +253,8 @@ int main()
         registerFont,
         18,
         registerPanel->getSize(),
-        sf::Vector2f(-24.f, 136.f),
+        registerTextColor,
+        sf::Vector2f(-24.f, 139.f),
         BaseObject::Anchor::TopCenter,
         BaseObject::Anchor::TopCenter
     );
@@ -267,7 +265,8 @@ int main()
         registerFont,
         18,
         registerPanel->getSize(),
-        sf::Vector2f(-24.f, 167.f),
+        registerTextColor,
+        sf::Vector2f(-24.f, 170.f),
         BaseObject::Anchor::TopCenter,
         BaseObject::Anchor::TopCenter
     );
@@ -278,20 +277,10 @@ int main()
         registerFont,
         18,
         registerPanel->getSize(),
+        registerTextColor,
         sf::Vector2f(-24.f, 201.f),
         BaseObject::Anchor::TopCenter,
         BaseObject::Anchor::TopCenter
-    );
-
-    std::shared_ptr<Text> registerPanelHeader = std::make_shared<Text>(
-        "registerHeader",
-        textFont,
-        registerPanel->getSize(),
-        "Текущее состояние процессора"_sf,
-        18,
-        sf::Vector2f(10.f, 18.f),
-        BaseObject::Anchor::TopLeft,
-        BaseObject::Anchor::CenterLeft
     );
 
     registerPanel->addObject(outRegister);
@@ -300,7 +289,6 @@ int main()
     registerPanel->addObject(mdrRegister);
     registerPanel->addObject(acRegister);
     registerPanel->addObject(pcRegister);
-    registerPanel->addObject(registerPanelHeader);
     // registers panel - end
 
     // current command - start
@@ -313,23 +301,13 @@ int main()
         BaseObject::Anchor::TopRight
     );
 
-    std::shared_ptr<Text> currentCommandHeader = std::make_shared<Text>(
-        "currentCommandHeader",
-        textFont,
-        currentCommandPanel->getSize(),
-        "Текущая команда"_sf,
-        18,
-        sf::Vector2f(10.f, 18.f),
-        BaseObject::Anchor::TopLeft,
-        BaseObject::Anchor::CenterLeft
-    );
-
     std::shared_ptr<Text> ccMachineCodeKey = std::make_shared<Text>(
         "ccMachineCodeKey",
         textFont,
         currentCommandPanel->getSize(),
         "Машинный код"_sf,
         14,
+        ccTextColor,
         sf::Vector2f(10.f, 46.f),
         BaseObject::Anchor::TopLeft,
         BaseObject::Anchor::TopLeft
@@ -341,6 +319,7 @@ int main()
         currentCommandPanel->getSize(),
         "Команда ассемблера"_sf,
         14,
+        ccTextColor,
         sf::Vector2f(10.f, 66.f),
         BaseObject::Anchor::TopLeft,
         BaseObject::Anchor::TopLeft
@@ -352,6 +331,7 @@ int main()
         currentCommandPanel->getSize(),
         "Расшифровка команды:"_sf,
         14,
+        ccTextColor,
         sf::Vector2f(10.f, 106.f),
         BaseObject::Anchor::TopLeft,
         BaseObject::Anchor::TopLeft
@@ -363,6 +343,7 @@ int main()
         currentCommandPanel->getSize(),
         "Операция ассемблера"_sf,
         14,
+        ccTextColor,
         sf::Vector2f(10.f, 131.f),
         BaseObject::Anchor::TopLeft,
         BaseObject::Anchor::TopLeft
@@ -374,6 +355,7 @@ int main()
         currentCommandPanel->getSize(),
         "Запись"_sf,
         14,
+        ccTextColor,
         sf::Vector2f(10.f, 151.f),
         BaseObject::Anchor::TopLeft,
         BaseObject::Anchor::TopLeft
@@ -385,6 +367,7 @@ int main()
         currentCommandPanel->getSize(),
         "Операнд А"_sf,
         14,
+        ccTextColor,
         sf::Vector2f(10.f, 171.f),
         BaseObject::Anchor::TopLeft,
         BaseObject::Anchor::TopLeft
@@ -396,6 +379,7 @@ int main()
         currentCommandPanel->getSize(),
         "Операнд B"_sf,
         14,
+        ccTextColor,
         sf::Vector2f(10.f, 191.f),
         BaseObject::Anchor::TopLeft,
         BaseObject::Anchor::TopLeft
@@ -407,6 +391,7 @@ int main()
         currentCommandPanel->getSize(),
         "Адрес"_sf,
         14,
+        ccTextColor,
         sf::Vector2f(10.f, 211.f),
         BaseObject::Anchor::TopLeft,
         BaseObject::Anchor::TopLeft
@@ -418,6 +403,7 @@ int main()
         currentCommandPanel->getSize(),
         "Описание:"_sf,
         14,
+        ccTextColor,
         sf::Vector2f(10.f, 251.f),
         BaseObject::Anchor::TopLeft,
         BaseObject::Anchor::TopLeft
@@ -431,6 +417,7 @@ int main()
         currentCommandPanel->getSize(),
         "0000 0000 0000 0000"_sf,
         14,
+        ccTextColor,
         sf::Vector2f(10.f, 46.f),
         BaseObject::Anchor::TopCenter,
         BaseObject::Anchor::TopLeft
@@ -442,6 +429,7 @@ int main()
         currentCommandPanel->getSize(),
         "STOR"_sf,
         14,
+        ccTextColor,
         sf::Vector2f(10.f, 66.f),
         BaseObject::Anchor::TopCenter,
         BaseObject::Anchor::TopLeft
@@ -453,6 +441,7 @@ int main()
         currentCommandPanel->getSize(),
         "MOV"_sf,
         14,
+        ccTextColor,
         sf::Vector2f(10.f, 131.f),
         BaseObject::Anchor::TopCenter,
         BaseObject::Anchor::TopLeft
@@ -462,8 +451,9 @@ int main()
         "ccDestinationValue",
         textFont,
         currentCommandPanel->getSize(),
-        "Запись"_sf,
+        "ОЗУ (0х001c)"_sf,
         14,
+        ccTextColor,
         sf::Vector2f(10.f, 151.f),
         BaseObject::Anchor::TopCenter,
         BaseObject::Anchor::TopLeft
@@ -473,8 +463,9 @@ int main()
         "ccOpAValue",
         textFont,
         currentCommandPanel->getSize(),
-        "Операнд А"_sf,
+        "-"_sf,
         14,
+        ccTextColor,
         sf::Vector2f(10.f, 171.f),
         BaseObject::Anchor::TopCenter,
         BaseObject::Anchor::TopLeft
@@ -484,8 +475,9 @@ int main()
         "ccOpBValue",
         textFont,
         currentCommandPanel->getSize(),
-        "Операнд B"_sf,
+        "-"_sf,
         14,
+        ccTextColor,
         sf::Vector2f(10.f, 191.f),
         BaseObject::Anchor::TopCenter,
         BaseObject::Anchor::TopLeft
@@ -495,8 +487,9 @@ int main()
         "ccOpAddrValue",
         textFont,
         currentCommandPanel->getSize(),
-        "Адрес"_sf,
+        "001c"_sf,
         14,
+        ccTextColor,
         sf::Vector2f(10.f, 211.f),
         BaseObject::Anchor::TopCenter,
         BaseObject::Anchor::TopLeft
@@ -510,12 +503,12 @@ int main()
 позволяя таким образом реализовать условные\n\
 переходы между блоками программы."_sf,
         14,
+        ccTextColor,
         sf::Vector2f(10.f, 271.f),
         BaseObject::Anchor::TopLeft,
         BaseObject::Anchor::TopLeft
     );
 
-    currentCommandPanel->addObject(currentCommandHeader);
     currentCommandPanel->addObject(ccMachineCodeKey);
     currentCommandPanel->addObject(ccAssemblerCommandKey);
     currentCommandPanel->addObject(ccAssemblerDecodedHeader);
