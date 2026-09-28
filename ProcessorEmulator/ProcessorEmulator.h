@@ -18,6 +18,7 @@
 #include "SFML/Panel.h"
 #include "SFML/InputField.h"
 #include "SFML/RegisterContainer.h"
+#include "SFML/CurrentCommandContainer.h"
 
 #include "SFML/Utilites/SFMLUtility.h"
 #include "SFML/PortableFileDialogs.h"

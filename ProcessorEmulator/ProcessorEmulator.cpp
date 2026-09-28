@@ -317,7 +317,7 @@ int main()
         currentCommandPanel->getSize(),
         "Машинный код"_sf,
         14,
-        ccTextColor,
+        ccTextColor, false,
         sf::Vector2f(10.f, 46.f),
         BaseObject::Anchor::TopLeft,
         BaseObject::Anchor::TopLeft
@@ -329,7 +329,7 @@ int main()
         currentCommandPanel->getSize(),
         "Команда ассемблера"_sf,
         14,
-        ccTextColor,
+        ccTextColor, false,
         sf::Vector2f(10.f, 66.f),
         BaseObject::Anchor::TopLeft,
         BaseObject::Anchor::TopLeft
@@ -341,7 +341,7 @@ int main()
         currentCommandPanel->getSize(),
         "Расшифровка команды:"_sf,
         14,
-        ccTextColor,
+        ccTextColor, false,
         sf::Vector2f(10.f, 106.f),
         BaseObject::Anchor::TopLeft,
         BaseObject::Anchor::TopLeft
@@ -353,7 +353,7 @@ int main()
         currentCommandPanel->getSize(),
         "Операция ассемблера"_sf,
         14,
-        ccTextColor,
+        ccTextColor, false,
         sf::Vector2f(10.f, 131.f),
         BaseObject::Anchor::TopLeft,
         BaseObject::Anchor::TopLeft
@@ -365,7 +365,7 @@ int main()
         currentCommandPanel->getSize(),
         "Запись"_sf,
         14,
-        ccTextColor,
+        ccTextColor, false,
         sf::Vector2f(10.f, 151.f),
         BaseObject::Anchor::TopLeft,
         BaseObject::Anchor::TopLeft
@@ -377,7 +377,7 @@ int main()
         currentCommandPanel->getSize(),
         "Операнд А"_sf,
         14,
-        ccTextColor,
+        ccTextColor, false,
         sf::Vector2f(10.f, 171.f),
         BaseObject::Anchor::TopLeft,
         BaseObject::Anchor::TopLeft
@@ -389,7 +389,7 @@ int main()
         currentCommandPanel->getSize(),
         "Операнд B"_sf,
         14,
-        ccTextColor,
+        ccTextColor, false,
         sf::Vector2f(10.f, 191.f),
         BaseObject::Anchor::TopLeft,
         BaseObject::Anchor::TopLeft
@@ -401,7 +401,7 @@ int main()
         currentCommandPanel->getSize(),
         "Адрес"_sf,
         14,
-        ccTextColor,
+        ccTextColor, false,
         sf::Vector2f(10.f, 211.f),
         BaseObject::Anchor::TopLeft,
         BaseObject::Anchor::TopLeft
@@ -413,7 +413,7 @@ int main()
         currentCommandPanel->getSize(),
         "Описание:"_sf,
         14,
-        ccTextColor,
+        ccTextColor, false,
         sf::Vector2f(10.f, 251.f),
         BaseObject::Anchor::TopLeft,
         BaseObject::Anchor::TopLeft
@@ -427,7 +427,7 @@ int main()
         currentCommandPanel->getSize(),
         "0000 0000 0000 0000"_sf,
         14,
-        ccTextColor,
+        ccTextColor, false,
         sf::Vector2f(10.f, 46.f),
         BaseObject::Anchor::TopCenter,
         BaseObject::Anchor::TopLeft
@@ -439,7 +439,7 @@ int main()
         currentCommandPanel->getSize(),
         "STOR"_sf,
         14,
-        ccTextColor,
+        ccTextColor, false,
         sf::Vector2f(10.f, 66.f),
         BaseObject::Anchor::TopCenter,
         BaseObject::Anchor::TopLeft
@@ -451,7 +451,7 @@ int main()
         currentCommandPanel->getSize(),
         "MOV"_sf,
         14,
-        ccTextColor,
+        ccTextColor, false,
         sf::Vector2f(10.f, 131.f),
         BaseObject::Anchor::TopCenter,
         BaseObject::Anchor::TopLeft
@@ -463,7 +463,7 @@ int main()
         currentCommandPanel->getSize(),
         "ОЗУ (0х001c)"_sf,
         14,
-        ccTextColor,
+        ccTextColor, false,
         sf::Vector2f(10.f, 151.f),
         BaseObject::Anchor::TopCenter,
         BaseObject::Anchor::TopLeft
@@ -475,7 +475,7 @@ int main()
         currentCommandPanel->getSize(),
         "-"_sf,
         14,
-        ccTextColor,
+        ccTextColor, false,
         sf::Vector2f(10.f, 171.f),
         BaseObject::Anchor::TopCenter,
         BaseObject::Anchor::TopLeft
@@ -487,7 +487,7 @@ int main()
         currentCommandPanel->getSize(),
         "-"_sf,
         14,
-        ccTextColor,
+        ccTextColor, false,
         sf::Vector2f(10.f, 191.f),
         BaseObject::Anchor::TopCenter,
         BaseObject::Anchor::TopLeft
@@ -499,7 +499,7 @@ int main()
         currentCommandPanel->getSize(),
         "001c"_sf,
         14,
-        ccTextColor,
+        ccTextColor, false,
         sf::Vector2f(10.f, 211.f),
         BaseObject::Anchor::TopCenter,
         BaseObject::Anchor::TopLeft
@@ -513,7 +513,7 @@ int main()
 позволяя таким образом реализовать условные\n\
 переходы между блоками программы."_sf,
         14,
-        ccTextColor,
+        ccTextColor, false,
         sf::Vector2f(10.f, 271.f),
         BaseObject::Anchor::TopLeft,
         BaseObject::Anchor::TopLeft

@@ -19,7 +19,13 @@ public:
 		Anchor localAnchor = Anchor::TopLeft)
 		: BaseObject(name, size, parentSize, offset, parentAnchor, localAnchor) 
 	{
+		isActive = false;
 
+		notActiveText = std::make_unique<Text>(name + "_NotActive", font, size, 
+			"Запустите программу по шагам,\nчтобы просмотреть текущую команду!",
+			characterSize, notActiveColor, true, sf::Vector2f(10.f, 10.f),
+			BaseObject::Anchor::TopLeft, 
+			BaseObject::Anchor::TopLeft);
 	}
 protected:
 	// Отрисовка контейнера и его содержимого
