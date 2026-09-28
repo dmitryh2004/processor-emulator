@@ -3,8 +3,6 @@
 #include <iomanip>
 #include <sstream>
 
-// Предполагаем, что ваш класс Text выглядит примерно так и корректно наследует BaseObject.
-// Для демонстрации используем гипотетический класс Text, обертывающий sf::Text.
 #include "Text.h" 
 
 class RegisterContainer : public BaseObject {

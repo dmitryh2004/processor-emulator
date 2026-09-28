@@ -21,9 +21,15 @@ int main()
     ResourceManager resources;
 
     const sf::Texture& backgroundTexture = resources.GetTexture("Assets/Sprites/background alpha.png");
+    const sf::Texture& backgroundMaskTexture = resources.GetTexture("Assets/Sprites/background mask.png");
 
     const sf::Texture& buttonTexture = resources.GetTexture("Assets/Sprites/ButtonTexture.png");
     const sf::Texture& infoButtonTexture = resources.GetTexture("Assets/Sprites/infoButtonSprite.png");
+    const sf::Texture& openButtonTexture = resources.GetTexture("Assets/Sprites/openButtonSprite.png");
+    const sf::Texture& saveButtonTexture = resources.GetTexture("Assets/Sprites/saveButtonSprite.png");
+    const sf::Texture& startButtonTexture = resources.GetTexture("Assets/Sprites/startButtonSprite.png");
+    const sf::Texture& stepButtonTexture = resources.GetTexture("Assets/Sprites/stepButtonSprite.png");
+    const sf::Texture& stopButtonTexture = resources.GetTexture("Assets/Sprites/stopButtonSprite.png");
 
     const sf::Font& textFont = resources.GetFont("Assets/Fonts/Rubik-Medium.ttf");
     const sf::Font& codeFont = resources.GetFont("Assets/Fonts/Courier-New.ttf");
@@ -36,6 +42,10 @@ int main()
     sf::Sound clickSound(resources.GetSoundBuffer("Assets/Sounds/click-sound.mp3"));
 
     sf::Shader& shader = resources.GetShader("SFML/Shaders/BaseShader.frag", sf::Shader::Type::Fragment);
+    sf::Shader& ppShader = resources.GetShader("SFML/Shaders/PostProcessShader.frag", sf::Shader::Type::Fragment);
+    ppShader.setUniform("grayTexture", backgroundMaskTexture);
+
+    sf::RenderTexture renderTexture = sf::RenderTexture(window.getSize());
 
     // resource initialization - end
     // initialization - end
@@ -61,9 +71,9 @@ int main()
     std::shared_ptr<Button> startButton = std::make_shared<Button>("startButton",
         sf::Vector2f(24.f, 24.f),
         panel->getSize(),
-        sf::Vector2f(-34.f, 0.f),
+        sf::Vector2f(-40.f, 0.f),
         buttonTexture,
-        buttonTexture,
+        startButtonTexture,
         BaseObject::Anchor::Center,
         BaseObject::Anchor::Center
     ); 
@@ -75,7 +85,7 @@ int main()
         panel->getSize(),
         sf::Vector2f(0.f, 0.f),
         buttonTexture,
-        buttonTexture,
+        stepButtonTexture,
         BaseObject::Anchor::Center,
         BaseObject::Anchor::Center
     );
@@ -85,9 +95,9 @@ int main()
     std::shared_ptr<Button> stopButton = std::make_shared<Button>("stopButton",
         sf::Vector2f(24.f, 24.f),
         panel->getSize(),
-        sf::Vector2f(34.f, 0.f),
+        sf::Vector2f(40.f, 0.f),
         buttonTexture,
-        buttonTexture,
+        stopButtonTexture,
         BaseObject::Anchor::Center,
         BaseObject::Anchor::Center
     );
@@ -120,9 +130,9 @@ int main()
     std::shared_ptr<Button> saveCodeButton = std::make_shared<Button>("saveCodeButton",
         sf::Vector2f(24.f, 24.f),
         codePanel->getSize(),
-        sf::Vector2f(-10.f, 10.f),
+        sf::Vector2f(-7.f, 6.f),
         buttonTexture,
-        buttonTexture,
+        saveButtonTexture,
         BaseObject::Anchor::TopRight,
         BaseObject::Anchor::TopRight
     );
@@ -162,9 +172,9 @@ int main()
     std::shared_ptr<Button> loadCodeButton = std::make_shared<Button>("loadCodeButton",
         sf::Vector2f(24.f, 24.f),
         codePanel->getSize(),
-        sf::Vector2f(-44.f, 10.f),
+        sf::Vector2f(-47.f, 6.f),
         buttonTexture,
-        buttonTexture,
+        openButtonTexture,
         BaseObject::Anchor::TopRight,
         BaseObject::Anchor::TopRight
     );
@@ -556,12 +566,22 @@ int main()
         registerPanel->update(deltaTime);
         currentCommandPanel->update(deltaTime);
         
+        renderTexture.clear();
+        renderTexture.draw(bgSprite);
+        renderTexture.draw(*panel);
+        renderTexture.draw(*codePanel);
+        renderTexture.draw(*registerPanel);
+        renderTexture.draw(*currentCommandPanel);
+        renderTexture.display();
+
+        sf::Sprite result = sf::Sprite(renderTexture.getTexture());
+
         window.clear();
-        window.draw(bgSprite);
-        window.draw(*panel);
-        window.draw(*codePanel);
-        window.draw(*registerPanel);
-        window.draw(*currentCommandPanel);
+
+        sf::RenderStates resultStates;
+        resultStates.shader = &ppShader;
+
+        window.draw(result, resultStates);
         window.display();
     }
 
