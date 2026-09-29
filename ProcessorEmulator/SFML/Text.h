@@ -9,7 +9,7 @@ public:
         const sf::String& string = "",
         unsigned int characterSize = 30,
         sf::Color color = sf::Color::White,
-        bool isWrapped = true, // Новый параметр в конструкторе
+        bool isWrapped = true, // РќРѕРІС‹Р№ РїР°СЂР°РјРµС‚СЂ РІ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂРµ
         sf::Vector2f offset = sf::Vector2f(0.f, 0.f),
         Anchor parentAnchor = Anchor::TopLeft,
         Anchor localAnchor = Anchor::TopLeft,
@@ -18,12 +18,12 @@ public:
         : BaseObject(name, sf::Vector2f(0.f, static_cast<float>(characterSize)), parentSize, offset, parentAnchor, localAnchor, rotation, scale),
         m_text(font),
         m_originalString(string),
-        m_isWrapped(isWrapped), // Инициализируем флаг
+        m_isWrapped(isWrapped), // РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј С„Р»Р°Рі
         m_parentSize(parentSize)
     {
         m_text.setCharacterSize(characterSize);
         m_text.setFillColor(color);
-        updateWrappedText(); // Применяет логику с учетом флага m_isWrapped
+        updateWrappedText(); // РџСЂРёРјРµРЅСЏРµС‚ Р»РѕРіРёРєСѓ СЃ СѓС‡РµС‚РѕРј С„Р»Р°РіР° m_isWrapped
     }
 
     void setFillColor(sf::Color color) {
@@ -57,11 +57,11 @@ public:
         return m_originalString;
     }
 
-    // Динамическое управление переносом текста
+    // Р”РёРЅР°РјРёС‡РµСЃРєРѕРµ СѓРїСЂР°РІР»РµРЅРёРµ РїРµСЂРµРЅРѕСЃРѕРј С‚РµРєСЃС‚Р°
     void setWrapped(bool wrapped) {
         if (m_isWrapped != wrapped) {
             m_isWrapped = wrapped;
-            updateWrappedText(); // Пересчитываем текст при изменении режима
+            updateWrappedText(); // РџРµСЂРµСЃС‡РёС‚С‹РІР°РµРј С‚РµРєСЃС‚ РїСЂРё РёР·РјРµРЅРµРЅРёРё СЂРµР¶РёРјР°
         }
     }
 
@@ -78,18 +78,18 @@ protected:
 private:
     sf::Text m_text;
     sf::String m_originalString;
-    bool m_isWrapped; // Флаг: включен ли перенос текста
+    bool m_isWrapped; // Р¤Р»Р°Рі: РІРєР»СЋС‡РµРЅ Р»Рё РїРµСЂРµРЅРѕСЃ С‚РµРєСЃС‚Р°
     sf::Vector2f m_parentSize;
 
     void updateWrappedText() {
-        // Если текст пустой — очищаем и выходим
+        // Р•СЃР»Рё С‚РµРєСЃС‚ РїСѓСЃС‚РѕР№ вЂ” РѕС‡РёС‰Р°РµРј Рё РІС‹С…РѕРґРёРј
         if (m_originalString.isEmpty()) {
             m_text.setString("");
             return;
         }
 
-        // Если перенос отключен или ширина родителя некорректна, 
-        // просто выводим оригинальный текст как есть
+        // Р•СЃР»Рё РїРµСЂРµРЅРѕСЃ РѕС‚РєР»СЋС‡РµРЅ РёР»Рё С€РёСЂРёРЅР° СЂРѕРґРёС‚РµР»СЏ РЅРµРєРѕСЂСЂРµРєС‚РЅР°, 
+        // РїСЂРѕСЃС‚Рѕ РІС‹РІРѕРґРёРј РѕСЂРёРіРёРЅР°Р»СЊРЅС‹Р№ С‚РµРєСЃС‚ РєР°Рє РµСЃС‚СЊ
         float maxWidth = m_parentSize.x;
         if (!m_isWrapped || maxWidth <= 0.f) {
             m_text.setString(m_originalString);

@@ -8,7 +8,7 @@
 class RegisterContainer : public BaseObject {
 public:
     RegisterContainer(std::string name,
-        std::string regName, // Имя регистра, например "EAX"
+        std::string regName, // РРјСЏ СЂРµРіРёСЃС‚СЂР°, РЅР°РїСЂРёРјРµСЂ "EAX"
         const sf::Font& font,
         unsigned int characterSize,
         sf::Vector2f parentSize,
@@ -19,37 +19,37 @@ public:
         : BaseObject(name, { 250.f, 40.f }, parentSize, offset, parentAnchor, localAnchor),
         m_value(0)
     {
-        // Ограничиваем имя регистра до 3 символов
+        // РћРіСЂР°РЅРёС‡РёРІР°РµРј РёРјСЏ СЂРµРіРёСЃС‚СЂР° РґРѕ 3 СЃРёРјРІРѕР»РѕРІ
         if (regName.length() > 3) {
             regName = regName.substr(0, 3);
         }
 
-        // Передаем размер текущего контейнера (getSize()) как parentSize для дочерних текстовых полей.
-        // Координаты смещения (offset) задаются относительно выбранной точки parentAnchor.
+        // РџРµСЂРµРґР°РµРј СЂР°Р·РјРµСЂ С‚РµРєСѓС‰РµРіРѕ РєРѕРЅС‚РµР№РЅРµСЂР° (getSize()) РєР°Рє parentSize РґР»СЏ РґРѕС‡РµСЂРЅРёС… С‚РµРєСЃС‚РѕРІС‹С… РїРѕР»РµР№.
+        // РљРѕРѕСЂРґРёРЅР°С‚С‹ СЃРјРµС‰РµРЅРёСЏ (offset) Р·Р°РґР°СЋС‚СЃСЏ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РІС‹Р±СЂР°РЅРЅРѕР№ С‚РѕС‡РєРё parentAnchor.
 
-        // 1. Имя регистра
+        // 1. РРјСЏ СЂРµРіРёСЃС‚СЂР°
         m_textName = std::make_unique<Text>(
             name + "_lbl", font, getSize(), regName, characterSize, color, false,
             sf::Vector2f(5.f, 0.f), Anchor::CenterLeft, Anchor::CenterLeft
         );
 
-        // 2. HEX значение
+        // 2. HEX Р·РЅР°С‡РµРЅРёРµ
         m_textHex = std::make_unique<Text>(
             name + "_hex", font, getSize(), "0x00000000", characterSize, color, false,
             sf::Vector2f(51.f, 0.f), Anchor::CenterLeft, Anchor::CenterLeft
         );
 
-        // 3. DEC значение
+        // 3. DEC Р·РЅР°С‡РµРЅРёРµ
         m_textDec = std::make_unique<Text>(
             name + "_dec", font, getSize(), "0", characterSize, color, false,
             sf::Vector2f(176.f, 0.f), Anchor::CenterLeft, Anchor::CenterLeft
         );
 
-        // Синхронизируем строковые значения с m_value
+        // РЎРёРЅС…СЂРѕРЅРёР·РёСЂСѓРµРј СЃС‚СЂРѕРєРѕРІС‹Рµ Р·РЅР°С‡РµРЅРёСЏ СЃ m_value
         updateTextVisuals();
     }
 
-    // Метод записи значения в регистр (модель изменилась -> обновляем визуал)
+    // РњРµС‚РѕРґ Р·Р°РїРёСЃРё Р·РЅР°С‡РµРЅРёСЏ РІ СЂРµРіРёСЃС‚СЂ (РјРѕРґРµР»СЊ РёР·РјРµРЅРёР»Р°СЃСЊ -> РѕР±РЅРѕРІР»СЏРµРј РІРёР·СѓР°Р»)
     void setValue(int value) {
         if (m_value != value) {
             m_value = value;
@@ -57,55 +57,55 @@ public:
         }
     }
 
-    // Метод чтения значения из регистра
+    // РњРµС‚РѕРґ С‡С‚РµРЅРёСЏ Р·РЅР°С‡РµРЅРёСЏ РёР· СЂРµРіРёСЃС‚СЂР°
     int getValue() const {
         return m_value;
     }
 
-    // Перегрузка обновления (если дочерним элементам нужно передавать deltaTime)
+    // РџРµСЂРµРіСЂСѓР·РєР° РѕР±РЅРѕРІР»РµРЅРёСЏ (РµСЃР»Рё РґРѕС‡РµСЂРЅРёРј СЌР»РµРјРµРЅС‚Р°Рј РЅСѓР¶РЅРѕ РїРµСЂРµРґР°РІР°С‚СЊ deltaTime)
     void update(sf::Time deltaTime) override {
         m_textName->update(deltaTime);
         m_textHex->update(deltaTime);
         m_textDec->update(deltaTime);
     }
 
-    // Обработка событий для дочерних элементов
+    // РћР±СЂР°Р±РѕС‚РєР° СЃРѕР±С‹С‚РёР№ РґР»СЏ РґРѕС‡РµСЂРЅРёС… СЌР»РµРјРµРЅС‚РѕРІ
     void checkForEvents(const sf::Event& event, const sf::RenderWindow& window, sf::Vector2f localMousePos) override {
-        // Трансформируем мышь относительно этого контейнера, если дочерние элементы полагаются на нее
+        // РўСЂР°РЅСЃС„РѕСЂРјРёСЂСѓРµРј РјС‹С€СЊ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ СЌС‚РѕРіРѕ РєРѕРЅС‚РµР№РЅРµСЂР°, РµСЃР»Рё РґРѕС‡РµСЂРЅРёРµ СЌР»РµРјРµРЅС‚С‹ РїРѕР»Р°РіР°СЋС‚СЃСЏ РЅР° РЅРµРµ
         m_textName->checkForEvents(event, window, localMousePos);
         m_textHex->checkForEvents(event, window, localMousePos);
         m_textDec->checkForEvents(event, window, localMousePos);
     }
 
 protected:
-    // Отрисовка контейнера и его содержимого
+    // РћС‚СЂРёСЃРѕРІРєР° РєРѕРЅС‚РµР№РЅРµСЂР° Рё РµРіРѕ СЃРѕРґРµСЂР¶РёРјРѕРіРѕ
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
-        // Применяем трансформации и шейдеры текущего контейнера
+        // РџСЂРёРјРµРЅСЏРµРј С‚СЂР°РЅСЃС„РѕСЂРјР°С†РёРё Рё С€РµР№РґРµСЂС‹ С‚РµРєСѓС‰РµРіРѕ РєРѕРЅС‚РµР№РЅРµСЂР°
         states = prepareStates(states);
 
-        // Рисуем дочерние текстовые поля
-        // Так как states уже содержит getTransform() этого контейнера, 
-        // позиции дочерних элементов будут рассчитываться локально относительно него.
+        // Р РёСЃСѓРµРј РґРѕС‡РµСЂРЅРёРµ С‚РµРєСЃС‚РѕРІС‹Рµ РїРѕР»СЏ
+        // РўР°Рє РєР°Рє states СѓР¶Рµ СЃРѕРґРµСЂР¶РёС‚ getTransform() СЌС‚РѕРіРѕ РєРѕРЅС‚РµР№РЅРµСЂР°, 
+        // РїРѕР·РёС†РёРё РґРѕС‡РµСЂРЅРёС… СЌР»РµРјРµРЅС‚РѕРІ Р±СѓРґСѓС‚ СЂР°СЃСЃС‡РёС‚С‹РІР°С‚СЊСЃСЏ Р»РѕРєР°Р»СЊРЅРѕ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РЅРµРіРѕ.
         target.draw(*m_textName, states);
         target.draw(*m_textHex, states);
         target.draw(*m_textDec, states);
     }
 
 private:
-    int m_value; // Хранит 4 байта данных
+    int m_value; // РҐСЂР°РЅРёС‚ 4 Р±Р°Р№С‚Р° РґР°РЅРЅС‹С…
 
     std::unique_ptr<Text> m_textName;
     std::unique_ptr<Text> m_textHex;
     std::unique_ptr<Text> m_textDec;
 
-    // Вспомогательный метод для форматирования строк
+    // Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Р№ РјРµС‚РѕРґ РґР»СЏ С„РѕСЂРјР°С‚РёСЂРѕРІР°РЅРёСЏ СЃС‚СЂРѕРє
     void updateTextVisuals() {
-        // Форматируем HEX (дополняем нулями до 8 символов для 32-битного int)
+        // Р¤РѕСЂРјР°С‚РёСЂСѓРµРј HEX (РґРѕРїРѕР»РЅСЏРµРј РЅСѓР»СЏРјРё РґРѕ 8 СЃРёРјРІРѕР»РѕРІ РґР»СЏ 32-Р±РёС‚РЅРѕРіРѕ int)
         std::stringstream hexStream;
         hexStream << "0x" << std::setw(8) << std::setfill('0') << std::uppercase << std::hex << static_cast<unsigned int>(m_value);
         m_textHex->setString(hexStream.str());
 
-        // Форматируем DEC
+        // Р¤РѕСЂРјР°С‚РёСЂСѓРµРј DEC
         m_textDec->setString(std::to_string(m_value));
     }
 };

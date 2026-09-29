@@ -15,7 +15,8 @@ int main()
     sf::Color registerTextColor = sf::Color::Color(0, 192, 0);
     sf::Color registerTextColorModified = sf::Color::Color(0, 255, 0);
 
-    sf::Color ccTextColor = sf::Color::Color(0, 128, 0);
+    sf::Color ccTextColor = sf::Color::Color(0, 128, 0); 
+    sf::Color ccTextColorNotActive = sf::Color::Color(128, 128, 128);
 
     // resource initialization - start
     ResourceManager resources;
@@ -60,7 +61,7 @@ int main()
         sf::Vector2f(24.f, 24.f), 
         panel->getSize(), 
         sf::Vector2f(-10.f, 0.f), 
-        buttonTexture, 
+        infoButtonTexture, 
         infoButtonTexture,
         BaseObject::Anchor::CenterRight, 
         BaseObject::Anchor::CenterRight
@@ -72,7 +73,7 @@ int main()
         sf::Vector2f(24.f, 24.f),
         panel->getSize(),
         sf::Vector2f(-40.f, 0.f),
-        buttonTexture,
+        startButtonTexture,
         startButtonTexture,
         BaseObject::Anchor::Center,
         BaseObject::Anchor::Center
@@ -84,7 +85,7 @@ int main()
         sf::Vector2f(24.f, 24.f),
         panel->getSize(),
         sf::Vector2f(0.f, 0.f),
-        buttonTexture,
+        stepButtonTexture,
         stepButtonTexture,
         BaseObject::Anchor::Center,
         BaseObject::Anchor::Center
@@ -96,7 +97,7 @@ int main()
         sf::Vector2f(24.f, 24.f),
         panel->getSize(),
         sf::Vector2f(40.f, 0.f),
-        buttonTexture,
+        stopButtonTexture,
         stopButtonTexture,
         BaseObject::Anchor::Center,
         BaseObject::Anchor::Center
@@ -131,7 +132,7 @@ int main()
         sf::Vector2f(24.f, 24.f),
         codePanel->getSize(),
         sf::Vector2f(-7.f, 6.f),
-        buttonTexture,
+        saveButtonTexture,
         saveButtonTexture,
         BaseObject::Anchor::TopRight,
         BaseObject::Anchor::TopRight
@@ -173,7 +174,7 @@ int main()
         sf::Vector2f(24.f, 24.f),
         codePanel->getSize(),
         sf::Vector2f(-47.f, 6.f),
-        buttonTexture,
+        openButtonTexture,
         openButtonTexture,
         BaseObject::Anchor::TopRight,
         BaseObject::Anchor::TopRight
@@ -302,243 +303,19 @@ int main()
     // registers panel - end
 
     // current command - start
-    std::shared_ptr<Panel> currentCommandPanel = std::make_shared<Panel>(
-        "currentCommandPanel",
-        sf::Vector2f(460.f, 544.f),
+    std::shared_ptr<CurrentCommandContainer> ccc = std::make_shared<CurrentCommandContainer>("currentCommand", textFont,
+        18,
+        sf::Vector2f(448.f, 494.f),
         windowSizeFloat,
-        sf::Vector2f(-10.f, 46.f),
+        ccTextColor,
+        ccTextColorNotActive,
+        sf::Vector2f(-18.f, 91.f),
         BaseObject::Anchor::TopRight,
-        BaseObject::Anchor::TopRight
-    );
-
-    std::shared_ptr<Text> ccMachineCodeKey = std::make_shared<Text>(
-        "ccMachineCodeKey",
-        textFont,
-        currentCommandPanel->getSize(),
-        "Машинный код"_sf,
-        14,
-        ccTextColor, false,
-        sf::Vector2f(10.f, 46.f),
-        BaseObject::Anchor::TopLeft,
-        BaseObject::Anchor::TopLeft
-    );
-
-    std::shared_ptr<Text> ccAssemblerCommandKey = std::make_shared<Text>(
-        "ccAssemblerCommandKey",
-        textFont,
-        currentCommandPanel->getSize(),
-        "Команда ассемблера"_sf,
-        14,
-        ccTextColor, false,
-        sf::Vector2f(10.f, 66.f),
-        BaseObject::Anchor::TopLeft,
-        BaseObject::Anchor::TopLeft
-    );
-
-    std::shared_ptr<Text> ccAssemblerDecodedHeader = std::make_shared<Text>(
-        "ccAssemblerDecodedHeader",
-        textFont,
-        currentCommandPanel->getSize(),
-        "Расшифровка команды:"_sf,
-        14,
-        ccTextColor, false,
-        sf::Vector2f(10.f, 106.f),
-        BaseObject::Anchor::TopLeft,
-        BaseObject::Anchor::TopLeft
-    );
-
-    std::shared_ptr<Text> ccAssemblerOperationKey = std::make_shared<Text>(
-        "ccAssemblerOperationKey",
-        textFont,
-        currentCommandPanel->getSize(),
-        "Операция ассемблера"_sf,
-        14,
-        ccTextColor, false,
-        sf::Vector2f(10.f, 131.f),
-        BaseObject::Anchor::TopLeft,
-        BaseObject::Anchor::TopLeft
-    );
-
-    std::shared_ptr<Text> ccDestinationKey = std::make_shared<Text>(
-        "ccDestinationKey",
-        textFont,
-        currentCommandPanel->getSize(),
-        "Запись"_sf,
-        14,
-        ccTextColor, false,
-        sf::Vector2f(10.f, 151.f),
-        BaseObject::Anchor::TopLeft,
-        BaseObject::Anchor::TopLeft
-    );
-
-    std::shared_ptr<Text> ccOpAKey = std::make_shared<Text>(
-        "ccOpAKey",
-        textFont,
-        currentCommandPanel->getSize(),
-        "Операнд А"_sf,
-        14,
-        ccTextColor, false,
-        sf::Vector2f(10.f, 171.f),
-        BaseObject::Anchor::TopLeft,
-        BaseObject::Anchor::TopLeft
-    );
-
-    std::shared_ptr<Text> ccOpBKey = std::make_shared<Text>(
-        "ccOpBKey",
-        textFont,
-        currentCommandPanel->getSize(),
-        "Операнд B"_sf,
-        14,
-        ccTextColor, false,
-        sf::Vector2f(10.f, 191.f),
-        BaseObject::Anchor::TopLeft,
-        BaseObject::Anchor::TopLeft
-    );
-
-    std::shared_ptr<Text> ccOpAddrKey = std::make_shared<Text>(
-        "ccOpAddrKey",
-        textFont,
-        currentCommandPanel->getSize(),
-        "Адрес"_sf,
-        14,
-        ccTextColor, false,
-        sf::Vector2f(10.f, 211.f),
-        BaseObject::Anchor::TopLeft,
-        BaseObject::Anchor::TopLeft
-    );
-
-    std::shared_ptr<Text> ccDescriptionKey = std::make_shared<Text>(
-        "ccDescriptionKey",
-        textFont,
-        currentCommandPanel->getSize(),
-        "Описание:"_sf,
-        14,
-        ccTextColor, false,
-        sf::Vector2f(10.f, 251.f),
-        BaseObject::Anchor::TopLeft,
-        BaseObject::Anchor::TopLeft
-    );
-
-    // values
-
-    std::shared_ptr<Text> ccMachineCodeValue = std::make_shared<Text>(
-        "ccMachineCodeValue",
-        textFont,
-        currentCommandPanel->getSize(),
-        "0000 0000 0000 0000"_sf,
-        14,
-        ccTextColor, false,
-        sf::Vector2f(10.f, 46.f),
-        BaseObject::Anchor::TopCenter,
-        BaseObject::Anchor::TopLeft
-    );
-
-    std::shared_ptr<Text> ccAssemblerCommandValue = std::make_shared<Text>(
-        "ccAssemblerCommandValue",
-        textFont,
-        currentCommandPanel->getSize(),
-        "STOR"_sf,
-        14,
-        ccTextColor, false,
-        sf::Vector2f(10.f, 66.f),
-        BaseObject::Anchor::TopCenter,
-        BaseObject::Anchor::TopLeft
-    );
-
-    std::shared_ptr<Text> ccAssemblerOperationValue = std::make_shared<Text>(
-        "ccAssemblerOperationValue",
-        textFont,
-        currentCommandPanel->getSize(),
-        "MOV"_sf,
-        14,
-        ccTextColor, false,
-        sf::Vector2f(10.f, 131.f),
-        BaseObject::Anchor::TopCenter,
-        BaseObject::Anchor::TopLeft
-    );
-
-    std::shared_ptr<Text> ccDestinationValue = std::make_shared<Text>(
-        "ccDestinationValue",
-        textFont,
-        currentCommandPanel->getSize(),
-        "ОЗУ (0х001c)"_sf,
-        14,
-        ccTextColor, false,
-        sf::Vector2f(10.f, 151.f),
-        BaseObject::Anchor::TopCenter,
-        BaseObject::Anchor::TopLeft
-    );
-
-    std::shared_ptr<Text> ccOpAValue = std::make_shared<Text>(
-        "ccOpAValue",
-        textFont,
-        currentCommandPanel->getSize(),
-        "-"_sf,
-        14,
-        ccTextColor, false,
-        sf::Vector2f(10.f, 171.f),
-        BaseObject::Anchor::TopCenter,
-        BaseObject::Anchor::TopLeft
-    );
-
-    std::shared_ptr<Text> ccOpBValue = std::make_shared<Text>(
-        "ccOpBValue",
-        textFont,
-        currentCommandPanel->getSize(),
-        "-"_sf,
-        14,
-        ccTextColor, false,
-        sf::Vector2f(10.f, 191.f),
-        BaseObject::Anchor::TopCenter,
-        BaseObject::Anchor::TopLeft
-    );
-
-    std::shared_ptr<Text> ccOpAddrValue = std::make_shared<Text>(
-        "ccOpAddrValue",
-        textFont,
-        currentCommandPanel->getSize(),
-        "001c"_sf,
-        14,
-        ccTextColor, false,
-        sf::Vector2f(10.f, 211.f),
-        BaseObject::Anchor::TopCenter,
-        BaseObject::Anchor::TopLeft
-    );
-
-    std::shared_ptr<Text> ccDescriptionValue = std::make_shared<Text>(
-        "ccDescriptionValue",
-        textFont,
-        currentCommandPanel->getSize(),
-        "Команда JMP записывает значение A в регистр PC,\n\
-позволяя таким образом реализовать условные\n\
-переходы между блоками программы."_sf,
-        14,
-        ccTextColor, false,
-        sf::Vector2f(10.f, 271.f),
-        BaseObject::Anchor::TopLeft,
-        BaseObject::Anchor::TopLeft
-    );
-
-    currentCommandPanel->addObject(ccMachineCodeKey);
-    currentCommandPanel->addObject(ccAssemblerCommandKey);
-    currentCommandPanel->addObject(ccAssemblerDecodedHeader);
-    currentCommandPanel->addObject(ccAssemblerOperationKey);
-    currentCommandPanel->addObject(ccDestinationKey);
-    currentCommandPanel->addObject(ccOpAKey);
-    currentCommandPanel->addObject(ccOpBKey);
-    currentCommandPanel->addObject(ccOpAddrKey);
-    currentCommandPanel->addObject(ccDescriptionKey);
-
-
-    currentCommandPanel->addObject(ccMachineCodeValue);
-    currentCommandPanel->addObject(ccAssemblerCommandValue);
-    currentCommandPanel->addObject(ccAssemblerOperationValue);
-    currentCommandPanel->addObject(ccDestinationValue);
-    currentCommandPanel->addObject(ccOpAValue);
-    currentCommandPanel->addObject(ccOpBValue);
-    currentCommandPanel->addObject(ccOpAddrValue);
-    currentCommandPanel->addObject(ccDescriptionValue);
+        BaseObject::Anchor::TopRight);
     // current command - end
+
+    ccc->SetActive(true);
+    ccc->SetCurrentValues(3828350977, 7);
 
     sf::Clock clock;
     while (window.isOpen())
@@ -557,21 +334,21 @@ int main()
             panel->checkForEvents(*event, window, mousePosFloat);
             codePanel->checkForEvents(*event, window, mousePosFloat);
             registerPanel->checkForEvents(*event, window, mousePosFloat);
-            currentCommandPanel->checkForEvents(*event, window, mousePosFloat);
+            ccc->checkForEvents(*event, window, mousePosFloat);
         }
         
         sf::Time deltaTime = clock.restart();
         panel->update(deltaTime);
         codePanel->update(deltaTime);
         registerPanel->update(deltaTime);
-        currentCommandPanel->update(deltaTime);
+        ccc->update(deltaTime);
         
         renderTexture.clear();
         renderTexture.draw(bgSprite);
         renderTexture.draw(*panel);
         renderTexture.draw(*codePanel);
         renderTexture.draw(*registerPanel);
-        renderTexture.draw(*currentCommandPanel);
+        renderTexture.draw(*ccc);
         renderTexture.display();
 
         sf::Sprite result = sf::Sprite(renderTexture.getTexture());
