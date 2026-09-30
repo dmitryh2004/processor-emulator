@@ -19,9 +19,13 @@
 #include "SFML/InputField.h"
 #include "SFML/RegisterContainer.h"
 #include "SFML/CurrentCommandContainer.h"
+#include "SFML/RAMCellContainer.h"
+#include "SFML/RAMViewer.h"
 
 #include "SFML/Utilites/SFMLUtility.h"
 #include "SFML/PortableFileDialogs.h"
+
+#include "Emulator/RAM.h"
 
 using namespace SFMLUtility;
 // TODO: установите здесь ссылки на дополнительные заголовки, требующиеся для программы.

@@ -1,0 +1,2 @@
+[*.{cs,html,js,ts}]
+charset = utf-8

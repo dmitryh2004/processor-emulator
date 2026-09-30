@@ -69,6 +69,30 @@ public:
         return m_isWrapped;
     }
 
+    sf::FloatRect getBounds() const {
+        // Получаем локальные границы SFML текста (размеры символов и их смещения)
+        sf::FloatRect localBounds = m_text.getLocalBounds();
+
+        // Трансформируем все 4 вершины локального прямоугольника в координаты родителя.
+        // Это необходимо, так как при повороте (rotation) прямоугольник может стать ромбом.
+        sf::Transform transform = getTransform();
+
+        sf::Vector2f topLeft = transform.transformPoint({ localBounds.position.x, localBounds.position.y });
+        sf::Vector2f topRight = transform.transformPoint({ localBounds.position.x + localBounds.size.x, localBounds.position.y });
+        sf::Vector2f bottomLeft = transform.transformPoint({ localBounds.position.x, localBounds.position.y + localBounds.size.y });
+        sf::Vector2f bottomRight = transform.transformPoint({ localBounds.position.x + localBounds.size.x, localBounds.position.y + localBounds.size.y });
+
+        // Находим минимальные и максимальные координаты среди трансформированных точек
+        float minX = std::min({ topLeft.x, topRight.x, bottomLeft.x, bottomRight.x });
+        float maxX = std::max({ topLeft.x, topRight.x, bottomLeft.x, bottomRight.x });
+        float minY = std::min({ topLeft.y, topRight.y, bottomLeft.y, bottomRight.y });
+        float maxY = std::max({ topLeft.y, topRight.y, bottomLeft.y, bottomRight.y });
+
+        // Возвращаем выровненный по осям ограничивающий прямоугольник (AABB) в координатах родителя
+        return sf::FloatRect({ minX, minY }, { maxX - minX, maxY - minY });
+    }
+
+
 protected:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
         states = prepareStates(states);

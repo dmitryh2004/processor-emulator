@@ -48,6 +48,15 @@ public:
 	// выполнить парсинг
 	bool ParseProgram() {
 		parsedSuccessfully = false;
+		for (int i = 0; i < program.size(); i++) {
+			std::string line = program.at(i);
+			std::vector<std::string> splitted = splitString(line, ' ');
+			if (splitted.size() > 2) {
+				std:cerr << "[CPU] Error when parsing program (line " << i << ")" << std::endl;
+				break;
+			}
+		}
+		
 		return parsedSuccessfully;
 	}
 
@@ -102,4 +111,14 @@ private:
 
 		return tokens;
 	}
+
+	std::unordered_map<std::string, int> operators = {
+		{"LOAD", 0x04000000}, {"STOR", 0x00400000}, {"INC",  0x14000000}, {"ADD",  0x24400000},
+		{"ADDI", 0x34400000}, {"JNE",  0x45200000}, {"JL",   0x55200000}, {"JG",   0x65200000},
+		{"JE",   0x75200000}, {"MUL",  0x84400000}, {"DIV",  0x94400000}, {"NOT",  0xa4000000},
+		{"OR",   0xb4400000}, {"SUBD", 0xc4400000}, {"SUB",  0xd4400000}, {"DEC",  0xe4000000},
+		{"AND",  0xf4400000}, {"JMP",  0x05200000}, {"CLS",  0x04200000}
+	}, regs = {
+		{"OUT", 0x1}, {"IR",0x2}, {"MAR",0x3}, {"MDR",0x4}, {"AC",0x5}, {"PC",0x6}
+	};
 };

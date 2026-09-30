@@ -6,6 +6,8 @@ int main()
     // initialization - start
     std::setlocale(LC_ALL, ".UTF-8"); // настройка консоли на отображение сообщений в utf-8
 
+    RAM ram(65536);
+
     sf::RenderWindow window(sf::VideoMode({ 1440, 900 }), "SFML window", sf::Style::Titlebar | sf::Style::Close);
     window.setSize(sf::Vector2u(1440, 900));
     window.setFramerateLimit(60);
@@ -312,10 +314,17 @@ int main()
         sf::Vector2f(-18.f, 91.f),
         BaseObject::Anchor::TopRight,
         BaseObject::Anchor::TopRight);
-    // current command - end
 
     ccc->SetActive(true);
     ccc->SetCurrentValues(3828350977, 7);
+    // current command - end
+
+    // ram viewer - start
+    RAMViewer ramViewer(
+        "ramViewer", sf::Vector2f(688.f, 230.f), windowSizeFloat, ram, 10, 5, sf::Vector2f(68.f, 45.f), registerFont, 
+        14, registerTextColor, 0.f, sf::Vector2f(16.f, 649.f)
+    );
+    // ram viewer - end
 
     sf::Clock clock;
     while (window.isOpen())
