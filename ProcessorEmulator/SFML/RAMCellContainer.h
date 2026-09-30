@@ -1,6 +1,6 @@
 #pragma once
-#include "BaseObject.h" // Путь к вашему базовому классу
-#include "Text.h"       // Путь к вашему классу Text
+#include "BaseObject.h" // РџСѓС‚СЊ Рє РІР°С€РµРјСѓ Р±Р°Р·РѕРІРѕРјСѓ РєР»Р°СЃСЃСѓ
+#include "Text.h"       // РџСѓС‚СЊ Рє РІР°С€РµРјСѓ РєР»Р°СЃСЃСѓ Text
 #include <format>
 #include <cstdint>
 
@@ -25,47 +25,47 @@ public:
         m_address(address),
         m_value(value)
     {
-        // Инициализируем текстовое поле адреса
-        // Привязка: parentAnchor = TopRight, localAnchor = TopRight, смещение 10 пикселей внутрь (-10.f, 10.f)
+        // РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј С‚РµРєСЃС‚РѕРІРѕРµ РїРѕР»Рµ Р°РґСЂРµСЃР°
+        // РџСЂРёРІСЏР·РєР°: parentAnchor = TopRight, localAnchor = TopRight, СЃРјРµС‰РµРЅРёРµ 10 РїРёРєСЃРµР»РµР№ РІРЅСѓС‚СЂСЊ (-10.f, 10.f)
         m_addressText = std::make_unique<Text>(
             name + "_address",
             font,
-            size, // Родитель — сам контейнер
-            "",   // Текст установим через метод обновления
+            size, // Р РѕРґРёС‚РµР»СЊ вЂ” СЃР°Рј РєРѕРЅС‚РµР№РЅРµСЂ
+            "",   // РўРµРєСЃС‚ СѓСЃС‚Р°РЅРѕРІРёРј С‡РµСЂРµР· РјРµС‚РѕРґ РѕР±РЅРѕРІР»РµРЅРёСЏ
             characterSize,
             textColor,
-            false, // Без переноса строк
-            sf::Vector2f(-10.f, 10.f),
-            Anchor::TopRight,
-            Anchor::TopRight
+            false, // Р‘РµР· РїРµСЂРµРЅРѕСЃР° СЃС‚СЂРѕРє
+            sf::Vector2f(37.f, 5.f),
+            Anchor::TopLeft,
+            Anchor::TopLeft
         );
 
-        // Инициализируем текстовое поле значения
-        // Привязка: parentAnchor = BottomLeft, localAnchor = BottomLeft, смещение 10 пикселей внутрь (10.f, -10.f)
+        // РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј С‚РµРєСЃС‚РѕРІРѕРµ РїРѕР»Рµ Р·РЅР°С‡РµРЅРёСЏ
+        // РџСЂРёРІСЏР·РєР°: parentAnchor = BottomLeft, localAnchor = BottomLeft
         m_valueText = std::make_unique<Text>(
             name + "_value",
             font,
-            size, // Родитель — сам контейнер
-            "",   // Текст установим через метод обновления
+            size, // Р РѕРґРёС‚РµР»СЊ вЂ” СЃР°Рј РєРѕРЅС‚РµР№РЅРµСЂ
+            "",   // РўРµРєСЃС‚ СѓСЃС‚Р°РЅРѕРІРёРј С‡РµСЂРµР· РјРµС‚РѕРґ РѕР±РЅРѕРІР»РµРЅРёСЏ
             characterSize,
             textColor,
             false,
-            sf::Vector2f(10.f, -10.f),
+            sf::Vector2f(4.f, -9.f),
             Anchor::BottomLeft,
             Anchor::BottomLeft
         );
 
-        // Обновляем строковые представления
+        // РћР±РЅРѕРІР»СЏРµРј СЃС‚СЂРѕРєРѕРІС‹Рµ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ
         updateTextDisplays();
     }
 
-    // Метод изменения адреса ячейки
+    // РњРµС‚РѕРґ РёР·РјРµРЅРµРЅРёСЏ Р°РґСЂРµСЃР° СЏС‡РµР№РєРё
     void setAddress(uint32_t address) {
         m_address = address;
         updateTextDisplays();
     }
 
-    // Метод изменения значения ячейки
+    // РњРµС‚РѕРґ РёР·РјРµРЅРµРЅРёСЏ Р·РЅР°С‡РµРЅРёСЏ СЏС‡РµР№РєРё
     void setValue(uint32_t value) {
         m_value = value;
         updateTextDisplays();
@@ -74,41 +74,41 @@ public:
     uint32_t getAddress() const { return m_address; }
     uint32_t getValue() const { return m_value; }
 
-    // Логика обновления дочерних элементов (если требуется)
+    // Р›РѕРіРёРєР° РѕР±РЅРѕРІР»РµРЅРёСЏ РґРѕС‡РµСЂРЅРёС… СЌР»РµРјРµРЅС‚РѕРІ (РµСЃР»Рё С‚СЂРµР±СѓРµС‚СЃСЏ)
     void update(sf::Time deltaTime) override {
         m_addressText->update(deltaTime);
         m_valueText->update(deltaTime);
     }
 
     void checkForEvents(const sf::Event& event, const sf::RenderWindow& window, sf::Vector2f localMousePos) override {
-        // Если адрес равен 0, значение "reserved" и его нельзя редактировать
+        // Р•СЃР»Рё Р°РґСЂРµСЃ СЂР°РІРµРЅ 0, Р·РЅР°С‡РµРЅРёРµ "reserved" Рё РµРіРѕ РЅРµР»СЊР·СЏ СЂРµРґР°РєС‚РёСЂРѕРІР°С‚СЊ
         if (m_address == 0) return;
 
-        // Проверяем нажатие левой кнопки мыши
+        // РџСЂРѕРІРµСЂСЏРµРј РЅР°Р¶Р°С‚РёРµ Р»РµРІРѕР№ РєРЅРѕРїРєРё РјС‹С€Рё
         if (auto* mouseButtonEvent = event.getIf<sf::Event::MouseButtonPressed>()) {
             if (mouseButtonEvent->button == sf::Mouse::Button::Left) {
 
-                // Предполагаем, что у вашего класса Text есть метод для получения границ (sf::FloatRect).
-                // Так как localMousePos передается в координатах этого контейнера, 
-                // мы проверяем попадание мыши в локальные границы текста значения.
-                // Примечание: если getGlobalBounds() вашего текста возвращает мировые координаты, 
-                // нужно будет учесть трансформацию, но обычно для UI-компонентов проверяют локально.
+                // РџСЂРµРґРїРѕР»Р°РіР°РµРј, С‡С‚Рѕ Сѓ РІР°С€РµРіРѕ РєР»Р°СЃСЃР° Text РµСЃС‚СЊ РјРµС‚РѕРґ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РіСЂР°РЅРёС† (sf::FloatRect).
+                // РўР°Рє РєР°Рє localMousePos РїРµСЂРµРґР°РµС‚СЃСЏ РІ РєРѕРѕСЂРґРёРЅР°С‚Р°С… СЌС‚РѕРіРѕ РєРѕРЅС‚РµР№РЅРµСЂР°, 
+                // РјС‹ РїСЂРѕРІРµСЂСЏРµРј РїРѕРїР°РґР°РЅРёРµ РјС‹С€Рё РІ Р»РѕРєР°Р»СЊРЅС‹Рµ РіСЂР°РЅРёС†С‹ С‚РµРєСЃС‚Р° Р·РЅР°С‡РµРЅРёСЏ.
+                // РџСЂРёРјРµС‡Р°РЅРёРµ: РµСЃР»Рё getGlobalBounds() РІР°С€РµРіРѕ С‚РµРєСЃС‚Р° РІРѕР·РІСЂР°С‰Р°РµС‚ РјРёСЂРѕРІС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹, 
+                // РЅСѓР¶РЅРѕ Р±СѓРґРµС‚ СѓС‡РµСЃС‚СЊ С‚СЂР°РЅСЃС„РѕСЂРјР°С†РёСЋ, РЅРѕ РѕР±С‹С‡РЅРѕ РґР»СЏ UI-РєРѕРјРїРѕРЅРµРЅС‚РѕРІ РїСЂРѕРІРµСЂСЏСЋС‚ Р»РѕРєР°Р»СЊРЅРѕ.
                 sf::FloatRect textBounds = m_valueText->getBounds();
 
                 if (textBounds.contains(localMousePos)) {
-                    // Метод клика по тексту значения — открываем модальное окно
-                    openEditDialog(window.getSettings(), m_modalWindowFont, window); // Передаем шрифт
+                    // РњРµС‚РѕРґ РєР»РёРєР° РїРѕ С‚РµРєСЃС‚Сѓ Р·РЅР°С‡РµРЅРёСЏ вЂ” РѕС‚РєСЂС‹РІР°РµРј РјРѕРґР°Р»СЊРЅРѕРµ РѕРєРЅРѕ
+                    openEditDialog(window.getSettings(), m_modalWindowFont, window); // РџРµСЂРµРґР°РµРј С€СЂРёС„С‚
                 }
             }
         }
     }
 protected:
-    // Отрисовка контейнера и вложенных текстов
+    // РћС‚СЂРёСЃРѕРІРєР° РєРѕРЅС‚РµР№РЅРµСЂР° Рё РІР»РѕР¶РµРЅРЅС‹С… С‚РµРєСЃС‚РѕРІ
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
-        // Применяем трансформацию и шейдер текущего контейнера к состояниям отрисовки
+        // РџСЂРёРјРµРЅСЏРµРј С‚СЂР°РЅСЃС„РѕСЂРјР°С†РёСЋ Рё С€РµР№РґРµСЂ С‚РµРєСѓС‰РµРіРѕ РєРѕРЅС‚РµР№РЅРµСЂР° Рє СЃРѕСЃС‚РѕСЏРЅРёСЏРј РѕС‚СЂРёСЃРѕРІРєРё
         sf::RenderStates localStates = prepareStates(states);
 
-        // Отрисовываем дочерние текстовые поля с учетом накопленной трансформации
+        // РћС‚СЂРёСЃРѕРІС‹РІР°РµРј РґРѕС‡РµСЂРЅРёРµ С‚РµРєСЃС‚РѕРІС‹Рµ РїРѕР»СЏ СЃ СѓС‡РµС‚РѕРј РЅР°РєРѕРїР»РµРЅРЅРѕР№ С‚СЂР°РЅСЃС„РѕСЂРјР°С†РёРё
         target.draw(*m_addressText, localStates);
         target.draw(*m_valueText, localStates);
     }
@@ -122,35 +122,35 @@ private:
     std::unique_ptr<Text> m_addressText;
     std::unique_ptr<Text> m_valueText;
 
-    // Вспомогательный метод для обновления строк и обработки условия "reserved"
+    // Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Р№ РјРµС‚РѕРґ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ СЃС‚СЂРѕРє Рё РѕР±СЂР°Р±РѕС‚РєРё СѓСЃР»РѕРІРёСЏ "reserved"
     void updateTextDisplays() {
-        // Форматируем адрес в 0xHEX (например, 0x0000004A)
-        std::string addressStr = std::format("0x{:08X}", m_address);
+        // Р¤РѕСЂРјР°С‚РёСЂСѓРµРј Р°РґСЂРµСЃ РІ 0xHEX (РЅР°РїСЂРёРјРµСЂ, 0x0000004A)
+        std::string addressStr = std::format("{:04X}", m_address);
         m_addressText->setString(addressStr);
 
-        // Проверяем условие зарезервированного адреса
+        // РџСЂРѕРІРµСЂСЏРµРј СѓСЃР»РѕРІРёРµ Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅРѕРіРѕ Р°РґСЂРµСЃР°
         if (m_address == 0) {
             m_valueText->setString("reserved");
         }
         else {
-            // Форматируем значение в 0xHEX (например, 0x000000FF)
+            // Р¤РѕСЂРјР°С‚РёСЂСѓРµРј Р·РЅР°С‡РµРЅРёРµ РІ 0xHEX (РЅР°РїСЂРёРјРµСЂ, 0x000000FF)
             std::string valueStr = std::format("0x{:08X}", m_value);
             m_valueText->setString(valueStr);
         }
     }
 
     void openEditDialog(const sf::ContextSettings& settings, const sf::Font& font, const sf::RenderWindow& mainWindowRef) {
-        sf::RenderWindow dialog(sf::VideoMode({ 400, 250 }), "Изменение значения ячейки ОЗУ", sf::State::Windowed, settings);
+        sf::RenderWindow dialog(sf::VideoMode({ 400, 250 }), "Edit RAM cell value", sf::State::Windowed, settings);
         dialog.setFramerateLimit(60);
 
         std::string decInput = std::to_string(m_value);
 
-        // Настройка UI элементов (остается прежней)
-        sf::Text titleText(font, std::format("Адрес ячейки: 0x{:08X}", m_address), 18);
+        // РќР°СЃС‚СЂРѕР№РєР° UI СЌР»РµРјРµРЅС‚РѕРІ (РѕСЃС‚Р°РµС‚СЃСЏ РїСЂРµР¶РЅРµР№)
+        sf::Text titleText(font, std::format("Memory cell address: 0x{:08X}", m_address), 18);
         titleText.setPosition({ 20.f, 20.f });
         titleText.setFillColor(sf::Color::White);
 
-        sf::Text inputLabel(font, "Десятичное значение:", 14);
+        sf::Text inputLabel(font, "Decimal value:", 14);
         inputLabel.setPosition({ 20.f, 60.f });
         inputLabel.setFillColor(sf::Color::Cyan);
 
@@ -158,7 +158,7 @@ private:
         inputDisplay.setPosition({ 20.f, 85.f });
         inputDisplay.setFillColor(sf::Color::White);
 
-        sf::Text hexLabel(font, "Hex-значение:", 14);
+        sf::Text hexLabel(font, "Hex value:", 14);
         hexLabel.setPosition({ 20.f, 125.f });
         hexLabel.setFillColor(sf::Color::Cyan);
 
@@ -170,24 +170,24 @@ private:
         saveBtn.setPosition({ 160.f, 200.f });
         saveBtn.setFillColor(sf::Color(0, 150, 0));
 
-        sf::Text saveText(font, "Сохранить", 14);
+        sf::Text saveText(font, "Save", 14);
         saveText.setPosition({ 190.f, 208.f });
 
         sf::RectangleShape cancelBtn({ 100.f, 35.f });
         cancelBtn.setPosition({ 280.f, 200.f });
         cancelBtn.setFillColor(sf::Color(150, 0, 0));
 
-        sf::Text cancelText(font, "Отмена", 14);
+        sf::Text cancelText(font, "Cancel", 14);
         cancelText.setPosition({ 305.f, 208.f });
 
-        // Получаем неконстантную ссылку на главное окно для очистки его очереди событий
+        // РџРѕР»СѓС‡Р°РµРј РЅРµРєРѕРЅСЃС‚Р°РЅС‚РЅСѓСЋ СЃСЃС‹Р»РєСѓ РЅР° РіР»Р°РІРЅРѕРµ РѕРєРЅРѕ РґР»СЏ РѕС‡РёСЃС‚РєРё РµРіРѕ РѕС‡РµСЂРµРґРё СЃРѕР±С‹С‚РёР№
         auto& mainWindow = const_cast<sf::RenderWindow&>(mainWindowRef);
 
-        // Вложенный игровой цикл модального окна
+        // Р’Р»РѕР¶РµРЅРЅС‹Р№ РёРіСЂРѕРІРѕР№ С†РёРєР» РјРѕРґР°Р»СЊРЅРѕРіРѕ РѕРєРЅР°
         while (dialog.isOpen()) {
 
-            // --- РЕШЕНИЕ ПРОБЛЕМЫ ЗАВИСАНИЯ ОС ---
-            // Опрашиваем события главного окна. Игнорируем всё, кроме закрытия.
+            // --- Р Р•РЁР•РќРР• РџР РћР‘Р›Р•РњР« Р—РђР’РРЎРђРќРРЇ РћРЎ ---
+            // РћРїСЂР°С€РёРІР°РµРј СЃРѕР±С‹С‚РёСЏ РіР»Р°РІРЅРѕРіРѕ РѕРєРЅР°. РРіРЅРѕСЂРёСЂСѓРµРј РІСЃС‘, РєСЂРѕРјРµ Р·Р°РєСЂС‹С‚РёСЏ.
             while (const std::optional<sf::Event> mainEvent = mainWindow.pollEvent()) {
                 if (mainEvent->is<sf::Event::Closed>()) {
                     mainWindow.close();
@@ -196,7 +196,7 @@ private:
                 }
             }
 
-            // Опрашиваем события модального диалога
+            // РћРїСЂР°С€РёРІР°РµРј СЃРѕР±С‹С‚РёСЏ РјРѕРґР°Р»СЊРЅРѕРіРѕ РґРёР°Р»РѕРіР°
             while (const std::optional<sf::Event> optEvent = dialog.pollEvent()) {
                 const sf::Event& event = *optEvent;
 
@@ -204,12 +204,12 @@ private:
                     dialog.close();
                 }
 
-                // Обработка ввода текста с автозаменой при переполнении
+                // РћР±СЂР°Р±РѕС‚РєР° РІРІРѕРґР° С‚РµРєСЃС‚Р° СЃ Р°РІС‚РѕР·Р°РјРµРЅРѕР№ РїСЂРё РїРµСЂРµРїРѕР»РЅРµРЅРёРё
                 if (auto* textEvent = event.getIf<sf::Event::TextEntered>()) {
                     uint32_t unicode = textEvent->unicode;
 
                     if (unicode >= '0' && unicode <= '9') {
-                        // Позволяем ввести до 12 символов, чтобы триггерить проверку на переполнение
+                        // РџРѕР·РІРѕР»СЏРµРј РІРІРµСЃС‚Рё РґРѕ 12 СЃРёРјРІРѕР»РѕРІ, С‡С‚РѕР±С‹ С‚СЂРёРіРіРµСЂРёС‚СЊ РїСЂРѕРІРµСЂРєСѓ РЅР° РїРµСЂРµРїРѕР»РЅРµРЅРёРµ
                         if (decInput.length() < 12) {
                             decInput += static_cast<char>(unicode);
                         }
@@ -220,12 +220,12 @@ private:
                         }
                     }
 
-                    // --- АВТОМАТИЧЕСКАЯ УСТАНОВКА МАКСИМУМА (CLAMPING) ---
+                    // --- РђР’РўРћРњРђРўРР§Р•РЎРљРђРЇ РЈРЎРўРђРќРћР’РљРђ РњРђРљРЎРРњРЈРњРђ (CLAMPING) ---
                     if (!decInput.empty()) {
                         try {
                             unsigned long long val = std::stoull(decInput);
 
-                            // Если введено число больше макс. значения uint32_t (4294967295)
+                            // Р•СЃР»Рё РІРІРµРґРµРЅРѕ С‡РёСЃР»Рѕ Р±РѕР»СЊС€Рµ РјР°РєСЃ. Р·РЅР°С‡РµРЅРёСЏ uint32_t (4294967295)
                             if (val > 4294967295ULL) {
                                 decInput = "4294967295";
                                 val = 4294967295ULL;
@@ -235,7 +235,7 @@ private:
                             hexDisplay.setString(std::format("0x{:08X}", currentVal));
                         }
                         catch (...) {
-                            // Обработка исключения на случай ввода экстремально длинного числа
+                            // РћР±СЂР°Р±РѕС‚РєР° РёСЃРєР»СЋС‡РµРЅРёСЏ РЅР° СЃР»СѓС‡Р°Р№ РІРІРѕРґР° СЌРєСЃС‚СЂРµРјР°Р»СЊРЅРѕ РґР»РёРЅРЅРѕРіРѕ С‡РёСЃР»Р°
                             decInput = "4294967295";
                             hexDisplay.setString("0xFFFFFFFF");
                         }
@@ -244,11 +244,11 @@ private:
                         hexDisplay.setString("0x00000000");
                     }
 
-                    // Обновляем текст на экране с курсором
+                    // РћР±РЅРѕРІР»СЏРµРј С‚РµРєСЃС‚ РЅР° СЌРєСЂР°РЅРµ СЃ РєСѓСЂСЃРѕСЂРѕРј
                     inputDisplay.setString(decInput + "|");
                 }
 
-                // Обработка кликов по кнопкам
+                // РћР±СЂР°Р±РѕС‚РєР° РєР»РёРєРѕРІ РїРѕ РєРЅРѕРїРєР°Рј
                 if (auto* mouseButtonEvent = event.getIf<sf::Event::MouseButtonPressed>()) {
                     if (mouseButtonEvent->button == sf::Mouse::Button::Left) {
                         sf::Vector2f mousePos = dialog.mapPixelToCoords(mouseButtonEvent->position);
@@ -269,7 +269,7 @@ private:
                 }
             }
 
-            // Рендеринг модального окна
+            // Р РµРЅРґРµСЂРёРЅРі РјРѕРґР°Р»СЊРЅРѕРіРѕ РѕРєРЅР°
             dialog.clear(sf::Color(30, 30, 30));
             dialog.draw(titleText);
             dialog.draw(inputLabel);

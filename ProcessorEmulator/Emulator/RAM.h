@@ -4,37 +4,37 @@
 #include <stdexcept>
 #include <fstream>
 #include <algorithm>
-#include <cstring> // Для std::memcmp
+#include <cstring> // Р”Р»СЏ std::memcmp
 
 class RAM {
 private:
     std::vector<unsigned int> memory;
 
-    // Уникальная сигнатура нашей программы (4 байта)
+    // РЈРЅРёРєР°Р»СЊРЅР°СЏ СЃРёРіРЅР°С‚СѓСЂР° РЅР°С€РµР№ РїСЂРѕРіСЂР°РјРјС‹ (4 Р±Р°Р№С‚Р°)
     static constexpr char MAGIC_SIGNATURE[4] = { 'R', 'A', 'M', 'D' };
 
 public:
     RAM(size_t N) {
         if (N == 0) {
-            throw std::invalid_argument("Размер памяти должен быть больше 0.");
+            throw std::invalid_argument("Р Р°Р·РјРµСЂ РїР°РјСЏС‚Рё РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ 0.");
         }
         memory.resize(N, 0);
     }
 
     unsigned int read(size_t address) const {
         if (address >= memory.size()) {
-            throw std::out_of_range("Ошибка чтения: Адрес выходит за пределы памяти.");
+            throw std::out_of_range("РћС€РёР±РєР° С‡С‚РµРЅРёСЏ: РђРґСЂРµСЃ РІС‹С…РѕРґРёС‚ Р·Р° РїСЂРµРґРµР»С‹ РїР°РјСЏС‚Рё.");
         }
         return memory[address];
     }
 
     void write(size_t address, unsigned int value) {
         if (address >= memory.size()) {
-            throw std::out_of_range("Ошибка записи: Адрес выходит за пределы памяти.");
+            throw std::out_of_range("РћС€РёР±РєР° Р·Р°РїРёСЃРё: РђРґСЂРµСЃ РІС‹С…РѕРґРёС‚ Р·Р° РїСЂРµРґРµР»С‹ РїР°РјСЏС‚Рё.");
         }
 
         if (address == 0) {
-            std::cout << "Предупреждение: Попытка записи в зарезервированную ячейку 0x0 проигнорирована.\n";
+            std::cout << "РџСЂРµРґСѓРїСЂРµР¶РґРµРЅРёРµ: РџРѕРїС‹С‚РєР° Р·Р°РїРёСЃРё РІ Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅСѓСЋ СЏС‡РµР№РєСѓ 0x0 РїСЂРѕРёРіРЅРѕСЂРёСЂРѕРІР°РЅР°.\n";
             return;
         }
 
@@ -43,70 +43,70 @@ public:
 
     void reset() {
         std::fill(memory.begin(), memory.end(), 0);
-        std::cout << "Память успешно сброшена (все ячейки обнулены).\n";
+        std::cout << "РџР°РјСЏС‚СЊ СѓСЃРїРµС€РЅРѕ СЃР±СЂРѕС€РµРЅР° (РІСЃРµ СЏС‡РµР№РєРё РѕР±РЅСѓР»РµРЅС‹).\n";
     }
 
-    // Сохранение дампа вместе с заголовком безопасности
+    // РЎРѕС…СЂР°РЅРµРЅРёРµ РґР°РјРїР° РІРјРµСЃС‚Рµ СЃ Р·Р°РіРѕР»РѕРІРєРѕРј Р±РµР·РѕРїР°СЃРЅРѕСЃС‚Рё
     void saveDump(const std::string& filename) const {
         std::ofstream outFile(filename, std::ios::binary);
         if (!outFile) {
-            throw std::runtime_error("Не удалось открыть файл для записи дампа: " + filename);
+            throw std::runtime_error("РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» РґР»СЏ Р·Р°РїРёСЃРё РґР°РјРїР°: " + filename);
         }
 
-        // 1. Записываем сигнатуру "RAMD"
+        // 1. Р—Р°РїРёСЃС‹РІР°РµРј СЃРёРіРЅР°С‚СѓСЂСѓ "RAMD"
         outFile.write(MAGIC_SIGNATURE, sizeof(MAGIC_SIGNATURE));
 
-        // 2. Записываем количество ячеек памяти (размер типа size_t)
+        // 2. Р—Р°РїРёСЃС‹РІР°РµРј РєРѕР»РёС‡РµСЃС‚РІРѕ СЏС‡РµРµРє РїР°РјСЏС‚Рё (СЂР°Р·РјРµСЂ С‚РёРїР° size_t)
         size_t numElements = memory.size();
         outFile.write(reinterpret_cast<const char*>(&numElements), sizeof(numElements));
 
-        // 3. Записываем сами данные памяти
+        // 3. Р—Р°РїРёСЃС‹РІР°РµРј СЃР°РјРё РґР°РЅРЅС‹Рµ РїР°РјСЏС‚Рё
         outFile.write(reinterpret_cast<const char*>(memory.data()), numElements * sizeof(unsigned int));
 
-        std::cout << "Дамп памяти успешно сохранен в файл: " << filename << "\n";
+        std::cout << "Р”Р°РјРї РїР°РјСЏС‚Рё СѓСЃРїРµС€РЅРѕ СЃРѕС…СЂР°РЅРµРЅ РІ С„Р°Р№Р»: " << filename << "\n";
     }
 
-    // Загрузка дампа с жесткой проверкой формата и размера
+    // Р—Р°РіСЂСѓР·РєР° РґР°РјРїР° СЃ Р¶РµСЃС‚РєРѕР№ РїСЂРѕРІРµСЂРєРѕР№ С„РѕСЂРјР°С‚Р° Рё СЂР°Р·РјРµСЂР°
     void loadDump(const std::string& filename) {
         std::ifstream inFile(filename, std::ios::binary);
         if (!inFile) {
-            throw std::runtime_error("Не удалось открыть файл для чтения дампа: " + filename);
+            throw std::runtime_error("РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» РґР»СЏ С‡С‚РµРЅРёСЏ РґР°РјРїР°: " + filename);
         }
 
-        // 1. Проверяем сигнатуру файла
+        // 1. РџСЂРѕРІРµСЂСЏРµРј СЃРёРіРЅР°С‚СѓСЂСѓ С„Р°Р№Р»Р°
         char fileSignature[4];
         if (!inFile.read(fileSignature, sizeof(fileSignature))) {
-            throw std::runtime_error("Ошибка чтения: Файл слишком короткий или поврежден.");
+            throw std::runtime_error("РћС€РёР±РєР° С‡С‚РµРЅРёСЏ: Р¤Р°Р№Р» СЃР»РёС€РєРѕРј РєРѕСЂРѕС‚РєРёР№ РёР»Рё РїРѕРІСЂРµР¶РґРµРЅ.");
         }
 
         if (std::memcmp(fileSignature, MAGIC_SIGNATURE, sizeof(MAGIC_SIGNATURE)) != 0) {
-            throw std::runtime_error("Ошибка валидации: Указанный файл не является дампом памяти этой программы.");
+            throw std::runtime_error("РћС€РёР±РєР° РІР°Р»РёРґР°С†РёРё: РЈРєР°Р·Р°РЅРЅС‹Р№ С„Р°Р№Р» РЅРµ СЏРІР»СЏРµС‚СЃСЏ РґР°РјРїРѕРј РїР°РјСЏС‚Рё СЌС‚РѕР№ РїСЂРѕРіСЂР°РјРјС‹.");
         }
 
-        // 2. Считываем сохраненный размер памяти из файла
+        // 2. РЎС‡РёС‚С‹РІР°РµРј СЃРѕС…СЂР°РЅРµРЅРЅС‹Р№ СЂР°Р·РјРµСЂ РїР°РјСЏС‚Рё РёР· С„Р°Р№Р»Р°
         size_t savedSize = 0;
         if (!inFile.read(reinterpret_cast<char*>(&savedSize), sizeof(savedSize))) {
-            throw std::runtime_error("Ошибка чтения: Не удалось прочитать метаданные размера памяти.");
+            throw std::runtime_error("РћС€РёР±РєР° С‡С‚РµРЅРёСЏ: РќРµ СѓРґР°Р»РѕСЃСЊ РїСЂРѕС‡РёС‚Р°С‚СЊ РјРµС‚Р°РґР°РЅРЅС‹Рµ СЂР°Р·РјРµСЂР° РїР°РјСЏС‚Рё.");
         }
 
-        // 3. Сравниваем сохраненный размер с текущим размером объекта
+        // 3. РЎСЂР°РІРЅРёРІР°РµРј СЃРѕС…СЂР°РЅРµРЅРЅС‹Р№ СЂР°Р·РјРµСЂ СЃ С‚РµРєСѓС‰РёРј СЂР°Р·РјРµСЂРѕРј РѕР±СЉРµРєС‚Р°
         if (savedSize != memory.size()) {
-            throw std::runtime_error("Ошибка валидации: Размер дампа в файле (" + std::to_string(savedSize) +
-                " ячеек) не совпадает со строгим текущим размером памяти (" +
-                std::to_string(memory.size()) + " ячеек).");
+            throw std::runtime_error("РћС€РёР±РєР° РІР°Р»РёРґР°С†РёРё: Р Р°Р·РјРµСЂ РґР°РјРїР° РІ С„Р°Р№Р»Рµ (" + std::to_string(savedSize) +
+                " СЏС‡РµРµРє) РЅРµ СЃРѕРІРїР°РґР°РµС‚ СЃРѕ СЃС‚СЂРѕРіРёРј С‚РµРєСѓС‰РёРј СЂР°Р·РјРµСЂРѕРј РїР°РјСЏС‚Рё (" +
+                std::to_string(memory.size()) + " СЏС‡РµРµРє).");
         }
 
-        // 4. Считываем данные памяти напрямую в наш существующий вектор
+        // 4. РЎС‡РёС‚С‹РІР°РµРј РґР°РЅРЅС‹Рµ РїР°РјСЏС‚Рё РЅР°РїСЂСЏРјСѓСЋ РІ РЅР°С€ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ РІРµРєС‚РѕСЂ
         inFile.read(reinterpret_cast<char*>(memory.data()), savedSize * sizeof(unsigned int));
 
         if (inFile.gcount() != static_cast<std::streamsize>(savedSize * sizeof(unsigned int))) {
-            throw std::runtime_error("Ошибка чтения: Файл дампа поврежден или содержит меньше данных, чем заявлено.");
+            throw std::runtime_error("РћС€РёР±РєР° С‡С‚РµРЅРёСЏ: Р¤Р°Р№Р» РґР°РјРїР° РїРѕРІСЂРµР¶РґРµРЅ РёР»Рё СЃРѕРґРµСЂР¶РёС‚ РјРµРЅСЊС€Рµ РґР°РЅРЅС‹С…, С‡РµРј Р·Р°СЏРІР»РµРЅРѕ.");
         }
 
-        // На всякий случай гарантируем чистоту ячейки 0x0
+        // РќР° РІСЃСЏРєРёР№ СЃР»СѓС‡Р°Р№ РіР°СЂР°РЅС‚РёСЂСѓРµРј С‡РёСЃС‚РѕС‚Сѓ СЏС‡РµР№РєРё 0x0
         memory[0] = 0;
 
-        std::cout << "Дамп памяти успешно проверен и загружен из файла: " << filename << "\n";
+        std::cout << "Р”Р°РјРї РїР°РјСЏС‚Рё СѓСЃРїРµС€РЅРѕ РїСЂРѕРІРµСЂРµРЅ Рё Р·Р°РіСЂСѓР¶РµРЅ РёР· С„Р°Р№Р»Р°: " << filename << "\n";
     }
 
     size_t getSize() const {

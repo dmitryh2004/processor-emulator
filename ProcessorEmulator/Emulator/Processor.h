@@ -5,7 +5,7 @@
 #include <cmath>
 #include <iomanip>
 #include <vector>
-#include <sstream> // Добавлено, так как используется std::stringstream
+#include <sstream> // Р”РѕР±Р°РІР»РµРЅРѕ, С‚Р°Рє РєР°Рє РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ std::stringstream
 #include "RAM.h"
 #include <SFML/Graphics.hpp>
 
@@ -39,13 +39,13 @@ public:
 		parsedSuccessfully = false;
 	}
 
-	// загрузить программу
+	// Р·Р°РіСЂСѓР·РёС‚СЊ РїСЂРѕРіСЂР°РјРјСѓ
 	void LoadProgram(sf::String newProgram) {
 		std::string newProgramString = newProgram.toAnsiString();
 		program = splitString(newProgramString, '\n');
 	}
 
-	// выполнить парсинг
+	// РІС‹РїРѕР»РЅРёС‚СЊ РїР°СЂСЃРёРЅРі
 	bool ParseProgram() {
 		parsedSuccessfully = false;
 		for (int i = 0; i < program.size(); i++) {
@@ -70,17 +70,17 @@ public:
 
 	unsigned int GetRegisterValue(int index) {
 		if (index < 0 || index > 6) {
-			throw std::out_of_range("Регистра с индексом " + std::to_string(index) + " не существует.");
+			throw std::out_of_range("Р РµРіРёСЃС‚СЂР° СЃ РёРЅРґРµРєСЃРѕРј " + std::to_string(index) + " РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚.");
 		}
 		return REGS[index];
 	}
 
-	// Метод для получения неконстантной ссылки на RAM (позволяет модифицировать память)
+	// РњРµС‚РѕРґ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РЅРµРєРѕРЅСЃС‚Р°РЅС‚РЅРѕР№ СЃСЃС‹Р»РєРё РЅР° RAM (РїРѕР·РІРѕР»СЏРµС‚ РјРѕРґРёС„РёС†РёСЂРѕРІР°С‚СЊ РїР°РјСЏС‚СЊ)
 	RAM& GetRAM() {
 		return ram;
 	}
 
-	// Перегрузка метода для получения константной ссылки на RAM (для безопасного чтения)
+	// РџРµСЂРµРіСЂСѓР·РєР° РјРµС‚РѕРґР° РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РєРѕРЅСЃС‚Р°РЅС‚РЅРѕР№ СЃСЃС‹Р»РєРё РЅР° RAM (РґР»СЏ Р±РµР·РѕРїР°СЃРЅРѕРіРѕ С‡С‚РµРЅРёСЏ)
 	const RAM& GetRAM() const {
 		return ram;
 	}
@@ -101,10 +101,10 @@ private:
 
 	std::vector<std::string> splitString(const std::string& input, char delimiter) {
 		std::vector<std::string> tokens;
-		std::stringstream ss(input); // Создаём поток из строки
+		std::stringstream ss(input); // РЎРѕР·РґР°С‘Рј РїРѕС‚РѕРє РёР· СЃС‚СЂРѕРєРё
 		std::string token;
 
-		// Извлекаем токены, разделённые delimiter, и добавляем в вектор
+		// РР·РІР»РµРєР°РµРј С‚РѕРєРµРЅС‹, СЂР°Р·РґРµР»С‘РЅРЅС‹Рµ delimiter, Рё РґРѕР±Р°РІР»СЏРµРј РІ РІРµРєС‚РѕСЂ
 		while (getline(ss, token, delimiter)) {
 			tokens.push_back(token);
 		}

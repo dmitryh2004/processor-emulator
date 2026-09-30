@@ -15,11 +15,12 @@ public:
         RAM& ramRef,
         size_t cellCountX,
         size_t cellCountY,
-        sf::Vector2f cellSize,       // Размер одной ячейки RAMCellContainer
+        sf::Vector2f cellSize,       // Р Р°Р·РјРµСЂ РѕРґРЅРѕР№ СЏС‡РµР№РєРё RAMCellContainer
         const sf::Font& font,
+        const sf::Font& modalWindowFont,
         unsigned int characterSize = 20,
         sf::Color textColor = sf::Color::White,
-        float spacing = 0.f,         // Вертикальный зазор между ячейками
+        float spacing = 0.f,         // Р’РµСЂС‚РёРєР°Р»СЊРЅС‹Р№ Р·Р°Р·РѕСЂ РјРµР¶РґСѓ СЏС‡РµР№РєР°РјРё
         sf::Vector2f offset = sf::Vector2f(0.f, 0.f),
         Anchor parentAnchor = Anchor::TopLeft,
         Anchor localAnchor = Anchor::TopLeft,
@@ -27,56 +28,57 @@ public:
         sf::Vector2f scale = sf::Vector2f(1.f, 1.f))
         : BaseObject(name, size, parentSize, offset, parentAnchor, localAnchor, rotation, scale),
         m_ram(ramRef),
-        m_currentPage(1), // Нумерация страниц начинается с 1
+        m_currentPage(1), // РќСѓРјРµСЂР°С†РёСЏ СЃС‚СЂР°РЅРёС† РЅР°С‡РёРЅР°РµС‚СЃСЏ СЃ 1
         m_dumpFilename("memdump.bin")
     {
         m_cellsPerPage = cellCountX * cellCountY;
-        // Вычисляем общее количество доступных страниц в RAM
+        // Р’С‹С‡РёСЃР»СЏРµРј РѕР±С‰РµРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РґРѕСЃС‚СѓРїРЅС‹С… СЃС‚СЂР°РЅРёС† РІ RAM
         m_totalPages = static_cast<size_t>(std::ceil(static_cast<double>(m_ram.getSize()) / m_cellsPerPage));
         if (m_totalPages == 0) m_totalPages = 1;
 
-        // Создаем M ячеек RAMCellContainer и выстраиваем их сеткой
+        // РЎРѕР·РґР°РµРј M СЏС‡РµРµРє RAMCellContainer Рё РІС‹СЃС‚СЂР°РёРІР°РµРј РёС… СЃРµС‚РєРѕР№
         for (size_t i = 0; i < m_cellsPerPage; ++i) {
             int x = i % cellCountX;
-            int y = i / cellCountY;
+            int y = i / cellCountX;
 
-            // Вычисляем смещение для i-й ячейки по вертикали
+            // Р’С‹С‡РёСЃР»СЏРµРј СЃРјРµС‰РµРЅРёРµ РґР»СЏ i-Р№ СЏС‡РµР№РєРё РїРѕ РІРµСЂС‚РёРєР°Р»Рё
             float xPos = x * (cellSize.x + spacing);
             float yPos = y * (cellSize.y + spacing);
 
             auto cell = std::make_unique<RAMCellContainer>(
                 name + "_cell_" + std::to_string(i),
                 cellSize,
-                size, // Родителем является сам RAMViewer
+                size, // Р РѕРґРёС‚РµР»РµРј СЏРІР»СЏРµС‚СЃСЏ СЃР°Рј RAMViewer
                 font,
-                0,    // Начальный адрес (обновится в updateCellsFromMemory)
-                0,    // Начальное значение (обновится в updateCellsFromMemory)
+                modalWindowFont,
+                0,    // РќР°С‡Р°Р»СЊРЅС‹Р№ Р°РґСЂРµСЃ (РѕР±РЅРѕРІРёС‚СЃСЏ РІ updateCellsFromMemory)
+                0,    // РќР°С‡Р°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ (РѕР±РЅРѕРІРёС‚СЃСЏ РІ updateCellsFromMemory)
                 characterSize,
                 textColor,
-                sf::Vector2f(xPos, yPos), // Смещение относительно TopLeft вьювера
+                sf::Vector2f(xPos, yPos), // РЎРјРµС‰РµРЅРёРµ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ TopLeft РІСЊСЋРІРµСЂР°
                 Anchor::TopLeft,
                 Anchor::TopLeft
             );
             m_cells.push_back(std::move(cell));
         }
 
-        // Заполняем ячейки актуальными данными из RAM для первой страницы
+        // Р—Р°РїРѕР»РЅСЏРµРј СЏС‡РµР№РєРё Р°РєС‚СѓР°Р»СЊРЅС‹РјРё РґР°РЅРЅС‹РјРё РёР· RAM РґР»СЏ РїРµСЂРІРѕР№ СЃС‚СЂР°РЅРёС†С‹
         updateCellsFromMemory();
     }
 
-    // --- Логика переключения страниц ---
+    // --- Р›РѕРіРёРєР° РїРµСЂРµРєР»СЋС‡РµРЅРёСЏ СЃС‚СЂР°РЅРёС† ---
 
-    // Установка конкретной страницы с проверкой корректности границ
+    // РЈСЃС‚Р°РЅРѕРІРєР° РєРѕРЅРєСЂРµС‚РЅРѕР№ СЃС‚СЂР°РЅРёС†С‹ СЃ РїСЂРѕРІРµСЂРєРѕР№ РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚Рё РіСЂР°РЅРёС†
     bool setPage(size_t page) {
         if (page >= 1 && page <= m_totalPages) {
             m_currentPage = page;
             updateCellsFromMemory();
             return true;
         }
-        return false; // Страница вне диапазона
+        return false; // РЎС‚СЂР°РЅРёС†Р° РІРЅРµ РґРёР°РїР°Р·РѕРЅР°
     }
 
-    // Переход на следующую страницу
+    // РџРµСЂРµС…РѕРґ РЅР° СЃР»РµРґСѓСЋС‰СѓСЋ СЃС‚СЂР°РЅРёС†Сѓ
     void nextPage() {
         if (m_currentPage < m_totalPages) {
             m_currentPage++;
@@ -84,7 +86,7 @@ public:
         }
     }
 
-    // Переход на предыдущую страницу
+    // РџРµСЂРµС…РѕРґ РЅР° РїСЂРµРґС‹РґСѓС‰СѓСЋ СЃС‚СЂР°РЅРёС†Сѓ
     void prevPage() {
         if (m_currentPage > 1) {
             m_currentPage--;
@@ -95,7 +97,7 @@ public:
     size_t getCurrentPage() const { return m_currentPage; }
     size_t getTotalPages() const { return m_totalPages; }
 
-    // --- Прокси-методы для управления памятью ---
+    // --- РџСЂРѕРєСЃРё-РјРµС‚РѕРґС‹ РґР»СЏ СѓРїСЂР°РІР»РµРЅРёСЏ РїР°РјСЏС‚СЊСЋ ---
 
     void saveDump() const {
         m_ram.saveDump(m_dumpFilename);
@@ -103,31 +105,36 @@ public:
 
     void loadDump() {
         m_ram.loadDump(m_dumpFilename);
-        // После загрузки дампа данные в RAM изменились, обновляем экран
+        // РџРѕСЃР»Рµ Р·Р°РіСЂСѓР·РєРё РґР°РјРїР° РґР°РЅРЅС‹Рµ РІ RAM РёР·РјРµРЅРёР»РёСЃСЊ, РѕР±РЅРѕРІР»СЏРµРј СЌРєСЂР°РЅ
         updateCellsFromMemory();
     }
 
     void reset() {
         m_ram.reset();
-        // После обнуления обновляем экран
+        // РџРѕСЃР»Рµ РѕР±РЅСѓР»РµРЅРёСЏ РѕР±РЅРѕРІР»СЏРµРј СЌРєСЂР°РЅ
         updateCellsFromMemory();
     }
 
-    // --- Переопределение методов базового класса ---
+    // --- РџРµСЂРµРѕРїСЂРµРґРµР»РµРЅРёРµ РјРµС‚РѕРґРѕРІ Р±Р°Р·РѕРІРѕРіРѕ РєР»Р°СЃСЃР° ---
 
     void checkForEvents(const sf::Event& event, const sf::RenderWindow& window, sf::Vector2f localMousePos) override {
-        // Пробрасываем событие во все дочерние ячейки.
-        // Для каждой ячейки нужно скорректировать координаты мыши, 
-        // вычтя из текущей позиции мыши локальную позицию самой ячейки.
-        for (auto& cell : m_cells) {
-            sf::Vector2f cellLocalMouse = localMousePos - cell->getPosition();
-            cell->checkForEvents(event, window, cellLocalMouse);
-        }
+        // РџСЂРѕР±СЂР°СЃС‹РІР°РµРј СЃРѕР±С‹С‚РёРµ РІРѕ РІСЃРµ РґРѕС‡РµСЂРЅРёРµ СЏС‡РµР№РєРё.
+        // Р”Р»СЏ РєР°Р¶РґРѕР№ СЏС‡РµР№РєРё РЅСѓР¶РЅРѕ СЃРєРѕСЂСЂРµРєС‚РёСЂРѕРІР°С‚СЊ РєРѕРѕСЂРґРёРЅР°С‚С‹ РјС‹С€Рё, 
+        // РІС‹С‡С‚СЏ РёР· С‚РµРєСѓС‰РµР№ РїРѕР·РёС†РёРё РјС‹С€Рё Р»РѕРєР°Р»СЊРЅСѓСЋ РїРѕР·РёС†РёСЋ СЃР°РјРѕР№ СЏС‡РµР№РєРё.
+        if (auto* mouseButtonEvent = event.getIf<sf::Event::MouseButtonPressed>()) {
+            if (mouseButtonEvent->button == sf::Mouse::Button::Left) {
+                sf::Vector2f cellLocalMouse = localMousePos - getPosition();
 
-        // Если дочерняя ячейка изменила значение внутри своего модального окна, 
-        // нам необходимо синхронизировать это изменение обратно в оперативную память.
-        // А также обновить отображение (на случай, если изменилась ячейка 0x0 и сработал "reserved")
-        syncChangesToRAM();
+                for (auto& cell : m_cells) {
+                    cell->checkForEvents(event, window, cellLocalMouse - cell->getPosition());
+                }
+
+                // Р•СЃР»Рё РґРѕС‡РµСЂРЅСЏСЏ СЏС‡РµР№РєР° РёР·РјРµРЅРёР»Р° Р·РЅР°С‡РµРЅРёРµ РІРЅСѓС‚СЂРё СЃРІРѕРµРіРѕ РјРѕРґР°Р»СЊРЅРѕРіРѕ РѕРєРЅР°, 
+                // РЅР°Рј РЅРµРѕР±С…РѕРґРёРјРѕ СЃРёРЅС…СЂРѕРЅРёР·РёСЂРѕРІР°С‚СЊ СЌС‚Рѕ РёР·РјРµРЅРµРЅРёРµ РѕР±СЂР°С‚РЅРѕ РІ РѕРїРµСЂР°С‚РёРІРЅСѓСЋ РїР°РјСЏС‚СЊ.
+                // Рђ С‚Р°РєР¶Рµ РѕР±РЅРѕРІРёС‚СЊ РѕС‚РѕР±СЂР°Р¶РµРЅРёРµ (РЅР° СЃР»СѓС‡Р°Р№, РµСЃР»Рё РёР·РјРµРЅРёР»Р°СЃСЊ СЏС‡РµР№РєР° 0x0 Рё СЃСЂР°Р±РѕС‚Р°Р» "reserved")
+                syncChangesToRAM();
+            }
+        }
     }
 
     void update(sf::Time deltaTime) override {
@@ -138,45 +145,45 @@ public:
 
 protected:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
-        // Объединяем трансформации
+        // РћР±СЉРµРґРёРЅСЏРµРј С‚СЂР°РЅСЃС„РѕСЂРјР°С†РёРё
         sf::RenderStates localStates = prepareStates(states);
 
-        // Отрисовываем все ячейки памяти
+        // РћС‚СЂРёСЃРѕРІС‹РІР°РµРј РІСЃРµ СЏС‡РµР№РєРё РїР°РјСЏС‚Рё
         for (const auto& cell : m_cells) {
             target.draw(*cell, localStates);
         }
     }
 
 private:
-    RAM& m_ram;                                             // Ссылка на объект эмуляции памяти
-    std::vector<std::unique_ptr<RAMCellContainer>> m_cells; // Массив контейнеров ячеек (M штук)
-    size_t m_cellsPerPage;                                  // Количество ячеек на странице (M)
-    size_t m_currentPage;                                   // Индекс текущей страницы (от 1)
-    size_t m_totalPages;                                    // Общее количество страниц
-    const std::string m_dumpFilename;                       // Фиксированное имя файла
+    RAM& m_ram;                                             // РЎСЃС‹Р»РєР° РЅР° РѕР±СЉРµРєС‚ СЌРјСѓР»СЏС†РёРё РїР°РјСЏС‚Рё
+    std::vector<std::unique_ptr<RAMCellContainer>> m_cells; // РњР°СЃСЃРёРІ РєРѕРЅС‚РµР№РЅРµСЂРѕРІ СЏС‡РµРµРє (M С€С‚СѓРє)
+    size_t m_cellsPerPage;                                  // РљРѕР»РёС‡РµСЃС‚РІРѕ СЏС‡РµРµРє РЅР° СЃС‚СЂР°РЅРёС†Рµ (M)
+    size_t m_currentPage;                                   // РРЅРґРµРєСЃ С‚РµРєСѓС‰РµР№ СЃС‚СЂР°РЅРёС†С‹ (РѕС‚ 1)
+    size_t m_totalPages;                                    // РћР±С‰РµРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂР°РЅРёС†
+    const std::string m_dumpFilename;                       // Р¤РёРєСЃРёСЂРѕРІР°РЅРЅРѕРµ РёРјСЏ С„Р°Р№Р»Р°
 
-    // Метод обновления данных в графических ячейках на основе текущей страницы RAM
+    // РњРµС‚РѕРґ РѕР±РЅРѕРІР»РµРЅРёСЏ РґР°РЅРЅС‹С… РІ РіСЂР°С„РёС‡РµСЃРєРёС… СЏС‡РµР№РєР°С… РЅР° РѕСЃРЅРѕРІРµ С‚РµРєСѓС‰РµР№ СЃС‚СЂР°РЅРёС†С‹ RAM
     void updateCellsFromMemory() {
-        // Вычисляем начальный индекс ячейки памяти для текущей страницы
+        // Р’С‹С‡РёСЃР»СЏРµРј РЅР°С‡Р°Р»СЊРЅС‹Р№ РёРЅРґРµРєСЃ СЏС‡РµР№РєРё РїР°РјСЏС‚Рё РґР»СЏ С‚РµРєСѓС‰РµР№ СЃС‚СЂР°РЅРёС†С‹
         size_t startAddress = (m_currentPage - 1) * m_cellsPerPage;
 
         for (size_t i = 0; i < m_cellsPerPage; ++i) {
             size_t currentAddress = startAddress + i;
 
             if (currentAddress < m_ram.getSize()) {
-                // Если адрес существует в RAM, считываем данные
+                // Р•СЃР»Рё Р°РґСЂРµСЃ СЃСѓС‰РµСЃС‚РІСѓРµС‚ РІ RAM, СЃС‡РёС‚С‹РІР°РµРј РґР°РЅРЅС‹Рµ
                 m_cells[i]->setAddress(static_cast<uint32_t>(currentAddress));
                 m_cells[i]->setValue(m_ram.read(currentAddress));
             }
             else {
-                // Если память RAM закончилась (последняя страница заполнена не до конца),
-                // принудительно зануляем или скрываем неиспользуемые контейнеры
-                m_cells[i]->setAddress(0); // Это автоматически выведет "reserved"
+                // Р•СЃР»Рё РїР°РјСЏС‚СЊ RAM Р·Р°РєРѕРЅС‡РёР»Р°СЃСЊ (РїРѕСЃР»РµРґРЅСЏСЏ СЃС‚СЂР°РЅРёС†Р° Р·Р°РїРѕР»РЅРµРЅР° РЅРµ РґРѕ РєРѕРЅС†Р°),
+                // РїСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕ Р·Р°РЅСѓР»СЏРµРј РёР»Рё СЃРєСЂС‹РІР°РµРј РЅРµРёСЃРїРѕР»СЊР·СѓРµРјС‹Рµ РєРѕРЅС‚РµР№РЅРµСЂС‹
+                m_cells[i]->setAddress(0); // Р­С‚Рѕ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РІС‹РІРµРґРµС‚ "reserved"
             }
         }
     }
 
-    // Метод для синхронизации изменений из UI-ячеек обратно в объект RAM
+    // РњРµС‚РѕРґ РґР»СЏ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё РёР·РјРµРЅРµРЅРёР№ РёР· UI-СЏС‡РµРµРє РѕР±СЂР°С‚РЅРѕ РІ РѕР±СЉРµРєС‚ RAM
     void syncChangesToRAM() {
         size_t startAddress = (m_currentPage - 1) * m_cellsPerPage;
 
@@ -186,12 +193,12 @@ private:
             if (currentAddress < m_ram.getSize()) {
                 uint32_t uiValue = m_cells[i]->getValue();
 
-                // Если значение в графической ячейке отличается от того, что в RAM,
-                // значит пользователь изменил его через модальное окно. Записываем в RAM.
+                // Р•СЃР»Рё Р·РЅР°С‡РµРЅРёРµ РІ РіСЂР°С„РёС‡РµСЃРєРѕР№ СЏС‡РµР№РєРµ РѕС‚Р»РёС‡Р°РµС‚СЃСЏ РѕС‚ С‚РѕРіРѕ, С‡С‚Рѕ РІ RAM,
+                // Р·РЅР°С‡РёС‚ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РёР·РјРµРЅРёР» РµРіРѕ С‡РµСЂРµР· РјРѕРґР°Р»СЊРЅРѕРµ РѕРєРЅРѕ. Р—Р°РїРёСЃС‹РІР°РµРј РІ RAM.
                 if (m_ram.read(currentAddress) != uiValue) {
                     m_ram.write(currentAddress, uiValue);
 
-                    // Перечитываем обратно на случай, если запись была заблокирована (как для 0x0)
+                    // РџРµСЂРµС‡РёС‚С‹РІР°РµРј РѕР±СЂР°С‚РЅРѕ РЅР° СЃР»СѓС‡Р°Р№, РµСЃР»Рё Р·Р°РїРёСЃСЊ Р±С‹Р»Р° Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅР° (РєР°Рє РґР»СЏ 0x0)
                     m_cells[i]->setValue(m_ram.read(currentAddress));
                 }
             }

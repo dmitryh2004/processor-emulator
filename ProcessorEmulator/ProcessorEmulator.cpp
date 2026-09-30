@@ -4,6 +4,10 @@
 int main()
 {
     // initialization - start
+    std::random_device rd;
+    std::mt19937 gen(rd()); // Генератор
+    std::uniform_int_distribution<> dist(1, 8); // Распределение
+
     std::setlocale(LC_ALL, ".UTF-8"); // настройка консоли на отображение сообщений в utf-8
 
     RAM ram(65536);
@@ -38,7 +42,8 @@ int main()
     const sf::Font& codeFont = resources.GetFont("Assets/Fonts/Courier-New.ttf");
     const sf::Font& registerFont = resources.GetFont("Assets/Fonts/Seven Segment.ttf");
 
-    sf::Music& bgMusic = resources.GetMusic("Assets/Sounds/background-music.mp3");
+    int i = dist(gen);
+    sf::Music& bgMusic = resources.GetMusic("Assets/Sounds/background-music-" + std::to_string(i) + ".mp3");
     bgMusic.setLooping(true);
     bgMusic.play();
 
@@ -320,9 +325,9 @@ int main()
     // current command - end
 
     // ram viewer - start
-    RAMViewer ramViewer(
-        "ramViewer", sf::Vector2f(688.f, 230.f), windowSizeFloat, ram, 10, 5, sf::Vector2f(68.f, 45.f), registerFont, 
-        14, registerTextColor, 0.f, sf::Vector2f(16.f, 649.f)
+    std::shared_ptr<RAMViewer> ramViewer = std::make_shared<RAMViewer>(
+        "ramViewer", sf::Vector2f(688.f, 230.f), windowSizeFloat, ram, 10, 5, sf::Vector2f(69.f, 46.f), registerFont, textFont,
+        12, registerTextColor, 0.f, sf::Vector2f(16.f, 649.f)
     );
     // ram viewer - end
 
@@ -344,6 +349,7 @@ int main()
             codePanel->checkForEvents(*event, window, mousePosFloat);
             registerPanel->checkForEvents(*event, window, mousePosFloat);
             ccc->checkForEvents(*event, window, mousePosFloat);
+            ramViewer->checkForEvents(*event, window, mousePosFloat);
         }
         
         sf::Time deltaTime = clock.restart();
@@ -351,6 +357,7 @@ int main()
         codePanel->update(deltaTime);
         registerPanel->update(deltaTime);
         ccc->update(deltaTime);
+        ramViewer->update(deltaTime);
         
         renderTexture.clear();
         renderTexture.draw(bgSprite);
@@ -358,6 +365,7 @@ int main()
         renderTexture.draw(*codePanel);
         renderTexture.draw(*registerPanel);
         renderTexture.draw(*ccc);
+        renderTexture.draw(*ramViewer);
         renderTexture.display();
 
         sf::Sprite result = sf::Sprite(renderTexture.getTexture());

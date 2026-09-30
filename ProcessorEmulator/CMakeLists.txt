@@ -19,6 +19,10 @@ add_executable(${PROJECT_NAME} "ProcessorEmulator.cpp" "ProcessorEmulator.h" "Re
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics SFML::Window SFML::Audio SFML::System)
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics OpenGL::GL)
 
+if(MSVC)
+    add_compile_options(/utf-8)
+endif()
+
 if(WIN32)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
