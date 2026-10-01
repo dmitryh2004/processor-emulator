@@ -22,6 +22,7 @@
 #include "SFML/CurrentCommandContainer.h"
 #include "SFML/RAMCellContainer.h"
 #include "SFML/RAMViewer.h"
+#include "SFML/LogText.h"
 
 #include "SFML/Utilites/SFMLUtility.h"
 #include "SFML/PortableFileDialogs.h"

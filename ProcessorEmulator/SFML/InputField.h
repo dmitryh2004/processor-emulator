@@ -296,28 +296,101 @@ private:
            m_charPositions.clear();
            m_lineNumbersVertices.clear();
            if (!m_font) return;
-           // Определяем динамическую ширину панели под нумерацию строк
-           size_t totalLines = 1;
-           for (size_t i = 0;
-               i < m_string.getSize();
-               ++i) {
-               if (m_string[i] == '\n') totalLines++;
-           }
-           updateLineNumbersWidth(totalLines);
-           // Текст начинается СРАЗУ после панели номеров строк
+
+           // 1. Вычисляем доступную ширину для текста внутри поля
+           const float maxTextWidth = getSize().x - m_lineNumbersWidth - 20.f;
            const float startX = m_lineNumbersWidth + 5.f;
            const float startY = 5.f;
+           float lineSpacing = m_font->getLineSpacing(m_characterSize);
+
+           m_charPositions.resize(m_string.getSize() + 1);
+
+           // Вспомогательная структура для анализа геометрии символов перед их отрисовкой
+           struct CharMetrics {
+               size_t index;
+               char32_t character;
+               float advance;
+           };
+
+           // Чтобы правильно рассчитать ширину панели номеров строк, сначала симулируем проход по тексту
+           size_t virtualLinesCount = 1;
+           {
+               float simX = startX;
+               size_t i = 0;
+               while (i < m_string.getSize()) {
+                   if (m_string[i] == '\n') {
+                       virtualLinesCount++;
+                       simX = startX;
+                       i++;
+                       continue;
+                   }
+
+                   // Собираем «слово» (последовательность непробельных символов)
+                   std::vector<CharMetrics> wordMetrics;
+                   while (i < m_string.getSize() && m_string[i] != '\n' && m_string[i] != ' ' && m_string[i] != '\t') {
+                       char32_t c = m_string[i];
+                       float adv = m_font->getGlyph(c, m_characterSize, false).advance;
+                       if (!wordMetrics.empty()) {
+                           adv += m_font->getKerning(wordMetrics.back().character, c, m_characterSize);
+                       }
+                       wordMetrics.push_back({ i, c, adv });
+                       i++;
+                   }
+
+                   if (!wordMetrics.empty()) {
+                       float wordWidth = 0.f;
+                       for (const auto& cm : wordMetrics) wordWidth += cm.advance;
+
+                       if (simX + wordWidth > startX + maxTextWidth) {
+                           if (wordWidth > maxTextWidth) {
+                               // Слово шире контейнера — симулируем посимвольный перенос
+                               for (const auto& cm : wordMetrics) {
+                                   if (simX + cm.advance > startX + maxTextWidth) {
+                                       virtualLinesCount++;
+                                       simX = startX;
+                                   }
+                                   simX += cm.advance;
+                               }
+                           }
+                           else {
+                               // Слово целиком помещается на следующей строке
+                               virtualLinesCount++;
+                               simX = startX + wordWidth;
+                           }
+                       }
+                       else {
+                           simX += wordWidth;
+                       }
+                   }
+
+                   // Обрабатываем пробел или табуляцию после слова
+                   if (i < m_string.getSize() && (m_string[i] == ' ' || m_string[i] == '\t')) {
+                       char32_t c = m_string[i];
+                       float adv = (c == '\t') ? m_font->getGlyph(' ', m_characterSize, false).advance * 4 : m_font->getGlyph(c, m_characterSize, false).advance;
+                       if (simX + adv > startX + maxTextWidth) {
+                           virtualLinesCount++;
+                           simX = startX;
+                       }
+                       else {
+                           simX += adv;
+                       }
+                       i++;
+                   }
+               }
+           }
+
+           // Обновляем ширину панели с учетом точного числа виртуальных строк
+           updateLineNumbersWidth(virtualLinesCount);
+
            float xOffset = startX;
            float yOffset = startY;
-           float lineSpacing = m_font->getLineSpacing(m_characterSize);
-           m_charPositions.resize(m_string.getSize() + 1);
            m_charPositions[0] = { xOffset, yOffset };
-           // Сборка номеров строк (всегда генерируем первую строку)
            size_t currentLineNum = 1;
+
+           // Отрисовка номера строки
            auto addLineNumberVertices = [&](size_t num, float y) {
                sf::String numStr = std::to_string(num);
                float numX = m_lineNumbersWidth - 10.f;
-               // Выравнивание по правому краю колонки
                for (int i = numStr.getSize() - 1; i >= 0; --i) {
                    char32_t c = numStr[i];
                    const sf::Glyph& glyph = m_font->getGlyph(c, m_characterSize, false);
@@ -331,74 +404,27 @@ private:
                    float u2 = u1 + static_cast<float>(glyph.textureRect.size.x);
                    float v2 = v1 + static_cast<float>(glyph.textureRect.size.y);
                    sf::Color numColor(120, 120, 120);
-                   // Серый цвет для номеров
-                   m_lineNumbersVertices.append(sf::Vertex({
-                   left,  top }
-                   , numColor, {
-                    u1, v1 }
-                    ));
-                   m_lineNumbersVertices.append(sf::Vertex({
-                    right, top }
-                    , numColor, {
-                     u2, v1 }
-                     ));
-                   m_lineNumbersVertices.append(sf::Vertex({
-                    left,  bottom }
-                    , numColor, {
-                     u1, v2 }
-                     ));
-                   m_lineNumbersVertices.append(sf::Vertex({
-                    left,  bottom }
-                    , numColor, {
-                     u1, v2 }
-                     ));
-                   m_lineNumbersVertices.append(sf::Vertex({
-                    right, top }
-                    , numColor, {
-                     u2, v1 }
-                     ));
-                   m_lineNumbersVertices.append(sf::Vertex({
-                    right, bottom }
-                    , numColor, {
-                     u2, v2 }
-                     ));
+
+                   m_lineNumbersVertices.append(sf::Vertex({ left,  top }, numColor, { u1, v1 }));
+                   m_lineNumbersVertices.append(sf::Vertex({ right, top }, numColor, { u2, v1 }));
+                   m_lineNumbersVertices.append(sf::Vertex({ left,  bottom }, numColor, { u1, v2 }));
+                   m_lineNumbersVertices.append(sf::Vertex({ left,  bottom }, numColor, { u1, v2 }));
+                   m_lineNumbersVertices.append(sf::Vertex({ right, top }, numColor, { u2, v1 }));
+                   m_lineNumbersVertices.append(sf::Vertex({ right, bottom }, numColor, { u2, v2 }));
                }
-           }
-           ;
+           };
+
            addLineNumberVertices(currentLineNum, yOffset);
-           // Поддержка кириллицы через Юникод-конвертер UTF-8
+
+           // Подготовка цветов подсветки синтаксиса
            sf::U8String utf8Str = m_string.toUtf8();
            std::string ansiStr(utf8Str.begin(), utf8Str.end());
            std::vector<sf::Color> textColors = m_highlighter.highlight(ansiStr);
            m_contentSize = sf::Vector2f(startX, yOffset + lineSpacing);
-           for (size_t i = 0;
-               i < m_string.getSize();
-               ++i) {
-               char32_t curChar = m_string[i];
-               if (curChar == '\n') {
-                   xOffset = startX;
-                   yOffset += lineSpacing;
-                   m_charPositions[i + 1] = {
-                    xOffset, yOffset }
-                   ;
-                   currentLineNum++;
-                   addLineNumberVertices(currentLineNum, yOffset);
-                   m_contentSize.y = std::max(m_contentSize.y, yOffset + lineSpacing);
-                   continue;
-               }
-               if (curChar == '\t') {
-                   const sf::Glyph& spaceGlyph = m_font->getGlyph(' ', m_characterSize, false);
-                   xOffset += spaceGlyph.advance * 4;
-                   m_charPositions[i + 1] = {
-                    xOffset, yOffset }
-                   ;
-                   m_contentSize.x = std::max(m_contentSize.x, xOffset);
-                   continue;
-               }
-               const sf::Glyph& glyph = m_font->getGlyph(curChar, m_characterSize, false);
-               if (i > 0 && m_string[i - 1] != '\n') {
-                   xOffset += m_font->getKerning(m_string[i - 1], curChar, m_characterSize);
-               }
+
+           // Вспомогательная лямбда для добавления геометрии конкретного символа
+           auto appendCharVertex = [&](char32_t c, size_t index, float advance) {
+               const sf::Glyph& glyph = m_font->getGlyph(c, m_characterSize, false);
                float left = xOffset + glyph.bounds.position.x;
                float top = yOffset + glyph.bounds.position.y + m_characterSize;
                float right = left + glyph.bounds.size.x;
@@ -407,42 +433,105 @@ private:
                float v1 = static_cast<float>(glyph.textureRect.position.y);
                float u2 = u1 + static_cast<float>(glyph.textureRect.size.x);
                float v2 = v1 + static_cast<float>(glyph.textureRect.size.y);
-               sf::Color charColor = (i < textColors.size()) ? textColors[i] : sf::Color::White;
-               m_vertices.append(sf::Vertex({
-                left,  top }
-                , charColor, {
-                 u1, v1 }
-                 ));
-               m_vertices.append(sf::Vertex({
-                right, top }
-                , charColor, {
-                 u2, v1 }
-                 ));
-               m_vertices.append(sf::Vertex({
-                left,  bottom }
-                , charColor, {
-                 u1, v2 }
-                 ));
-               m_vertices.append(sf::Vertex({
-                left,  bottom }
-                , charColor, {
-                 u1, v2 }
-                 ));
-               m_vertices.append(sf::Vertex({
-                right, top }
-                , charColor, {
-                 u2, v1 }
-                 ));
-               m_vertices.append(sf::Vertex({
-                right, bottom }
-                , charColor, {
-                 u2, v2 }
-                 ));
-               xOffset += glyph.advance;
-               m_charPositions[i + 1] = {
-                xOffset, yOffset }
-               ;
-               m_contentSize.x = std::max(m_contentSize.x, xOffset);
+               sf::Color charColor = (index < textColors.size()) ? textColors[index] : sf::Color::White;
+
+               m_vertices.append(sf::Vertex({ left,  top }, charColor, { u1, v1 }));
+               m_vertices.append(sf::Vertex({ right, top }, charColor, { u2, v1 }));
+               m_vertices.append(sf::Vertex({ left,  bottom }, charColor, { u1, v2 }));
+               m_vertices.append(sf::Vertex({ left,  bottom }, charColor, { u1, v2 }));
+               m_vertices.append(sf::Vertex({ right, top }, charColor, { u2, v1 }));
+               m_vertices.append(sf::Vertex({ right, bottom }, charColor, { u2, v2 }));
+
+               xOffset += advance;
+               m_charPositions[index + 1] = { xOffset, yOffset };
+           };
+
+           // Основной цикл построения и рендеринга текста
+           size_t i = 0;
+           while (i < m_string.getSize()) {
+               char32_t curChar = m_string[i];
+
+               // 1. Обработка явного переноса
+               if (curChar == '\n') {
+                   xOffset = startX;
+                   yOffset += lineSpacing;
+                   m_charPositions[i + 1] = { xOffset, yOffset };
+                   currentLineNum++;
+                   addLineNumberVertices(currentLineNum, yOffset);
+                   m_contentSize.y = std::max(m_contentSize.y, yOffset + lineSpacing);
+                   i++;
+                   continue;
+               }
+
+               // 2. Чтение слова целиком (до разделителей)
+               std::vector<CharMetrics> wordMetrics;
+               size_t wordStartIdx = i;
+               while (i < m_string.getSize() && m_string[i] != '\n' && m_string[i] != ' ' && m_string[i] != '\t') {
+                   char32_t c = m_string[i];
+                   float adv = m_font->getGlyph(c, m_characterSize, false).advance;
+                   if (!wordMetrics.empty()) {
+                       adv += m_font->getKerning(wordMetrics.back().character, c, m_characterSize);
+                   }
+                   wordMetrics.push_back({ i, c, adv });
+                   i++;
+               }
+
+               if (!wordMetrics.empty()) {
+                   float wordWidth = 0.f;
+                   for (const auto& cm : wordMetrics) wordWidth += cm.advance;
+
+                   // Проверяем, выходит ли слово за границы текущей строки
+                   if (xOffset + wordWidth > startX + maxTextWidth) {
+                       if (wordWidth > maxTextWidth) {
+                           // КЕЙС: Слово длиннее самого контейнера -> переносим его ПОСИМВОЛЬНО
+                           for (const auto& cm : wordMetrics) {
+                               if (xOffset + cm.advance > startX + maxTextWidth) {
+                                   xOffset = startX;
+                                   yOffset += lineSpacing;
+                               }
+                               appendCharVertex(cm.character, cm.index, cm.advance);
+                           }
+                       }
+                       else {
+                           // КЕЙС: Слово помещается целиком, но на СЛЕДУЮЩЕЙ строке -> переносим его полностью
+                           xOffset = startX;
+                           yOffset += lineSpacing;
+                           for (const auto& cm : wordMetrics) {
+                               appendCharVertex(cm.character, cm.index, cm.advance);
+                           }
+                       }
+                   }
+                   else {
+                       // КЕЙС: Слово полностью влезает на текущую строку
+                       for (const auto& cm : wordMetrics) {
+                           appendCharVertex(cm.character, cm.index, cm.advance);
+                       }
+                   }
+                   m_contentSize.x = std::max(m_contentSize.x, xOffset);
+                   m_contentSize.y = std::max(m_contentSize.y, yOffset + lineSpacing);
+               }
+
+               // 3. Обработка пробела или знака табуляции после слова
+               if (i < m_string.getSize() && (m_string[i] == ' ' || m_string[i] == '\t')) {
+                   char32_t c = m_string[i];
+                   float adv = (c == '\t') ? m_font->getGlyph(' ', m_characterSize, false).advance * 4 : m_font->getGlyph(c, m_characterSize, false).advance;
+
+                   // Если пробел вылетает за край контейнера — переносим каретку на новую строку
+                   if (xOffset + adv > startX + maxTextWidth) {
+                       xOffset = startX;
+                       yOffset += lineSpacing;
+                   }
+                   if (c == '\t') {
+                       xOffset += adv;
+                       m_charPositions[i + 1] = { xOffset, yOffset };
+                   }
+                   else {
+                       appendCharVertex(c, i, adv);
+                   }
+                   m_contentSize.x = std::max(m_contentSize.x, xOffset);
+                   m_contentSize.y = std::max(m_contentSize.y, yOffset + lineSpacing);
+                   i++;
+               }
            }
            if (m_cursorIndex > m_string.getSize())  m_cursorIndex = m_string.getSize();
            m_cursor.setPosition(m_charPositions[m_cursorIndex]);
@@ -452,35 +541,21 @@ private:
            size_t end = std::max(m_selectionStart, m_selectionEnd);
            if (start != end && !m_charPositions.empty()) {
                sf::Color selectionColor(0, 120, 215, 100);
-               for (size_t i = start;
-                   i < end;
-                   ++i) {
-                   if (m_string[i] == '\n') continue;
-                   sf::Vector2f curr = m_charPositions[i];
-                   sf::Vector2f next = m_charPositions[i + 1];
-                   float width = (next.y > curr.y) ? (m_contentSize.x - curr.x) : (next.x - curr.x);
+               for (size_t k = start; k < end; ++k) {
+                   if (m_string[k] == '\n') continue;
+                   sf::Vector2f curr = m_charPositions[k];
+                   sf::Vector2f next = m_charPositions[k + 1];
+                   float width = (next.y > curr.y) ? ((startX + maxTextWidth) - curr.x) : (next.x - curr.x);
                    float left = curr.x;
                    float top = curr.y;
                    float right = left + width;
                    float bottom = top + lineSpacing;
-                   m_selectionVertices.append(sf::Vertex({
-                    left,  top }
-                   , selectionColor));
-                   m_selectionVertices.append(sf::Vertex({
-                    right, top }
-                   , selectionColor));
-                   m_selectionVertices.append(sf::Vertex({
-                    left,  bottom }
-                   , selectionColor));
-                   m_selectionVertices.append(sf::Vertex({
-                    left,  bottom }
-                   , selectionColor));
-                   m_selectionVertices.append(sf::Vertex({
-                    right, top }
-                   , selectionColor));
-                   m_selectionVertices.append(sf::Vertex({
-                    right, bottom }
-                   , selectionColor));
+                   m_selectionVertices.append(sf::Vertex({ left,  top }, selectionColor));
+                   m_selectionVertices.append(sf::Vertex({ right, top }, selectionColor));
+                   m_selectionVertices.append(sf::Vertex({ left,  bottom }, selectionColor));
+                   m_selectionVertices.append(sf::Vertex({ left,  bottom }, selectionColor));
+                   m_selectionVertices.append(sf::Vertex({ right, top }, selectionColor));
+                   m_selectionVertices.append(sf::Vertex({ right, bottom }, selectionColor));
                }
            }
            clampScroll();

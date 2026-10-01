@@ -2,6 +2,7 @@
 #include "BaseObject.h"
 #include "RAMCellContainer.h"
 #include "../Emulator/RAM.h"
+#include "Text.h"
 #include <vector>
 #include <memory>
 #include <string>
@@ -35,6 +36,8 @@ public:
         // Вычисляем общее количество доступных страниц в RAM
         m_totalPages = static_cast<size_t>(std::ceil(static_cast<double>(m_ram.getSize()) / m_cellsPerPage));
         if (m_totalPages == 0) m_totalPages = 1;
+
+        std::cout << "[" << name << "] Расчетное количество страниц памяти: " << m_totalPages << std::endl;
 
         // Создаем M ячеек RAMCellContainer и выстраиваем их сеткой
         for (size_t i = 0; i < m_cellsPerPage; ++i) {

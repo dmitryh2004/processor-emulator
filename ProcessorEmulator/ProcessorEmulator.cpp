@@ -37,6 +37,7 @@ int main()
     const sf::Texture& startButtonTexture = resources.GetTexture("Assets/Sprites/startButtonSprite.png");
     const sf::Texture& stepButtonTexture = resources.GetTexture("Assets/Sprites/stepButtonSprite.png");
     const sf::Texture& stopButtonTexture = resources.GetTexture("Assets/Sprites/stopButtonSprite.png");
+    const sf::Texture& ramResetButtonTexture = resources.GetTexture("Assets/Sprites/ramResetButtonSprite.png");
 
     const sf::Font& textFont = resources.GetFont("Assets/Fonts/Rubik-Medium.ttf");
     const sf::Font& codeFont = resources.GetFont("Assets/Fonts/Courier-New.ttf");
@@ -57,6 +58,8 @@ int main()
 
     // resource initialization - end
     // initialization - end
+
+    std::shared_ptr<LogText> logField;
 
     // background sprite
     Image bgSprite = Image("bgSprite", sf::Vector2f(1440.f, 900.f), backgroundTexture, windowSizeFloat);
@@ -146,7 +149,7 @@ int main()
     );
     saveCodeButton->setShader(&shader);
     saveCodeButton->SetOnClickSound(&clickSound);
-    saveCodeButton->SetOnClickAction([&window, &codeField]() {
+    saveCodeButton->SetOnClickAction([&window, &codeField, &logField]() {
         auto dialog = pfd::save_file("Сохранить как...", ".",
             { "Кастомный ассемблерный код (*.asmb)", "*.asmb",
               "Все файлы", "*" });
@@ -159,8 +162,6 @@ int main()
                 filePathStr += ".asmb";
             }
 
-            std::cout << "[saveCodeButton] Save file location: " << filePathStr << std::endl;
-
             // Преобразуем UTF-8 строку от pfd в кроссплатформенный std::filesystem::path
             std::filesystem::path filePath = std::filesystem::u8path(filePathStr);
 
@@ -168,12 +169,13 @@ int main()
             std::ofstream file(filePath);
 
             if (!file.is_open()) {
-                std::cerr << "[saveCodeButton] " << std::strerror(errno) << " for path: " << filePathStr << std::endl;
+                logField->appendLog("[saveCodeButton] Save failed at path: " + filePathStr);
                 return;
             }
 
             file << codeField->getTextString();
             file.close();
+            logField->appendLog("[saveCodeButton] Code saved successfully at path: " + filePathStr);
         }
     });
 
@@ -188,14 +190,13 @@ int main()
     );
     loadCodeButton->setShader(&shader);
     loadCodeButton->SetOnClickSound(&clickSound);
-    loadCodeButton->SetOnClickAction([&window, &codeField]() {
+    loadCodeButton->SetOnClickAction([&window, &codeField, &logField]() {
         auto dialog = pfd::open_file("Выберите файл для загрузки", ".",
             { "Кастомный ассемблерный код (*.asmb)", "*.asmb",
               "Все файлы", "*" });
 
         if (!dialog.result().empty()) {
             std::string filePathStr = dialog.result()[0];
-            std::cout << "[loadCodeButton] Opening file at location: " << filePathStr << std::endl;
 
             // Преобразуем UTF-8 строку от pfd в кроссплатформенный std::filesystem::path
             std::filesystem::path filePath = std::filesystem::u8path(filePathStr);
@@ -204,7 +205,7 @@ int main()
             std::ifstream file(filePath);
 
             if (!file.is_open()) {
-                std::cerr << "[loadCodeButton] Unable to read file " << filePathStr << std::endl;
+                logField->appendLog("[loadCodeButton] Unable to read file " + filePathStr);
                 return;
             }
 
@@ -325,11 +326,165 @@ int main()
     // current command - end
 
     // ram viewer - start
-    std::shared_ptr<RAMViewer> ramViewer = std::make_shared<RAMViewer>(
-        "ramViewer", sf::Vector2f(688.f, 230.f), windowSizeFloat, ram, 10, 5, sf::Vector2f(69.f, 46.f), registerFont, textFont,
-        12, registerTextColor, 0.f, sf::Vector2f(16.f, 649.f)
+    std::shared_ptr<Panel> ramPanel = std::make_shared<Panel>(
+        "registerPanel",
+        sf::Vector2f(698.f, 279.f),
+        windowSizeFloat,
+        sf::Vector2f(10.f, 605.f),
+        BaseObject::Anchor::TopLeft,
+        BaseObject::Anchor::TopLeft
     );
+
+    std::shared_ptr<Text> currentPageText = std::make_shared<Text>(
+        "ramCurrentPage", registerFont, ramPanel->getSize(), "1", 18, registerTextColor, false, sf::Vector2f(617.f, 7.f)
+    );
+
+    std::shared_ptr<RAMViewer> ramViewer = std::make_shared<RAMViewer>(
+        "ramViewer", sf::Vector2f(688.f, 230.f), ramPanel->getSize(), ram, 10, 5, sf::Vector2f(69.f, 46.f), registerFont, textFont,
+        12, registerTextColor, 0.f, sf::Vector2f(6.f, 44.f)
+    );
+
+    std::shared_ptr<Button> nextPageButton = std::make_shared<Button>("ramNextPageBtn",
+        sf::Vector2f(24.f, 24.f),
+        ramPanel->getSize(),
+        sf::Vector2f(665.f, 6.f),
+        openButtonTexture,
+        openButtonTexture,
+        BaseObject::Anchor::TopLeft,
+        BaseObject::Anchor::TopLeft
+    );
+    nextPageButton->setShader(&shader);
+    nextPageButton->SetOnClickSound(&clickSound);
+    nextPageButton->SetOnClickAction([&ramViewer, &currentPageText] {
+        ramViewer->nextPage();
+        currentPageText->setString(std::to_string(ramViewer->getCurrentPage()));
+    });
+
+    std::shared_ptr<Button> prevPageButton = std::make_shared<Button>("ramPrevPageBtn",
+        sf::Vector2f(24.f, 24.f),
+        ramPanel->getSize(),
+        sf::Vector2f(584.f, 6.f),
+        openButtonTexture,
+        openButtonTexture,
+        BaseObject::Anchor::TopLeft,
+        BaseObject::Anchor::TopLeft
+    );
+    prevPageButton->setShader(&shader);
+    prevPageButton->SetOnClickSound(&clickSound);
+    prevPageButton->SetOnClickAction([&ramViewer, &currentPageText] {
+        ramViewer->prevPage();
+        currentPageText->setString(std::to_string(ramViewer->getCurrentPage()));
+    });
+
+    std::shared_ptr<Button> ramResetButton = std::make_shared<Button>("ramResetBtn",
+        sf::Vector2f(24.f, 24.f),
+        ramPanel->getSize(),
+        sf::Vector2f(534.f, 6.f),
+        ramResetButtonTexture,
+        ramResetButtonTexture,
+        BaseObject::Anchor::TopLeft,
+        BaseObject::Anchor::TopLeft
+    );
+    ramResetButton->setShader(&shader);
+    ramResetButton->SetOnClickSound(&clickSound);
+    ramResetButton->SetOnClickAction([&ramViewer, &logField] {
+        ramViewer->reset();
+        logField->appendLog("Memory resetted successfully");
+    });
+
+    std::shared_ptr<Button> ramSaveButton = std::make_shared<Button>("ramSaveBtn",
+        sf::Vector2f(24.f, 24.f),
+        ramPanel->getSize(),
+        sf::Vector2f(494.f, 6.f),
+        saveButtonTexture,
+        saveButtonTexture,
+        BaseObject::Anchor::TopLeft,
+        BaseObject::Anchor::TopLeft
+    );
+    ramSaveButton->setShader(&shader);
+    ramSaveButton->SetOnClickSound(&clickSound);
+    ramSaveButton->SetOnClickAction([&ramViewer, &logField] {
+        try {
+            ramViewer->saveDump();
+            logField->appendLog("Memory dump saved at memdump.bin; check .exe file directory");
+        }
+        catch (std::runtime_error e) {
+            std::string logString = "Unable to save memory dump: "; 
+            logString += e.what();
+            logField->appendLog(logString);
+        }
+    });
+
+    std::shared_ptr<Button> ramLoadButton = std::make_shared<Button>("ramLoadBtn",
+        sf::Vector2f(24.f, 24.f),
+        ramPanel->getSize(),
+        sf::Vector2f(454.f, 6.f),
+        openButtonTexture,
+        openButtonTexture,
+        BaseObject::Anchor::TopLeft,
+        BaseObject::Anchor::TopLeft
+    );
+    ramLoadButton->setShader(&shader);
+    ramLoadButton->SetOnClickSound(&clickSound);
+    ramLoadButton->SetOnClickAction([&ramViewer, &logField] {
+        try {
+            ramViewer->loadDump();
+            logField->appendLog("Memory dump loaded from memdump.bin");
+        }
+        catch (std::runtime_error e) {
+            std::string logString = "Unable to load memory dump: ";
+            logString += e.what();
+            logField->appendLog(logString);
+        }
+    });
+
+    ramPanel->addObject(ramViewer);
+    ramPanel->addObject(currentPageText);
+    ramPanel->addObject(prevPageButton);
+    ramPanel->addObject(nextPageButton);
+    ramPanel->addObject(ramResetButton);
+    ramPanel->addObject(ramSaveButton);
+    ramPanel->addObject(ramLoadButton);
     // ram viewer - end
+
+    // log panel - start
+    std::shared_ptr<Panel> logPanel = std::make_shared<Panel>(
+        "registerPanel",
+        sf::Vector2f(698.f, 279.f),
+        windowSizeFloat,
+        sf::Vector2f(730.f, 605.f),
+        BaseObject::Anchor::TopLeft,
+        BaseObject::Anchor::TopLeft
+    );
+
+    logField = std::make_shared<LogText>(
+        "logField",
+        sf::Vector2f(693.f, 230.f),
+        logPanel->getSize(),
+        codeFont,
+        18,
+        sf::Vector2f(6.f, 44.f)
+    );
+    logField->loadSyntaxScheme("SFML/ColorConfigs/log.conf");
+
+    std::shared_ptr<Button> clearLogButton = std::make_shared<Button>("clearLogButton",
+        sf::Vector2f(24.f, 24.f),
+        ramPanel->getSize(),
+        sf::Vector2f(665.f, 6.f),
+        ramResetButtonTexture,
+        ramResetButtonTexture,
+        BaseObject::Anchor::TopLeft,
+        BaseObject::Anchor::TopLeft
+    );
+    clearLogButton->setShader(&shader);
+    clearLogButton->SetOnClickSound(&clickSound);
+    clearLogButton->SetOnClickAction([&logField] {
+        logField->clearLog();
+    });
+
+    logPanel->addObject(logField);
+    logPanel->addObject(clearLogButton);
+    // log panel - end
 
     sf::Clock clock;
     while (window.isOpen())
@@ -349,7 +504,8 @@ int main()
             codePanel->checkForEvents(*event, window, mousePosFloat);
             registerPanel->checkForEvents(*event, window, mousePosFloat);
             ccc->checkForEvents(*event, window, mousePosFloat);
-            ramViewer->checkForEvents(*event, window, mousePosFloat);
+            ramPanel->checkForEvents(*event, window, mousePosFloat);
+            logPanel->checkForEvents(*event, window, mousePosFloat);
         }
         
         sf::Time deltaTime = clock.restart();
@@ -357,7 +513,8 @@ int main()
         codePanel->update(deltaTime);
         registerPanel->update(deltaTime);
         ccc->update(deltaTime);
-        ramViewer->update(deltaTime);
+        ramPanel->update(deltaTime);
+        logPanel->update(deltaTime);
         
         renderTexture.clear();
         renderTexture.draw(bgSprite);
@@ -365,7 +522,8 @@ int main()
         renderTexture.draw(*codePanel);
         renderTexture.draw(*registerPanel);
         renderTexture.draw(*ccc);
-        renderTexture.draw(*ramViewer);
+        renderTexture.draw(*ramPanel);
+        renderTexture.draw(*logPanel);
         renderTexture.display();
 
         sf::Sprite result = sf::Sprite(renderTexture.getTexture());

@@ -31,9 +31,8 @@
 
 class Processor {
 public:
-	Processor(int ramSize = 65536)
+	Processor(int ramSize = 65536) : ram(ramSize)
 	{
-		ram = RAM(ramSize);
 		program = std::vector<std::string>(0);
 		machineCodeProgram = std::vector<unsigned int>(0);
 		parsedSuccessfully = false;
