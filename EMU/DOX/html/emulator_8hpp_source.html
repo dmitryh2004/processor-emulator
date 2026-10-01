@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.9.1"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>EMU: Исходный файл emulator.hpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+});
+</script>
+<script type="text/javascript" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectlogo"><img alt="Logo" src="boykisser-kiwi.png"/></td>
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">EMU
+   &#160;<span id="projectnumber">0.0.1</span>
+   </div>
+   <div id="projectbrief">fsdgfdhg</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Создано системой Doxygen 1.9.1 -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('emulator_8hpp_source.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<div class="header">
+  <div class="headertitle">
+<div class="title">emulator.hpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<a href="emulator_8hpp.html">См. документацию.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#pragma once</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include &lt;string&gt;</span></div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &lt;vector&gt;</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160; </div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespaceemu.html">emu</a>{</div>
+<div class="line"><a name="l00006"></a><span class="lineno"><a class="line" href="classemu_1_1program.html">    6</a></span>&#160;    <span class="keyword">class </span><a class="code" href="classemu_1_1program.html">program</a>{</div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;        <span class="keywordtype">int</span> size=0, </div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;            *code, </div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;            *data=<span class="keyword">new</span> <span class="keywordtype">int</span>[128], <span class="comment">//size, ROM, RAM</span></div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;            REGS[7]={0,0,0,0,0,0,0}; <span class="comment">//OUT, IR, MAR, MDR, AC, PC, F</span></div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00012"></a><span class="lineno"><a class="line" href="classemu_1_1program.html#a5ba8076114203c1e98fc6c780836d71a">   12</a></span>&#160;        <a class="code" href="classemu_1_1program.html#a5ba8076114203c1e98fc6c780836d71a">program</a>(std::string); </div>
+<div class="line"><a name="l00013"></a><span class="lineno"><a class="line" href="classemu_1_1program.html#a7ac90bec33b381a670a200c804a4ea0a">   13</a></span>&#160;        <span class="keywordtype">int</span> <a class="code" href="classemu_1_1program.html#a7ac90bec33b381a670a200c804a4ea0a">operator[]</a>(<span class="keywordtype">long</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>); </div>
+<div class="line"><a name="l00014"></a><span class="lineno"><a class="line" href="classemu_1_1program.html#a7b61303b9684fe455677069029bd348d">   14</a></span>&#160;        <span class="keywordtype">bool</span> <a class="code" href="classemu_1_1program.html#a7b61303b9684fe455677069029bd348d">operator()</a>(); </div>
+<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="classemu_1_1program.html#a1dce4ad1e617847c2961441a88eddb0e">   15</a></span>&#160;        std::vector&lt;int&gt; <a class="code" href="classemu_1_1program.html#a1dce4ad1e617847c2961441a88eddb0e">show_RAM</a>(<span class="keywordtype">bool</span>); </div>
+<div class="line"><a name="l00016"></a><span class="lineno"><a class="line" href="classemu_1_1program.html#afebf8afde767e2e1b515680756a5208d">   16</a></span>&#160;        <a class="code" href="classemu_1_1program.html#afebf8afde767e2e1b515680756a5208d">~program</a>(); </div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    };</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;}</div>
+<div class="ttc" id="aclassemu_1_1program_html"><div class="ttname"><a href="classemu_1_1program.html">emu::program</a></div><div class="ttdef"><b>Definition:</b> emulator.hpp:6</div></div>
+<div class="ttc" id="aclassemu_1_1program_html_a1dce4ad1e617847c2961441a88eddb0e"><div class="ttname"><a href="classemu_1_1program.html#a1dce4ad1e617847c2961441a88eddb0e">emu::program::show_RAM</a></div><div class="ttdeci">std::vector&lt; int &gt; show_RAM(bool)</div></div>
+<div class="ttc" id="aclassemu_1_1program_html_a5ba8076114203c1e98fc6c780836d71a"><div class="ttname"><a href="classemu_1_1program.html#a5ba8076114203c1e98fc6c780836d71a">emu::program::program</a></div><div class="ttdeci">program(std::string)</div></div>
+<div class="ttc" id="aclassemu_1_1program_html_a7ac90bec33b381a670a200c804a4ea0a"><div class="ttname"><a href="classemu_1_1program.html#a7ac90bec33b381a670a200c804a4ea0a">emu::program::operator[]</a></div><div class="ttdeci">int operator[](long unsigned int)</div></div>
+<div class="ttc" id="aclassemu_1_1program_html_a7b61303b9684fe455677069029bd348d"><div class="ttname"><a href="classemu_1_1program.html#a7b61303b9684fe455677069029bd348d">emu::program::operator()</a></div><div class="ttdeci">bool operator()()</div></div>
+<div class="ttc" id="aclassemu_1_1program_html_afebf8afde767e2e1b515680756a5208d"><div class="ttname"><a href="classemu_1_1program.html#afebf8afde767e2e1b515680756a5208d">emu::program::~program</a></div><div class="ttdeci">~program()</div></div>
+<div class="ttc" id="anamespaceemu_html"><div class="ttname"><a href="namespaceemu.html">emu</a></div><div class="ttdef"><b>Definition:</b> parser.hpp:4</div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="emulator_8hpp.html">emulator.hpp</a></li>
+    <li class="footer">Создано системой <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+  </ul>
+</div>
+</body>
+</html>

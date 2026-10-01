@@ -1,0 +1,85 @@
+\hypertarget{namespaceemu}{}\doxysection{emu Namespace Reference}
+\label{namespaceemu}\index{emu@{emu}}
+\doxysubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classemu_1_1program}{program}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{namespaceemu_acb186f10bb65b1081eb02a7e9ff3ce44}{check\+\_\+address}} (std\+::string addr)
+\item 
+std\+::vector$<$ std\+::string $>$ \mbox{\hyperlink{namespaceemu_aa7c9a16f4fca1d451c753d15199aa075}{breakdown}} (std\+::string t)
+\item 
+int \mbox{\hyperlink{namespaceemu_a03d77499e43c8a13aecfa9bd6a40d188}{assemble}} (std\+::vector$<$ std\+::string $>$ t)
+\item 
+std\+::string \mbox{\hyperlink{namespaceemu_a9af2878ab1f0ce23e698f51782c04d42}{parse}} (std\+::string file)
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+std\+::unordered\+\_\+map$<$ std\+::string, int $>$ \mbox{\hyperlink{namespaceemu_a4fa4ec8e00cea3358415dff5eef86a21}{operators}}
+\item 
+std\+::unordered\+\_\+map$<$ std\+::string, int $>$ \mbox{\hyperlink{namespaceemu_a55b16ce787df5e59b4c05da1e3c75782}{regs}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespaceemu_a03d77499e43c8a13aecfa9bd6a40d188}\label{namespaceemu_a03d77499e43c8a13aecfa9bd6a40d188}} 
+\index{emu@{emu}!assemble@{assemble}}
+\index{assemble@{assemble}!emu@{emu}}
+\doxysubsubsection{\texorpdfstring{assemble()}{assemble()}}
+{\footnotesize\ttfamily int emu\+::assemble (\begin{DoxyParamCaption}\item[{std\+::vector$<$ std\+::string $>$}]{t }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{namespaceemu_aa7c9a16f4fca1d451c753d15199aa075}\label{namespaceemu_aa7c9a16f4fca1d451c753d15199aa075}} 
+\index{emu@{emu}!breakdown@{breakdown}}
+\index{breakdown@{breakdown}!emu@{emu}}
+\doxysubsubsection{\texorpdfstring{breakdown()}{breakdown()}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::string$>$ emu\+::breakdown (\begin{DoxyParamCaption}\item[{std\+::string}]{t }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{namespaceemu_acb186f10bb65b1081eb02a7e9ff3ce44}\label{namespaceemu_acb186f10bb65b1081eb02a7e9ff3ce44}} 
+\index{emu@{emu}!check\_address@{check\_address}}
+\index{check\_address@{check\_address}!emu@{emu}}
+\doxysubsubsection{\texorpdfstring{check\_address()}{check\_address()}}
+{\footnotesize\ttfamily int emu\+::check\+\_\+address (\begin{DoxyParamCaption}\item[{std\+::string}]{addr }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{namespaceemu_a9af2878ab1f0ce23e698f51782c04d42}\label{namespaceemu_a9af2878ab1f0ce23e698f51782c04d42}} 
+\index{emu@{emu}!parse@{parse}}
+\index{parse@{parse}!emu@{emu}}
+\doxysubsubsection{\texorpdfstring{parse()}{parse()}}
+{\footnotesize\ttfamily std\+::string emu\+::parse (\begin{DoxyParamCaption}\item[{std\+::string}]{file }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{namespaceemu_a4fa4ec8e00cea3358415dff5eef86a21}\label{namespaceemu_a4fa4ec8e00cea3358415dff5eef86a21}} 
+\index{emu@{emu}!operators@{operators}}
+\index{operators@{operators}!emu@{emu}}
+\doxysubsubsection{\texorpdfstring{operators}{operators}}
+{\footnotesize\ttfamily std\+::unordered\+\_\+map$<$std\+::string, int$>$ emu\+::operators}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\{}
+\DoxyCodeLine{        \{\textcolor{stringliteral}{"{}LOAD"{}}, 0x04000000\}, \{\textcolor{stringliteral}{"{}STOR"{}}, 0x00400000\}, \{\textcolor{stringliteral}{"{}INC"{}},  0x14000000\}, \{\textcolor{stringliteral}{"{}ADD"{}},  0x24400000\},}
+\DoxyCodeLine{        \{\textcolor{stringliteral}{"{}ADDI"{}}, 0x34400000\}, \{\textcolor{stringliteral}{"{}JNE"{}},  0x45200000\}, \{\textcolor{stringliteral}{"{}JL"{}},   0x55200000\}, \{\textcolor{stringliteral}{"{}JG"{}},   0x65200000\},}
+\DoxyCodeLine{        \{\textcolor{stringliteral}{"{}JE"{}},   0x75200000\}, \{\textcolor{stringliteral}{"{}MUL"{}},  0x84400000\}, \{\textcolor{stringliteral}{"{}DIV"{}},  0x94400000\}, \{\textcolor{stringliteral}{"{}NOT"{}},  0xa4000000\},}
+\DoxyCodeLine{        \{\textcolor{stringliteral}{"{}OR"{}},   0xb4400000\}, \{\textcolor{stringliteral}{"{}SUBD"{}}, 0xc4400000\}, \{\textcolor{stringliteral}{"{}SUB"{}},  0xd4400000\}, \{\textcolor{stringliteral}{"{}DEC"{}},  0xe4000000\},}
+\DoxyCodeLine{        \{\textcolor{stringliteral}{"{}AND"{}},  0xf4400000\}, \{\textcolor{stringliteral}{"{}JMP"{}},  0x05200000\}, \{\textcolor{stringliteral}{"{}CLS"{}},  0x04200000\}}
+\DoxyCodeLine{    \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{namespaceemu_a55b16ce787df5e59b4c05da1e3c75782}\label{namespaceemu_a55b16ce787df5e59b4c05da1e3c75782}} 
+\index{emu@{emu}!regs@{regs}}
+\index{regs@{regs}!emu@{emu}}
+\doxysubsubsection{\texorpdfstring{regs}{regs}}
+{\footnotesize\ttfamily std\+::unordered\+\_\+map$<$std\+::string, int$>$ emu\+::regs}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\{}
+\DoxyCodeLine{        \{\textcolor{stringliteral}{"{}OUT"{}}, 0x1\}, \{\textcolor{stringliteral}{"{}IR"{}},0x2\}, \{\textcolor{stringliteral}{"{}MAR"{}},0x3\}, \{\textcolor{stringliteral}{"{}MDR"{}},0x4\}, \{\textcolor{stringliteral}{"{}AC"{}},0x5\}, \{\textcolor{stringliteral}{"{}PC"{}},0x6\}}
+\DoxyCodeLine{    \}}
+
+\end{DoxyCode}

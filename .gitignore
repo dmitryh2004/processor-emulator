@@ -175,3 +175,5 @@ desktop.ini
 # Локальные файлы окружения
 .env
 .env.*
+EMU/PARS
+EMU/EMU

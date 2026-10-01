@@ -1,0 +1,76 @@
+\hypertarget{classemu_1_1program}{}\doxysection{emu\+::program Class Reference}
+\label{classemu_1_1program}\index{emu::program@{emu::program}}
+
+
+{\ttfamily \#include $<$emulator.\+hpp$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classemu_1_1program_a5ba8076114203c1e98fc6c780836d71a}{program}} (std\+::string)
+\item 
+int \mbox{\hyperlink{classemu_1_1program_a7ac90bec33b381a670a200c804a4ea0a}{operator\mbox{[}$\,$\mbox{]}}} (long unsigned int)
+\item 
+bool \mbox{\hyperlink{classemu_1_1program_a7b61303b9684fe455677069029bd348d}{operator()}} ()
+\item 
+std\+::vector$<$ int $>$ \mbox{\hyperlink{classemu_1_1program_a370142630ef629521046692c242e51d4}{show\+\_\+\+RAM}} (bool)
+\item 
+\mbox{\hyperlink{classemu_1_1program_afebf8afde767e2e1b515680756a5208d}{$\sim$program}} ()
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classemu_1_1program_a5ba8076114203c1e98fc6c780836d71a}\label{classemu_1_1program_a5ba8076114203c1e98fc6c780836d71a}} 
+\index{emu::program@{emu::program}!program@{program}}
+\index{program@{program}!emu::program@{emu::program}}
+\doxysubsubsection{\texorpdfstring{program()}{program()}}
+{\footnotesize\ttfamily emu\+::program\+::program (\begin{DoxyParamCaption}\item[{std\+::string}]{file }\end{DoxyParamCaption})}
+
+Стандартный конструктор, загружает программу и память в объект.
+\begin{DoxyParams}{Parameters}
+{\em std\+::string} & -\/ имена файлов ROM и RAM с которыми будет работать программа. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classemu_1_1program_afebf8afde767e2e1b515680756a5208d}\label{classemu_1_1program_afebf8afde767e2e1b515680756a5208d}} 
+\index{emu::program@{emu::program}!````~program@{$\sim$program}}
+\index{````~program@{$\sim$program}!emu::program@{emu::program}}
+\doxysubsubsection{\texorpdfstring{$\sim$program()}{~program()}}
+{\footnotesize\ttfamily emu\+::program\+::$\sim$program (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Уничтожает загруженные программы. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classemu_1_1program_a7b61303b9684fe455677069029bd348d}\label{classemu_1_1program_a7b61303b9684fe455677069029bd348d}} 
+\index{emu::program@{emu::program}!operator()@{operator()}}
+\index{operator()@{operator()}!emu::program@{emu::program}}
+\doxysubsubsection{\texorpdfstring{operator()()}{operator()()}}
+{\footnotesize\ttfamily bool emu\+::program\+::operator() (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Прогон 1 такта. \mbox{\Hypertarget{classemu_1_1program_a7ac90bec33b381a670a200c804a4ea0a}\label{classemu_1_1program_a7ac90bec33b381a670a200c804a4ea0a}} 
+\index{emu::program@{emu::program}!operator\mbox{[}\mbox{]}@{operator[]}}
+\index{operator\mbox{[}\mbox{]}@{operator[]}!emu::program@{emu::program}}
+\doxysubsubsection{\texorpdfstring{operator[]()}{operator[]()}}
+{\footnotesize\ttfamily int emu\+::program\+::operator\mbox{[}$\,$\mbox{]} (\begin{DoxyParamCaption}\item[{long unsigned int}]{r }\end{DoxyParamCaption})}
+
+Возвращает Выбранный регистр от 0 до 6.
+\begin{DoxyParams}{Parameters}
+{\em long unsigned int} & -\/ Регистры\+: вывод (0), инструкция (1), адрес (2), ячейка (3), аккумулятор (4), счетчик (5), флаги (6). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classemu_1_1program_a370142630ef629521046692c242e51d4}\label{classemu_1_1program_a370142630ef629521046692c242e51d4}} 
+\index{emu::program@{emu::program}!show\_RAM@{show\_RAM}}
+\index{show\_RAM@{show\_RAM}!emu::program@{emu::program}}
+\doxysubsubsection{\texorpdfstring{show\_RAM()}{show\_RAM()}}
+{\footnotesize\ttfamily std\+::vector$<$ int $>$ emu\+::program\+::show\+\_\+\+RAM (\begin{DoxyParamCaption}\item[{bool}]{a }\end{DoxyParamCaption})}
+
+Возвращает память в форме std\+::vector$<$int$>$.
+\begin{DoxyParams}{Parameters}
+{\em bool} & -\/ выводит полностью память ROM (0) или RAM (1) \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/home/leon/\+Projects/processor-\/emulator/\+EMU/\mbox{\hyperlink{emulator_8hpp}{emulator.\+hpp}}\item 
+/home/leon/\+Projects/processor-\/emulator/\+EMU/\mbox{\hyperlink{emulator_8cpp}{emulator.\+cpp}}\end{DoxyCompactItemize}

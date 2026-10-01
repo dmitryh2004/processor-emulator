@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.9.1"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>EMU: Файл parser.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+});
+</script>
+<script type="text/javascript" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectlogo"><img alt="Logo" src="dr-house.png"/></td>
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">EMU
+   &#160;<span id="projectnumber">0.0.1</span>
+   </div>
+   <div id="projectbrief">fsdgfdhg</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Создано системой Doxygen 1.9.1 -->
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(function() {
+  initMenu('',false,false,'search.php','Поиск');
+});
+/* @license-end */</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('parser_8cpp.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<div class="header">
+  <div class="summary">
+<a href="#namespaces">Пространства имен</a> &#124;
+<a href="#func-members">Функции</a> &#124;
+<a href="#var-members">Переменные</a>  </div>
+  <div class="headertitle">
+<div class="title">Файл parser.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><code>#include &quot;<a class="el" href="parser_8hpp_source.html">parser.hpp</a>&quot;</code><br />
+<code>#include &lt;unordered_map&gt;</code><br />
+<code>#include &lt;vector&gt;</code><br />
+<code>#include &lt;fstream&gt;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Граф включаемых заголовочных файлов для parser.cpp:</div>
+<div class="dyncontent">
+<div class="center"><img src="parser_8cpp__incl.png" border="0" usemap="#aparser_8cpp" alt=""/></div>
+<map name="aparser_8cpp" id="aparser_8cpp">
+<area shape="rect" title=" " alt="" coords="197,5,286,32"/>
+<area shape="rect" href="parser_8hpp.html" title=" " alt="" coords="5,80,96,107"/>
+<area shape="rect" title=" " alt="" coords="121,80,245,107"/>
+<area shape="rect" title=" " alt="" coords="269,80,331,107"/>
+<area shape="rect" title=" " alt="" coords="355,80,429,107"/>
+<area shape="rect" title=" " alt="" coords="21,155,80,181"/>
+</map>
+</div>
+</div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
+Пространства имен</h2></td></tr>
+<tr class="memitem:namespaceemu"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceemu.html">emu</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Функции</h2></td></tr>
+<tr class="memitem:acb186f10bb65b1081eb02a7e9ff3ce44"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceemu.html#acb186f10bb65b1081eb02a7e9ff3ce44">emu::check_address</a> (std::string addr)</td></tr>
+<tr class="separator:acb186f10bb65b1081eb02a7e9ff3ce44"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa7c9a16f4fca1d451c753d15199aa075"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceemu.html#aa7c9a16f4fca1d451c753d15199aa075">emu::breakdown</a> (std::string t)</td></tr>
+<tr class="separator:aa7c9a16f4fca1d451c753d15199aa075"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a03d77499e43c8a13aecfa9bd6a40d188"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceemu.html#a03d77499e43c8a13aecfa9bd6a40d188">emu::assemble</a> (std::vector&lt; std::string &gt; t)</td></tr>
+<tr class="separator:a03d77499e43c8a13aecfa9bd6a40d188"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9af2878ab1f0ce23e698f51782c04d42"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceemu.html#a9af2878ab1f0ce23e698f51782c04d42">emu::parse</a> (std::string file)</td></tr>
+<tr class="separator:a9af2878ab1f0ce23e698f51782c04d42"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
+Переменные</h2></td></tr>
+<tr class="memitem:a4fa4ec8e00cea3358415dff5eef86a21"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; std::string, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceemu.html#a4fa4ec8e00cea3358415dff5eef86a21">emu::operators</a></td></tr>
+<tr class="separator:a4fa4ec8e00cea3358415dff5eef86a21"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55b16ce787df5e59b4c05da1e3c75782"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; std::string, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceemu.html#a55b16ce787df5e59b4c05da1e3c75782">emu::regs</a></td></tr>
+<tr class="separator:a55b16ce787df5e59b4c05da1e3c75782"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="parser_8cpp.html">parser.cpp</a></li>
+    <li class="footer">Создано системой <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+  </ul>
+</div>
+</body>
+</html>

@@ -1,0 +1,166 @@
+\hypertarget{emulator_8cpp}{}\doxysection{/home/leon/\+Projects/processor-\/emulator/\+EMU/emulator.cpp File Reference}
+\label{emulator_8cpp}\index{/home/leon/Projects/processor-\/emulator/EMU/emulator.cpp@{/home/leon/Projects/processor-\/emulator/EMU/emulator.cpp}}
+{\ttfamily \#include \char`\"{}emulator.\+hpp\char`\"{}}\newline
+{\ttfamily \#include $<$fstream$>$}\newline
+Include dependency graph for emulator.\+cpp\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=248pt]{emulator_8cpp__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+ \mbox{\hyperlink{namespaceemu}{emu}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{emulator_8cpp_ac9f31f726d2933782e2efda7136a25fd}{ADDR}}~0x\+FFFF
+\item 
+\#define \mbox{\hyperlink{emulator_8cpp_ae7520c5477c11965aabeedc033c9862b}{MASK}}~0xF
+\item 
+\#define \mbox{\hyperlink{emulator_8cpp_a83dd9cfbd1a7223ff60ba56ca6f09ed3}{MOV}}~0b0000
+\item 
+\#define \mbox{\hyperlink{emulator_8cpp_af735670d9b1cd3dfa2d927db387f7123}{INC}}~0b0001
+\item 
+\#define \mbox{\hyperlink{emulator_8cpp_a97fe5470fb1ac167c713671655ff3e52}{ADD}}~0b0010
+\item 
+\#define \mbox{\hyperlink{emulator_8cpp_a240067f241bac82304fe36d2d4a296da}{ADDI}}~0b0011
+\item 
+\#define \mbox{\hyperlink{emulator_8cpp_a46cadd49a02da540cf99ad4adfc178e4}{JNE}}~0b0100
+\item 
+\#define \mbox{\hyperlink{emulator_8cpp_a07db26103640fbb48480d5066c995d46}{JL}}~0b0101
+\item 
+\#define \mbox{\hyperlink{emulator_8cpp_a0aadd52e0701b04b7d48ae42a29da802}{JG}}~0b0110
+\item 
+\#define \mbox{\hyperlink{emulator_8cpp_a61adf7b292d40bd77c0ee35cb9eb2597}{JE}}~0b0111
+\item 
+\#define \mbox{\hyperlink{emulator_8cpp_ab7aff04ad21c86032dee3b2012ad6126}{MUL}}~0b1000
+\item 
+\#define \mbox{\hyperlink{emulator_8cpp_a8295e0aed07a8923d8363ce46c7b08e2}{DIV}}~0b1001
+\item 
+\#define \mbox{\hyperlink{emulator_8cpp_ad3e9fe0ec59d2dbb3982ababa042720c}{NOT}}~0b1010
+\item 
+\#define \mbox{\hyperlink{emulator_8cpp_a3363ca4d6d3cc0230b2804280591c991}{OR}}~0b1011
+\item 
+\#define \mbox{\hyperlink{emulator_8cpp_abc34a59776843cbc72ac2090fd165fcb}{SUBD}}~0b1100
+\item 
+\#define \mbox{\hyperlink{emulator_8cpp_a62c52d6d320f53e9e6632cce5a595660}{SUB}}~0b1101
+\item 
+\#define \mbox{\hyperlink{emulator_8cpp_afe38ec6126e35e40049e27fdf4586ba5}{DEC}}~0b1110
+\item 
+\#define \mbox{\hyperlink{emulator_8cpp_acd1b97556dfbbac61063a63031d2f91d}{AND}}~0b1111
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\Hypertarget{emulator_8cpp_a97fe5470fb1ac167c713671655ff3e52}\label{emulator_8cpp_a97fe5470fb1ac167c713671655ff3e52}} 
+\index{emulator.cpp@{emulator.cpp}!ADD@{ADD}}
+\index{ADD@{ADD}!emulator.cpp@{emulator.cpp}}
+\doxysubsubsection{\texorpdfstring{ADD}{ADD}}
+{\footnotesize\ttfamily \#define ADD~0b0010}
+
+\mbox{\Hypertarget{emulator_8cpp_a240067f241bac82304fe36d2d4a296da}\label{emulator_8cpp_a240067f241bac82304fe36d2d4a296da}} 
+\index{emulator.cpp@{emulator.cpp}!ADDI@{ADDI}}
+\index{ADDI@{ADDI}!emulator.cpp@{emulator.cpp}}
+\doxysubsubsection{\texorpdfstring{ADDI}{ADDI}}
+{\footnotesize\ttfamily \#define ADDI~0b0011}
+
+\mbox{\Hypertarget{emulator_8cpp_ac9f31f726d2933782e2efda7136a25fd}\label{emulator_8cpp_ac9f31f726d2933782e2efda7136a25fd}} 
+\index{emulator.cpp@{emulator.cpp}!ADDR@{ADDR}}
+\index{ADDR@{ADDR}!emulator.cpp@{emulator.cpp}}
+\doxysubsubsection{\texorpdfstring{ADDR}{ADDR}}
+{\footnotesize\ttfamily \#define ADDR~0x\+FFFF}
+
+\mbox{\Hypertarget{emulator_8cpp_acd1b97556dfbbac61063a63031d2f91d}\label{emulator_8cpp_acd1b97556dfbbac61063a63031d2f91d}} 
+\index{emulator.cpp@{emulator.cpp}!AND@{AND}}
+\index{AND@{AND}!emulator.cpp@{emulator.cpp}}
+\doxysubsubsection{\texorpdfstring{AND}{AND}}
+{\footnotesize\ttfamily \#define AND~0b1111}
+
+\mbox{\Hypertarget{emulator_8cpp_afe38ec6126e35e40049e27fdf4586ba5}\label{emulator_8cpp_afe38ec6126e35e40049e27fdf4586ba5}} 
+\index{emulator.cpp@{emulator.cpp}!DEC@{DEC}}
+\index{DEC@{DEC}!emulator.cpp@{emulator.cpp}}
+\doxysubsubsection{\texorpdfstring{DEC}{DEC}}
+{\footnotesize\ttfamily \#define DEC~0b1110}
+
+\mbox{\Hypertarget{emulator_8cpp_a8295e0aed07a8923d8363ce46c7b08e2}\label{emulator_8cpp_a8295e0aed07a8923d8363ce46c7b08e2}} 
+\index{emulator.cpp@{emulator.cpp}!DIV@{DIV}}
+\index{DIV@{DIV}!emulator.cpp@{emulator.cpp}}
+\doxysubsubsection{\texorpdfstring{DIV}{DIV}}
+{\footnotesize\ttfamily \#define DIV~0b1001}
+
+\mbox{\Hypertarget{emulator_8cpp_af735670d9b1cd3dfa2d927db387f7123}\label{emulator_8cpp_af735670d9b1cd3dfa2d927db387f7123}} 
+\index{emulator.cpp@{emulator.cpp}!INC@{INC}}
+\index{INC@{INC}!emulator.cpp@{emulator.cpp}}
+\doxysubsubsection{\texorpdfstring{INC}{INC}}
+{\footnotesize\ttfamily \#define INC~0b0001}
+
+\mbox{\Hypertarget{emulator_8cpp_a61adf7b292d40bd77c0ee35cb9eb2597}\label{emulator_8cpp_a61adf7b292d40bd77c0ee35cb9eb2597}} 
+\index{emulator.cpp@{emulator.cpp}!JE@{JE}}
+\index{JE@{JE}!emulator.cpp@{emulator.cpp}}
+\doxysubsubsection{\texorpdfstring{JE}{JE}}
+{\footnotesize\ttfamily \#define JE~0b0111}
+
+\mbox{\Hypertarget{emulator_8cpp_a0aadd52e0701b04b7d48ae42a29da802}\label{emulator_8cpp_a0aadd52e0701b04b7d48ae42a29da802}} 
+\index{emulator.cpp@{emulator.cpp}!JG@{JG}}
+\index{JG@{JG}!emulator.cpp@{emulator.cpp}}
+\doxysubsubsection{\texorpdfstring{JG}{JG}}
+{\footnotesize\ttfamily \#define JG~0b0110}
+
+\mbox{\Hypertarget{emulator_8cpp_a07db26103640fbb48480d5066c995d46}\label{emulator_8cpp_a07db26103640fbb48480d5066c995d46}} 
+\index{emulator.cpp@{emulator.cpp}!JL@{JL}}
+\index{JL@{JL}!emulator.cpp@{emulator.cpp}}
+\doxysubsubsection{\texorpdfstring{JL}{JL}}
+{\footnotesize\ttfamily \#define JL~0b0101}
+
+\mbox{\Hypertarget{emulator_8cpp_a46cadd49a02da540cf99ad4adfc178e4}\label{emulator_8cpp_a46cadd49a02da540cf99ad4adfc178e4}} 
+\index{emulator.cpp@{emulator.cpp}!JNE@{JNE}}
+\index{JNE@{JNE}!emulator.cpp@{emulator.cpp}}
+\doxysubsubsection{\texorpdfstring{JNE}{JNE}}
+{\footnotesize\ttfamily \#define JNE~0b0100}
+
+\mbox{\Hypertarget{emulator_8cpp_ae7520c5477c11965aabeedc033c9862b}\label{emulator_8cpp_ae7520c5477c11965aabeedc033c9862b}} 
+\index{emulator.cpp@{emulator.cpp}!MASK@{MASK}}
+\index{MASK@{MASK}!emulator.cpp@{emulator.cpp}}
+\doxysubsubsection{\texorpdfstring{MASK}{MASK}}
+{\footnotesize\ttfamily \#define MASK~0xF}
+
+\mbox{\Hypertarget{emulator_8cpp_a83dd9cfbd1a7223ff60ba56ca6f09ed3}\label{emulator_8cpp_a83dd9cfbd1a7223ff60ba56ca6f09ed3}} 
+\index{emulator.cpp@{emulator.cpp}!MOV@{MOV}}
+\index{MOV@{MOV}!emulator.cpp@{emulator.cpp}}
+\doxysubsubsection{\texorpdfstring{MOV}{MOV}}
+{\footnotesize\ttfamily \#define MOV~0b0000}
+
+\mbox{\Hypertarget{emulator_8cpp_ab7aff04ad21c86032dee3b2012ad6126}\label{emulator_8cpp_ab7aff04ad21c86032dee3b2012ad6126}} 
+\index{emulator.cpp@{emulator.cpp}!MUL@{MUL}}
+\index{MUL@{MUL}!emulator.cpp@{emulator.cpp}}
+\doxysubsubsection{\texorpdfstring{MUL}{MUL}}
+{\footnotesize\ttfamily \#define MUL~0b1000}
+
+\mbox{\Hypertarget{emulator_8cpp_ad3e9fe0ec59d2dbb3982ababa042720c}\label{emulator_8cpp_ad3e9fe0ec59d2dbb3982ababa042720c}} 
+\index{emulator.cpp@{emulator.cpp}!NOT@{NOT}}
+\index{NOT@{NOT}!emulator.cpp@{emulator.cpp}}
+\doxysubsubsection{\texorpdfstring{NOT}{NOT}}
+{\footnotesize\ttfamily \#define NOT~0b1010}
+
+\mbox{\Hypertarget{emulator_8cpp_a3363ca4d6d3cc0230b2804280591c991}\label{emulator_8cpp_a3363ca4d6d3cc0230b2804280591c991}} 
+\index{emulator.cpp@{emulator.cpp}!OR@{OR}}
+\index{OR@{OR}!emulator.cpp@{emulator.cpp}}
+\doxysubsubsection{\texorpdfstring{OR}{OR}}
+{\footnotesize\ttfamily \#define OR~0b1011}
+
+\mbox{\Hypertarget{emulator_8cpp_a62c52d6d320f53e9e6632cce5a595660}\label{emulator_8cpp_a62c52d6d320f53e9e6632cce5a595660}} 
+\index{emulator.cpp@{emulator.cpp}!SUB@{SUB}}
+\index{SUB@{SUB}!emulator.cpp@{emulator.cpp}}
+\doxysubsubsection{\texorpdfstring{SUB}{SUB}}
+{\footnotesize\ttfamily \#define SUB~0b1101}
+
+\mbox{\Hypertarget{emulator_8cpp_abc34a59776843cbc72ac2090fd165fcb}\label{emulator_8cpp_abc34a59776843cbc72ac2090fd165fcb}} 
+\index{emulator.cpp@{emulator.cpp}!SUBD@{SUBD}}
+\index{SUBD@{SUBD}!emulator.cpp@{emulator.cpp}}
+\doxysubsubsection{\texorpdfstring{SUBD}{SUBD}}
+{\footnotesize\ttfamily \#define SUBD~0b1100}
+
