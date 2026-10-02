@@ -62,7 +62,7 @@ public:
         }
     }
 
-    void update(sf::Time deltaTime) override {}
+    void update(sf::Time deltaTime, const sf::RenderWindow& window, sf::Vector2f localMousePos) override {}
 
 protected:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override {

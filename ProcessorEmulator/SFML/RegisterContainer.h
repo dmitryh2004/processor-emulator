@@ -63,10 +63,10 @@ public:
     }
 
     // Перегрузка обновления (если дочерним элементам нужно передавать deltaTime)
-    void update(sf::Time deltaTime) override {
-        m_textName->update(deltaTime);
-        m_textHex->update(deltaTime);
-        m_textDec->update(deltaTime);
+    void update(sf::Time deltaTime, const sf::RenderWindow& window, sf::Vector2f localMousePos) override {
+        m_textName->update(deltaTime, window, localMousePos - m_textName->getPosition());
+        m_textHex->update(deltaTime, window, localMousePos - m_textHex->getPosition());
+        m_textDec->update(deltaTime, window, localMousePos - m_textDec->getPosition());
     }
 
     // Обработка событий для дочерних элементов

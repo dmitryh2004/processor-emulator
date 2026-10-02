@@ -10,7 +10,8 @@ int main()
 
     std::setlocale(LC_ALL, ".UTF-8"); // настройка консоли на отображение сообщений в utf-8
 
-    RAM ram(65536);
+    Processor processor(65536);
+    RAM ram = processor.GetRAM();
 
     sf::RenderWindow window(sf::VideoMode({ 1440, 900 }), "SFML window", sf::Style::Titlebar | sf::Style::Close);
     window.setSize(sf::Vector2u(1440, 900));
@@ -18,6 +19,7 @@ int main()
 
     sf::Vector2f windowSizeFloat = SFMLUtility::CastVector2uToFloat(window.getSize());
 
+    sf::Color hoverColor = sf::Color::Color(255, 255, 0);
     sf::Color registerTextColor = sf::Color::Color(0, 192, 0);
     sf::Color registerTextColorModified = sf::Color::Color(0, 255, 0);
 
@@ -38,6 +40,8 @@ int main()
     const sf::Texture& stepButtonTexture = resources.GetTexture("Assets/Sprites/stepButtonSprite.png");
     const sf::Texture& stopButtonTexture = resources.GetTexture("Assets/Sprites/stopButtonSprite.png");
     const sf::Texture& ramResetButtonTexture = resources.GetTexture("Assets/Sprites/ramResetButtonSprite.png");
+
+    const sf::Texture& sliderTexture = resources.GetTexture("Assets/Sprites/speed slider.png");
 
     const sf::Font& textFont = resources.GetFont("Assets/Fonts/Rubik-Medium.ttf");
     const sf::Font& codeFont = resources.GetFont("Assets/Fonts/Courier-New.ttf");
@@ -64,8 +68,31 @@ int main()
     // background sprite
     Image bgSprite = Image("bgSprite", sf::Vector2f(1440.f, 900.f), backgroundTexture, windowSizeFloat);
 
+
     // top panel - start
     std::shared_ptr<Panel> panel = std::make_shared<Panel>("headerPanel", sf::Vector2f(1440.f, 36.f), windowSizeFloat);
+
+    // slider
+    std::vector<SliderObject::AnchorPoint> anchors = std::vector<SliderObject::AnchorPoint>();
+    anchors.push_back({ 12.f, 1 });
+    anchors.push_back({ 29.f, 2 });
+    anchors.push_back({ 46.f, 5 });
+    anchors.push_back({ 67.f, 10 });
+    anchors.push_back({ 90.f, 20 });
+    anchors.push_back({ 113.f, 60 });
+
+    std::shared_ptr<SliderObject> slider = std::make_shared<SliderObject>("clockSpeedSlider", 
+        sf::Vector2f(130.f, 14.f), 
+        windowSizeFloat,
+        anchors, 
+        1, 
+        sf::Vector2f(1238.f, 4.f), 
+        BaseObject::Anchor::TopLeft,
+        BaseObject::Anchor::TopLeft, 
+        0.f,
+        sf::Vector2f(1.f, 1.f), 
+        nullptr,
+        &sliderTexture);
 
     std::shared_ptr<Button> infoButton = std::make_shared<Button>("infoButton", 
         sf::Vector2f(24.f, 24.f), 
@@ -373,7 +400,7 @@ int main()
 
     std::shared_ptr<RAMViewer> ramViewer = std::make_shared<RAMViewer>(
         "ramViewer", sf::Vector2f(688.f, 230.f), ramPanel->getSize(), ram, 10, 5, sf::Vector2f(69.f, 46.f), registerFont, textFont,
-        12, registerTextColor, 0.f, sf::Vector2f(6.f, 44.f)
+        12, registerTextColor, hoverColor, 0.f, sf::Vector2f(6.f, 44.f)
     );
 
     std::shared_ptr<Button> nextPageButton = std::make_shared<Button>("ramNextPageBtn",
@@ -532,6 +559,7 @@ int main()
                 window.close();
             }
 
+            slider->checkForEvents(*event, window, mousePosFloat);
             panel->checkForEvents(*event, window, mousePosFloat);
             codePanel->checkForEvents(*event, window, mousePosFloat);
             registerPanel->checkForEvents(*event, window, mousePosFloat);
@@ -541,14 +569,16 @@ int main()
         }
         
         sf::Time deltaTime = clock.restart();
-        panel->update(deltaTime);
-        codePanel->update(deltaTime);
-        registerPanel->update(deltaTime);
-        ccc->update(deltaTime);
-        ramPanel->update(deltaTime);
-        logPanel->update(deltaTime);
+        slider->update(deltaTime, window, mousePosFloat);
+        panel->update(deltaTime, window, mousePosFloat);
+        codePanel->update(deltaTime, window, mousePosFloat);
+        registerPanel->update(deltaTime, window, mousePosFloat);
+        ccc->update(deltaTime, window, mousePosFloat);
+        ramPanel->update(deltaTime, window, mousePosFloat);
+        logPanel->update(deltaTime, window, mousePosFloat);
         
         renderTexture.clear();
+        renderTexture.draw(*slider);
         renderTexture.draw(bgSprite);
         renderTexture.draw(*panel);
         renderTexture.draw(*codePanel);

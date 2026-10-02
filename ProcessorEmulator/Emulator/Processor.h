@@ -51,7 +51,7 @@ public:
 			std::string line = program.at(i);
 			std::vector<std::string> splitted = splitString(line, ' ');
 			if (splitted.size() > 2) {
-				std:cerr << "[CPU] Error when parsing program (line " << i << ")" << std::endl;
+				std::cerr << "[CPU] Error when parsing program (line " << i << ")" << std::endl;
 				break;
 			}
 		}

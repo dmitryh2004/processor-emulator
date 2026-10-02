@@ -15,6 +15,7 @@ public:
         uint32_t value = 0,
         unsigned int characterSize = 20,
         sf::Color textColor = sf::Color::White,
+        sf::Color hoverTextColor = sf::Color::Yellow,
         sf::Vector2f offset = sf::Vector2f(0.f, 0.f),
         Anchor parentAnchor = Anchor::TopLeft,
         Anchor localAnchor = Anchor::TopLeft,
@@ -22,6 +23,8 @@ public:
         sf::Vector2f scale = sf::Vector2f(1.f, 1.f))
         : BaseObject(name, size, parentSize, offset, parentAnchor, localAnchor, rotation, scale),
         m_modalWindowFont(modalWindowFont),
+        m_baseColor(textColor),
+        m_hoverColor(hoverTextColor),
         m_address(address),
         m_value(value)
     {
@@ -75,12 +78,22 @@ public:
     uint32_t getValue() const { return m_value; }
 
     // Логика обновления дочерних элементов (если требуется)
-    void update(sf::Time deltaTime) override {
-        m_addressText->update(deltaTime);
-        m_valueText->update(deltaTime);
+    void update(sf::Time deltaTime, const sf::RenderWindow& window, sf::Vector2f localMousePos) override {
+        sf::FloatRect textBounds = m_valueText->getBounds();
+
+        if (textBounds.contains(localMousePos)) {
+            m_valueText->setFillColor(m_hoverColor);
+        }
+        else {
+            m_valueText->setFillColor(m_baseColor);
+        }
+
+        m_addressText->update(deltaTime, window, localMousePos);
+        m_valueText->update(deltaTime, window, localMousePos);
     }
 
     void checkForEvents(const sf::Event& event, const sf::RenderWindow& window, sf::Vector2f localMousePos) override {
+        lastLocalMousePos = localMousePos;
         // Если адрес равен 0, значение "reserved" и его нельзя редактировать
         if (m_address == 0) return;
 
@@ -116,11 +129,15 @@ protected:
 private:
     const sf::Font& m_modalWindowFont;
 
+    sf::Vector2f lastLocalMousePos = sf::Vector2f(0.f, 0.f);
+
     uint32_t m_address;
     uint32_t m_value;
 
     std::unique_ptr<Text> m_addressText;
     std::unique_ptr<Text> m_valueText;
+
+    sf::Color m_baseColor, m_hoverColor;
 
     // Вспомогательный метод для обновления строк и обработки условия "reserved"
     void updateTextDisplays() {
@@ -140,17 +157,22 @@ private:
     }
 
     void openEditDialog(const sf::ContextSettings& settings, const sf::Font& font, const sf::RenderWindow& mainWindowRef) {
-        sf::RenderWindow dialog(sf::VideoMode({ 400, 250 }), "Edit RAM cell value", sf::State::Windowed, settings);
+        std::string title = "Ячейка " + std::to_string(m_address) + " - редактирование";
+        std::string titleTextStr = std::format("Ячейка памяти 0х{:04X}", m_address);
+        sf::String inputLabelStr = "Значение:"_sf, hexLabelStr = "Hex-формат:"_sf, 
+            saveTextStr = "Сохранить"_sf, cancelTextStr = "Отмена"_sf;
+
+        sf::RenderWindow dialog(sf::VideoMode({ 400, 250 }), sf::String::fromUtf8(title.begin(), title.end()), sf::State::Windowed, settings);
         dialog.setFramerateLimit(60);
 
         std::string decInput = std::to_string(m_value);
 
         // Настройка UI элементов (остается прежней)
-        sf::Text titleText(font, std::format("Memory cell address: 0x{:08X}", m_address), 18);
+        sf::Text titleText(font, sf::String::fromUtf8(titleTextStr.begin(), titleTextStr.end()), 18);
         titleText.setPosition({ 20.f, 20.f });
         titleText.setFillColor(sf::Color::White);
 
-        sf::Text inputLabel(font, "Decimal value:", 14);
+        sf::Text inputLabel(font, inputLabelStr, 14);
         inputLabel.setPosition({ 20.f, 60.f });
         inputLabel.setFillColor(sf::Color::Cyan);
 
@@ -158,7 +180,7 @@ private:
         inputDisplay.setPosition({ 20.f, 85.f });
         inputDisplay.setFillColor(sf::Color::White);
 
-        sf::Text hexLabel(font, "Hex value:", 14);
+        sf::Text hexLabel(font, hexLabelStr, 14);
         hexLabel.setPosition({ 20.f, 125.f });
         hexLabel.setFillColor(sf::Color::Cyan);
 
@@ -170,14 +192,14 @@ private:
         saveBtn.setPosition({ 160.f, 200.f });
         saveBtn.setFillColor(sf::Color(0, 150, 0));
 
-        sf::Text saveText(font, "Save", 14);
-        saveText.setPosition({ 190.f, 208.f });
+        sf::Text saveText(font, saveTextStr, 14);
+        saveText.setPosition({ 170.f, 208.f });
 
         sf::RectangleShape cancelBtn({ 100.f, 35.f });
         cancelBtn.setPosition({ 280.f, 200.f });
         cancelBtn.setFillColor(sf::Color(150, 0, 0));
 
-        sf::Text cancelText(font, "Cancel", 14);
+        sf::Text cancelText(font, cancelTextStr, 14);
         cancelText.setPosition({ 305.f, 208.f });
 
         // Получаем неконстантную ссылку на главное окно для очистки его очереди событий

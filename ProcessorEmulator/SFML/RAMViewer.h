@@ -21,6 +21,7 @@ public:
         const sf::Font& modalWindowFont,
         unsigned int characterSize = 20,
         sf::Color textColor = sf::Color::White,
+        sf::Color hoverColor = sf::Color::Yellow,
         float spacing = 0.f,         // Вертикальный зазор между ячейками
         sf::Vector2f offset = sf::Vector2f(0.f, 0.f),
         Anchor parentAnchor = Anchor::TopLeft,
@@ -58,6 +59,7 @@ public:
                 0,    // Начальное значение (обновится в updateCellsFromMemory)
                 characterSize,
                 textColor,
+                hoverColor,
                 sf::Vector2f(xPos, yPos), // Смещение относительно TopLeft вьювера
                 Anchor::TopLeft,
                 Anchor::TopLeft
@@ -140,9 +142,9 @@ public:
         }
     }
 
-    void update(sf::Time deltaTime) override {
+    void update(sf::Time deltaTime, const sf::RenderWindow& window, sf::Vector2f localMousePos) override {
         for (auto& cell : m_cells) {
-            cell->update(deltaTime);
+            cell->update(deltaTime, window, localMousePos - getPosition() - cell->getPosition());
         }
     }
 

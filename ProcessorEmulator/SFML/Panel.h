@@ -55,10 +55,11 @@ public:
     }
 
 
-    void update(sf::Time deltaTime) override {
+    void update(sf::Time deltaTime, const sf::RenderWindow& window, sf::Vector2f localMousePos) override {
         for (auto& [zIndex, layer] : m_layers) {
             for (auto& object : layer) {
-                object->update(deltaTime);
+                sf::Vector2f objectMousePos = localMousePos - getPosition();
+                object->update(deltaTime, window, objectMousePos);
             }
         }
     }

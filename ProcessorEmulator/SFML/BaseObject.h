@@ -39,7 +39,7 @@ public:
     virtual ~BaseObject() = default;
 
     virtual void checkForEvents(const sf::Event& event, const sf::RenderWindow& window, sf::Vector2f localMousePos) {}
-    virtual void update(sf::Time deltaTime) {}
+    virtual void update(sf::Time deltaTime, const sf::RenderWindow& window, sf::Vector2f localMousePos) {}
 
     sf::Vector2f getSize() const { return m_size; }
     std::string getName() const { return name; }

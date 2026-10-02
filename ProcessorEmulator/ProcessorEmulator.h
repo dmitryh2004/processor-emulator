@@ -23,10 +23,12 @@
 #include "SFML/RAMCellContainer.h"
 #include "SFML/RAMViewer.h"
 #include "SFML/LogText.h"
+#include "SFML/SliderObject.h"
 
 #include "SFML/Utilites/SFMLUtility.h"
 #include "SFML/PortableFileDialogs.h"
 
+#include "Emulator/Processor.h"
 #include "Emulator/RAM.h"
 
 using namespace SFMLUtility;
