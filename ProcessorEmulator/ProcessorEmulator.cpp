@@ -165,19 +165,31 @@ int main()
             // Преобразуем UTF-8 строку от pfd в кроссплатформенный std::filesystem::path
             std::filesystem::path filePath = std::filesystem::u8path(filePathStr);
 
-            // Передаем объект path напрямую в поток
-            std::ofstream file(filePath);
+            // Открываем файл в бинарном режиме, чтобы избежать системно-зависимых искажений перевода строк
+            std::ofstream file(filePath, std::ios::binary);
 
             if (!file.is_open()) {
-                logField->appendLog("[saveCodeButton] Save failed at path: " + filePathStr);
+                logField->appendLog("[saveCodeButton] Не удалось сохранить код в следующий файл: " + filePathStr);
                 return;
             }
 
-            file << codeField->getTextString();
+            // 1. Получаем UTF-8 представление строки (в SFML 3 это sf::U8String / std::u8string)
+            // Если у вас в коде getTextString() возвращает std::string, лучше вызовите метод напрямую у m_string внутри InputField, 
+            // либо временно воспользуйтесь кодом ниже:
+            sf::String sfStrText = codeField->getTextString(); // Предполагаем, что getTextString() теперь возвращает sf::String или std::string
+
+            // Надежнее всего получить чистый UTF-8 из sf::String:
+            // (Если getTextString() все еще возвращает std::string, измените его возвращаемый тип на sf::String или добавьте новый метод getSfString())
+            sf::U8String utf8Str = sfStrText.toUtf8();
+
+            // 2. Записываем байты UTF-8 строки в файл
+            file.write(reinterpret_cast<const char*>(utf8Str.data()), utf8Str.size());
             file.close();
-            logField->appendLog("[saveCodeButton] Code saved successfully at path: " + filePathStr);
+
+            logField->appendLog("[saveCodeButton] Код успешно сохранен в следующий файл: " + filePathStr);
         }
-    });
+    }
+    );
 
     std::shared_ptr<Button> loadCodeButton = std::make_shared<Button>("loadCodeButton",
         sf::Vector2f(24.f, 24.f),
@@ -201,17 +213,37 @@ int main()
             // Преобразуем UTF-8 строку от pfd в кроссплатформенный std::filesystem::path
             std::filesystem::path filePath = std::filesystem::u8path(filePathStr);
 
-            // Передаем объект path напрямую в поток
-            std::ifstream file(filePath);
+            // Открываем файл в бинарном режиме для точного побайтового чтения UTF-8
+            std::ifstream file(filePath, std::ios::binary | std::ios::ate);
 
             if (!file.is_open()) {
-                logField->appendLog("[loadCodeButton] Unable to read file " + filePathStr);
+                logField->appendLog("[loadCodeButton] Не удалось прочитать файл " + filePathStr);
                 return;
             }
 
-            std::string fileContent = std::string(std::istreambuf_iterator<char>(file),
-                std::istreambuf_iterator<char>());
-            codeField->setTextString(fileContent);
+            // Определяем размер файла и выделяем буфер
+            std::streamsize size = file.tellg();
+            file.seekg(0, std::ios::beg);
+
+            std::string utf8Content;
+            if (size > 0) {
+                utf8Content.resize(static_cast<size_t>(size));
+                if (!file.read(&utf8Content[0], size)) {
+                    logField->appendLog("[loadCodeButton] Ошибка при чтении файла " + filePathStr);
+                    return;
+                }
+            }
+            file.close();
+
+            // Конвертируем UTF-8 (std::string) в sf::String. 
+            // SFML 3 автоматически и корректно переведет многобайтовую кириллицу в UTF-32.
+            sf::String sfStrContent = sf::String::fromUtf8(utf8Content.begin(), utf8Content.end());
+
+            // Загружаем текст в текстовое поле
+            // (Метод setTextString теперь должен принимать sf::String или std::u32string)
+            codeField->setTextString(sfStrContent);
+
+            logField->appendLog("[loadCodeButton] Успешно загружен код из файла: " + filePathStr);
         }
     });
 
@@ -389,7 +421,7 @@ int main()
     ramResetButton->SetOnClickSound(&clickSound);
     ramResetButton->SetOnClickAction([&ramViewer, &logField] {
         ramViewer->reset();
-        logField->appendLog("Memory resetted successfully");
+        logField->appendLog("Память успешно сброшена");
     });
 
     std::shared_ptr<Button> ramSaveButton = std::make_shared<Button>("ramSaveBtn",
@@ -406,10 +438,10 @@ int main()
     ramSaveButton->SetOnClickAction([&ramViewer, &logField] {
         try {
             ramViewer->saveDump();
-            logField->appendLog("Memory dump saved at memdump.bin; check .exe file directory");
+            logField->appendLog("Дамп памяти сохранен в memdump.bin; проверьте директорию рядом с .exe файлом");
         }
         catch (std::runtime_error e) {
-            std::string logString = "Unable to save memory dump: "; 
+            std::string logString = "Не удалось сохранить дамп памяти: "; 
             logString += e.what();
             logField->appendLog(logString);
         }
@@ -429,10 +461,10 @@ int main()
     ramLoadButton->SetOnClickAction([&ramViewer, &logField] {
         try {
             ramViewer->loadDump();
-            logField->appendLog("Memory dump loaded from memdump.bin");
+            logField->appendLog("Память загружена из дампа memdump.bin");
         }
         catch (std::runtime_error e) {
-            std::string logString = "Unable to load memory dump: ";
+            std::string logString = "Не удалось загрузить дамп памяти: ";
             logString += e.what();
             logField->appendLog(logString);
         }

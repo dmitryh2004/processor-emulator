@@ -52,11 +52,11 @@ public:
         return success;
     }
 
-    std::string getTextString() const {
-        return m_string.toAnsiString();
+    sf::String getTextString() const {
+        return m_string;
     }
 
-    void setTextString(const std::string& text) {
+    void setTextString(const sf::String& text) {
         m_string = text;
         m_cursorIndex = m_string.getSize();
         rebuildVertices();
@@ -417,9 +417,8 @@ private:
            addLineNumberVertices(currentLineNum, yOffset);
 
            // Подготовка цветов подсветки синтаксиса
-           sf::U8String utf8Str = m_string.toUtf8();
-           std::string ansiStr(utf8Str.begin(), utf8Str.end());
-           std::vector<sf::Color> textColors = m_highlighter.highlight(ansiStr);
+           // Подготовка цветов подсветки синтаксиса с использованием UTF-32
+           std::vector<sf::Color> textColors = m_highlighter.highlight(m_string.toUtf32());
            m_contentSize = sf::Vector2f(startX, yOffset + lineSpacing);
 
            // Вспомогательная лямбда для добавления геометрии конкретного символа

@@ -64,7 +64,7 @@ public:
     }
 
     void appendLog(const std::string& logMessage) {
-        std::string currentText = getTextString();
+        sf::String currentText = getTextString();
 
         auto now = std::chrono::system_clock::now();
         std::time_t now_time = std::chrono::system_clock::to_time_t(now);
@@ -80,11 +80,11 @@ public:
         timeStream << "[" << std::put_time(&local_tm, "%H:%M:%S") << "] ";
         std::string timeStamp = timeStream.str();
 
-        if (!currentText.empty()) {
+        if (!currentText.isEmpty()) {
             currentText += "\n";
         }
 
-        currentText += timeStamp + logMessage;
+        currentText += timeStamp + sf::String::fromUtf8(logMessage.begin(), logMessage.end());
         setTextString(currentText);
     }
 
