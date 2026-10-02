@@ -49,10 +49,10 @@ namespace emu{
 			case AND:	REGS[s8]=REGS[s4]&REGS[s0]; break;
 			case MUL:	REGS[s8]=REGS[s4]*REGS[s0]; break;
 			case DIV:	REGS[s8]=REGS[s4]/REGS[s0]; break;
-			case JE:	if(REGS[6]&2) REGS[s8]=REGS[s4]; break;
-			case JL:	if(REGS[6]&1) REGS[s8]=REGS[s4]; break;
-			case JG:	if(!REGS[6]&1) REGS[s8]=REGS[s4]; break;
-			case JNE:	if(!(REGS[6]&2)) REGS[s8]=REGS[s4]; break;
+			case JE:	if(REGS[6]&2) REGS[s8]=REGS[s4]-1; break;
+			case JL:	if(REGS[6]&1) REGS[s8]=REGS[s4]-1; break;
+			case JG:	if(!REGS[6]&1) REGS[s8]=REGS[s4]-1; break;
+			case JNE:	if(!(REGS[6]&2)) REGS[s8]=REGS[s4]-1; break;
 			default: break;
 		}if(k==REGS[2]) data[REGS[2]]=REGS[3];
 		return REGS[5]<=size;
@@ -77,9 +77,10 @@ namespace emu{
 #include <iostream>
 #include <iomanip>
 int main(){
-	emu::program RUNNER("hello");
+	emu::program RUNNER("p2");
 	std::cout<<"Начальная память: ";
 	for(auto i:RUNNER.show_RAM(1)) std::cout<<i<<" ";; std::cout<<"\n";
+	for(auto i:RUNNER.show_RAM(0)) std::cout<<std::hex<<i<<" ";; std::cout<<"\n";
 	std::cout<<"Существующие операции по нумерации:\n";
 	std::cout<<"MOV: "<<std::hex<<MOV<<"\t";std::cout<<"INC: "<<std::hex<<INC<<"\t";
 	std::cout<<"ADD: "<<std::hex<<ADD<<"\t";std::cout<<"ADDI:"<<std::hex<<ADDI<<"\n\n";
@@ -92,11 +93,9 @@ int main(){
 	std::cout<<"Регистры\n";
 	std::cout<<std::setw(8)<<"OUT"<<std::setw(8)<<"IR"<<std::setw(8)<<"MAR"<<
 				std::setw(8)<<"MDR"<<std::setw(8)<<"AC"<<std::setw(8)<<"PC"<<std::setw(8)<<"F"<<"\n";
-	
 	while(RUNNER()) if(RUNNER[0]) std::cout<<"output: "<<std::dec<<RUNNER[0]<<"\n";
 	std::cout<<"Дикая память: ";
-	for(auto i:RUNNER.show_RAM(1)) std::cout<<i<<" ";; std::cout<<"\n";
-	for(auto i:RUNNER.show_RAM(0)) std::cout<<i<<" ";; std::cout<<"\n";
+	for(auto i:RUNNER.show_RAM(1)) std::cout<<std::dec<<i<<" ";; std::cout<<"\n";
 }
 #endif
 

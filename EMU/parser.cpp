@@ -9,7 +9,7 @@ namespace emu{
 		{"ADDI", 0x34400000}, {"JNE",  0x45200000}, {"JL",   0x55200000}, {"JG",   0x65200000},
 		{"JE",   0x75200000}, {"MUL",  0x84400000}, {"DIV",  0x94400000}, {"NOT",  0xa4000000},
 		{"OR",   0xb4400000}, {"SUBD", 0xc4400000}, {"SUB",  0xd4400000}, {"DEC",  0xe4000000},
-		{"AND",  0xf4400000}, {"JMP",  0x05200000}, {"CLS",  0x04200000}
+		{"AND",  0xf4400000}, {"JMP",  0xe5200000}, {"CLS",  0x04200000}
 	}, regs={
 		{"OUT", 0x1}, {"IR",0x2}, {"MAR",0x3}, {"MDR",0x4}, {"AC",0x5}, {"PC",0x6}
 	};
@@ -65,15 +65,15 @@ namespace emu{
 			case 0x0: case 0x1: case 0xa: case 0xe: posa=20; break;
 			case 0x4 ... 0x7: res=0; posa=0; break;
 			default: posa=16; break;
-		}if(out==0x00400000) posa=24; if(out==0x05200000) res=0;
+		}if(out==0x00400000) posa=24; if(out==0xe5200000) res=0;
 		if(t[0]=="CLS") return out;; if((reg=regs[t[1]])) { reg--; out|=(reg<<posa); return out; }
-		int base;
-		switch(t[1][1]){
+		int base; switch(t[1][1]){
 			case 'x': base=16; break;
 			case 'b': base=2; break;
 			case '0' ... '7': base=8; break;
-			default: base=10; break;
-		}reg=std::stoi(t[1],0,base); out|=(res<<posa); out|=reg; return out;
+			default: base=10; t[1]=t[1].substr(2,t[1].size()-2); break;
+		}reg=std::stoi(t[1],0,base); out|=(res<<posa); out|=reg;
+		return out;
 	}
 	
 	std::string parse(std::string file){
@@ -92,6 +92,6 @@ namespace emu{
 #include <iostream>
 #include <iomanip>
 int main(){
-	std::cout<<emu::parse("p1");
+	std::cout<<emu::parse("p2");
 }
 #endif
