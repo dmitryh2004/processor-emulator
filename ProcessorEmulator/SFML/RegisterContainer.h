@@ -3,12 +3,15 @@
 #include <iomanip>
 #include <sstream>
 
+#include "../Emulator/Processor.h"
 #include "Text.h" 
 
 class RegisterContainer : public BaseObject {
 public:
     RegisterContainer(std::string name,
         std::string regName, // Имя регистра, например "EAX"
+        int regNumber, // от 0 до 5 (out, ir, mar, mdr, ac, pc)
+        Processor &processor,
         const sf::Font& font,
         unsigned int characterSize,
         sf::Vector2f parentSize,
@@ -17,7 +20,7 @@ public:
         Anchor parentAnchor = Anchor::TopLeft,
         Anchor localAnchor = Anchor::TopLeft)
         : BaseObject(name, { 250.f, 40.f }, parentSize, offset, parentAnchor, localAnchor),
-        m_value(0)
+        m_value(0), m_rn(regNumber), processor(processor)
     {
         // Ограничиваем имя регистра до 3 символов
         if (regName.length() > 3) {
@@ -62,6 +65,12 @@ public:
         return m_value;
     }
 
+    void onProcessorStep() {
+        int newValue = processor.GetRegisterValue(m_rn);
+        std::cout << "[" << getName() << "] - onProcessorStep. Register #" << m_rn << ", value = " << newValue << std::endl;
+        setValue(newValue);
+    }
+
     // Перегрузка обновления (если дочерним элементам нужно передавать deltaTime)
     void update(sf::Time deltaTime, const sf::RenderWindow& window, sf::Vector2f localMousePos) override {
         m_textName->update(deltaTime, window, localMousePos - m_textName->getPosition());
@@ -93,6 +102,8 @@ protected:
 
 private:
     int m_value; // Хранит 4 байта данных
+    int m_rn; // Номер регистра
+    Processor& processor;
 
     std::unique_ptr<Text> m_textName;
     std::unique_ptr<Text> m_textHex;

@@ -17,7 +17,7 @@ public:
         Anchor parentAnchor = Anchor::TopLeft,
         Anchor localAnchor = Anchor::TopLeft)
         : BaseObject(name, size, parentSize, offset, parentAnchor, localAnchor),
-        m_font(&font), m_characterSize(characterSize), m_isActive(false), m_cursorIndex(0),
+        m_font(&font), m_characterSize(characterSize), m_isActive(false), m_cursorIndex(0), m_string(""),
         m_scrollOffset(0.f, 0.f), m_lineNumbersWidth(50.f) // Начальная ширина панели номеров строк
     {
         // Настройка фона

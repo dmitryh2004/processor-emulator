@@ -10,10 +10,14 @@ int main()
 
     std::setlocale(LC_ALL, ".UTF-8"); // настройка консоли на отображение сообщений в utf-8
 
-    Processor processor(65536);
-    RAM ram = processor.GetRAM();
+    std::shared_ptr<LogText> logField; // объявляем ссылку на лог-панель
 
-    sf::RenderWindow window(sf::VideoMode({ 1440, 900 }), "SFML window", sf::Style::Titlebar | sf::Style::Close);
+    Processor processor(65536, logField);
+    RAM& ram = processor.GetRAM();
+    bool running = false; // запущена ли программа
+    bool stepsMode = false; // идем по шагам или без них
+
+    sf::RenderWindow window(sf::VideoMode({ 1440, 900 }), "Эмулятор процессора"_sf, sf::Style::Titlebar | sf::Style::Close);
     window.setSize(sf::Vector2u(1440, 900));
     window.setFramerateLimit(60);
 
@@ -62,8 +66,6 @@ int main()
 
     // resource initialization - end
     // initialization - end
-
-    std::shared_ptr<LogText> logField;
 
     // background sprite
     Image bgSprite = Image("bgSprite", sf::Vector2f(1440.f, 900.f), backgroundTexture, windowSizeFloat);
@@ -291,7 +293,7 @@ int main()
 
     std::shared_ptr<RegisterContainer> outRegister = std::make_shared<RegisterContainer>(
         "registerContainerOut",
-        "OUT",
+        "OUT", 0, processor,
         registerFont,
         18,
         registerPanel->getSize(),
@@ -303,7 +305,7 @@ int main()
 
     std::shared_ptr<RegisterContainer> irRegister = std::make_shared<RegisterContainer>(
         "registerContainerIR",
-        "IR",
+        "IR", 1, processor,
         registerFont,
         18,
         registerPanel->getSize(),
@@ -315,7 +317,7 @@ int main()
 
     std::shared_ptr<RegisterContainer> marRegister = std::make_shared<RegisterContainer>(
         "registerContainerMar",
-        "MAR",
+        "MAR", 2, processor,
         registerFont,
         18,
         registerPanel->getSize(),
@@ -327,7 +329,7 @@ int main()
 
     std::shared_ptr<RegisterContainer> mdrRegister = std::make_shared<RegisterContainer>(
         "registerContainerMdr",
-        "MDR",
+        "MDR", 3, processor,
         registerFont,
         18,
         registerPanel->getSize(),
@@ -339,7 +341,7 @@ int main()
 
     std::shared_ptr<RegisterContainer> acRegister = std::make_shared<RegisterContainer>(
         "registerContainerAc",
-        "AC",
+        "AC", 4, processor,
         registerFont,
         18,
         registerPanel->getSize(),
@@ -351,7 +353,7 @@ int main()
 
     std::shared_ptr<RegisterContainer> pcRegister = std::make_shared<RegisterContainer>(
         "registerContainerPc",
-        "PC",
+        "PC", 5, processor,
         registerFont,
         18,
         registerPanel->getSize(),
@@ -380,7 +382,7 @@ int main()
         BaseObject::Anchor::TopRight,
         BaseObject::Anchor::TopRight);
 
-    ccc->SetActive(true);
+    ccc->SetActive(false);
     ccc->SetCurrentValues(3828350977, 7);
     // current command - end
 
@@ -545,9 +547,44 @@ int main()
     logPanel->addObject(clearLogButton);
     // log panel - end
 
+    processor.SetLogField(logField);
+    startButton->SetOnClickAction([&processor, &codeField, &running, &stepsMode] {
+        if (running) return;
+
+        processor.Reset();
+        processor.LoadProgram(codeField->getTextString());
+        running = processor.ParseProgram();
+        stepsMode = false;
+    });
+    stopButton->SetOnClickAction([&running] { running = false; });
+
     sf::Clock clock;
+    sf::Clock procClock;
     while (window.isOpen())
     {
+        // update processor
+        if (running && !stepsMode) {
+            if (!procClock.isRunning()) procClock.start();
+
+            if (procClock.getElapsedTime().asSeconds() > (1.f / slider->getValue())) {
+                procClock.restart();
+                logField->appendLog(std::format("Program is running... Line #{}", processor.GetRegisterValue(5) + 1));
+                running = processor.RunProgramOneStep();
+
+                ramViewer->onProcessorStep();
+
+                outRegister->onProcessorStep();
+                irRegister->onProcessorStep();
+                marRegister->onProcessorStep();
+                mdrRegister->onProcessorStep();
+                acRegister->onProcessorStep();
+                pcRegister->onProcessorStep();
+            }
+        }
+        else {
+            procClock.stop();
+        }
+
         // get mouse position
         sf::Vector2i mousePosInt = sf::Mouse::getPosition(window);
         sf::Vector2f mousePosFloat = SFMLUtility::CastVector2iToFloat(mousePosInt);

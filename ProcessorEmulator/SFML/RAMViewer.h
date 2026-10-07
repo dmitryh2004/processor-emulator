@@ -120,6 +120,10 @@ public:
         updateCellsFromMemory();
     }
 
+    void onProcessorStep() {
+        updateCellsFromMemory();
+    }
+
     // --- Переопределение методов базового класса ---
 
     void checkForEvents(const sf::Event& event, const sf::RenderWindow& window, sf::Vector2f localMousePos) override {

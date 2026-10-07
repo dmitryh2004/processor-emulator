@@ -22,25 +22,25 @@ public:
         Anchor localAnchor = Anchor::TopLeft,
         float rotation = 0.f,
         sf::Vector2f scale = sf::Vector2f(1.f, 1.f),
-        const sf::Texture* bgTexture = nullptr,     // Опциональная текстура фона
-        const sf::Texture* handleTexture = nullptr) // Опциональная текстура рычажка
+        const sf::Texture* bgTexture = nullptr,     // РћРїС†РёРѕРЅР°Р»СЊРЅР°СЏ С‚РµРєСЃС‚СѓСЂР° С„РѕРЅР°
+        const sf::Texture* handleTexture = nullptr) // РћРїС†РёРѕРЅР°Р»СЊРЅР°СЏ С‚РµРєСЃС‚СѓСЂР° СЂС‹С‡Р°Р¶РєР°
         : BaseObject(name, size, parentSize, offset, parentAnchor, localAnchor, rotation, scale),
         m_points(points), m_isDragging(false), m_currentValue(initialValue)
     {
-        // 1. Настройка фона
+        // 1. РќР°СЃС‚СЂРѕР№РєР° С„РѕРЅР°
         m_background.setSize(getSize());
         if (bgTexture) {
             m_background.setTexture(bgTexture);
-            m_background.setFillColor(sf::Color::White); // Сбрасываем цвет в белый для корректного отображения текстуры
+            m_background.setFillColor(sf::Color::White); // РЎР±СЂР°СЃС‹РІР°РµРј С†РІРµС‚ РІ Р±РµР»С‹Р№ РґР»СЏ РєРѕСЂСЂРµРєС‚РЅРѕРіРѕ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ С‚РµРєСЃС‚СѓСЂС‹
         }
         else {
-            m_background.setFillColor(sf::Color(100, 100, 100)); // Цвет по умолчанию
+            m_background.setFillColor(sf::Color(100, 100, 100)); // Р¦РІРµС‚ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
             m_background.setOutlineThickness(1.f);
             m_background.setOutlineColor(sf::Color::White);
         }
 
-        // 2. Настройка рычажка
-        // Если передана текстура рычажка, можем автоматически взять её размеры или задать дефолтные
+        // 2. РќР°СЃС‚СЂРѕР№РєР° СЂС‹С‡Р°Р¶РєР°
+        // Р•СЃР»Рё РїРµСЂРµРґР°РЅР° С‚РµРєСЃС‚СѓСЂР° СЂС‹С‡Р°Р¶РєР°, РјРѕР¶РµРј Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РІР·СЏС‚СЊ РµС‘ СЂР°Р·РјРµСЂС‹ РёР»Рё Р·Р°РґР°С‚СЊ РґРµС„РѕР»С‚РЅС‹Рµ
         float handleWidth = bgTexture ? size.y : 15.f;
         sf::Vector2f handleSize = handleTexture ? sf::Vector2f(handleTexture->getSize()) : sf::Vector2f(handleWidth, size.y + 4.f);
 
@@ -49,22 +49,22 @@ public:
 
         if (&handleTexture) {
             m_handle.setTexture(handleTexture);
-            m_handle.setFillColor(sf::Color::White); // Сбрасываем цвет для текстуры
+            m_handle.setFillColor(sf::Color::White); // РЎР±СЂР°СЃС‹РІР°РµРј С†РІРµС‚ РґР»СЏ С‚РµРєСЃС‚СѓСЂС‹
         }
         else {
-            m_handle.setFillColor(sf::Color::Red); // Цвет по умолчанию
+            m_handle.setFillColor(sf::Color::Red); // Р¦РІРµС‚ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
         }
 
-        // 3. Устанавливаем рычажок в начальное положение
+        // 3. РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЂС‹С‡Р°Р¶РѕРє РІ РЅР°С‡Р°Р»СЊРЅРѕРµ РїРѕР»РѕР¶РµРЅРёРµ
         snapToValue(initialValue);
     }
 
-    // Методы для динамической смены текстур во время работы программы
+    // РњРµС‚РѕРґС‹ РґР»СЏ РґРёРЅР°РјРёС‡РµСЃРєРѕР№ СЃРјРµРЅС‹ С‚РµРєСЃС‚СѓСЂ РІРѕ РІСЂРµРјСЏ СЂР°Р±РѕС‚С‹ РїСЂРѕРіСЂР°РјРјС‹
     void setBackgroundTexture(const sf::Texture* texture, bool resetColor = true) {
         m_background.setTexture(texture);
         if (texture && resetColor) {
             m_background.setFillColor(sf::Color::White);
-            m_background.setOutlineThickness(0.f); // Убираем рамку по умолчанию, если есть текстура
+            m_background.setOutlineThickness(0.f); // РЈР±РёСЂР°РµРј СЂР°РјРєСѓ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ, РµСЃР»Рё РµСЃС‚СЊ С‚РµРєСЃС‚СѓСЂР°
         }
     }
 
@@ -79,7 +79,7 @@ public:
                 m_handle.setFillColor(sf::Color::White);
             }
         }
-        // Пересчитываем позицию рычажка, так как его размеры/origin могли измениться
+        // РџРµСЂРµСЃС‡РёС‚С‹РІР°РµРј РїРѕР·РёС†РёСЋ СЂС‹С‡Р°Р¶РєР°, С‚Р°Рє РєР°Рє РµРіРѕ СЂР°Р·РјРµСЂС‹/origin РјРѕРіР»Рё РёР·РјРµРЅРёС‚СЊСЃСЏ
         snapToValue(m_currentValue);
     }
 
