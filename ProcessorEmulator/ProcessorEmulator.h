@@ -24,6 +24,8 @@
 #include "SFML/RAMViewer.h"
 #include "SFML/LogText.h"
 #include "SFML/SliderObject.h"
+#include "SFML/WireImage.h"
+#include "SFML/FlagsController.h"
 
 #include "SFML/Utilites/SFMLUtility.h"
 #include "SFML/PortableFileDialogs.h"

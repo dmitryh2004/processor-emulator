@@ -44,6 +44,13 @@ const sf::String assemblerCommands[] = {
 	"MUL", "DIV", "AND", "OR", "NOT", "JMP", "JE", "JL", "JG", "JNE", "CLS"
 };
 
+const std::unordered_map<std::string, int> assemblerCommandIndexes = {
+	{"LOAD", 0}, {"STOR", 1}, {"ADD", 2}, {"ADDI", 3}, {"INC", 4},
+	{"SUB", 5}, {"SUBD", 6}, {"DEC", 7}, {"MUL", 8}, {"DIV", 9},
+	{"AND", 10}, {"OR", 11}, {"NOT", 12}, {"JMP", 13}, {"JE", 14},
+	{"JL", 15}, {"JG", 16}, {"JNE", 17}, {"CLS", 18}
+};
+
 class CurrentCommandContainer : public BaseObject {
 public:
 	CurrentCommandContainer(std::string name,
@@ -177,6 +184,10 @@ public:
 		isActive = active;
 	}
 
+	unsigned int GetCurrentOperation() {
+		return currentOperation;
+	}
+
 	void SetCurrentOperation(unsigned int co, bool update = true) {
 		currentOperation = co;
 		if (update) UpdateText();
@@ -185,6 +196,10 @@ public:
 	void SetCurrentCommand(int cc, bool update = true) {
 		currentCommand = cc;
 		if (update) UpdateText();
+	}
+
+	int GetCommandIndex(std::string commandStr) {
+		return assemblerCommandIndexes.contains(commandStr) ? assemblerCommandIndexes.at(commandStr) : -1;
 	}
 
 	void SetCurrentValues(unsigned int co, int cc) {

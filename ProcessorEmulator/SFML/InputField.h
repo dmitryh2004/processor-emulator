@@ -63,6 +63,13 @@ public:
         scrollToCursor();
     }
 
+    void setHighlightedLineIndex(size_t n) {
+        if (m_highlightedLineIndex != n) {
+            m_highlightedLineIndex = n;
+        }
+    }
+
+
     void checkForEvents(const sf::Event& event, const sf::RenderWindow& window, sf::Vector2f localMousePos) override {
         sf::FloatRect globalBounds({ 0.f, 0.f }, getSize());
         globalBounds = getTransform().transformRect(globalBounds);
@@ -643,10 +650,91 @@ protected:
         else {
             return;
         }
+
         // РЕНДЕРИНГ КОНТЕНТА С УЧЕТОМ СКРОЛЛА
         sf::RenderStates scrolledStates = states;
         // Смещаем матрицу рендеринга на вектор скролла (за исключением оси X для номеров строк)
         scrolledStates.transform.translate(-m_scrollOffset);
+
+        // --- НАЧАЛО ПОДСВЕТКИ ФИЗИЧЕСКОЙ СТРОКИ ---
+        if (m_highlightedLineIndex > 0 && m_font && !m_charPositions.empty()) {
+            float lineSpacing = m_font->getLineSpacing(m_characterSize);
+
+            size_t currentPhysicalLine = 1;
+            size_t firstCharIdx = 0;
+            size_t lastCharIdx = 0;
+            bool lineFound = false;
+
+            // 1. Ищем индексы символов начала и конца нужной НЕ ПУСТОЙ физической строки
+            size_t len = m_string.getSize();
+            size_t i = 0;
+            while (i <= len) {
+                size_t startOfLine = i;
+                bool hasContentBeforeComment = false;
+                bool insideComment = false;
+
+                while (i < len && m_string[i] != '\n') {
+                    if (!insideComment) {
+                        if (m_string[i] == ';') {
+                            insideComment = true; // Начался комментарий, всё до конца строки игнорируем
+                        }
+                        else {
+                            hasContentBeforeComment = true; // Нашли значащий символ до комментария
+                        }
+                    }
+                    i++;
+                }
+                size_t endOfLine = i; // Индекс символа \n или конца строки
+
+                // Строка не пустая, если в ней есть полезный контент до точки с запятой
+                if (hasContentBeforeComment) {
+                    if (currentPhysicalLine == m_highlightedLineIndex) {
+                        firstCharIdx = startOfLine;
+                        lastCharIdx = endOfLine;
+                        lineFound = true;
+                        break;
+                    }
+                    currentPhysicalLine++;
+                }
+                i++; // Пропускаем '\n'
+            }
+
+            // 2. Если физическая строка найдена, определяем её визуальные границы Y
+            if (lineFound && firstCharIdx < m_charPositions.size()) {
+                // Минимальный Y — это Y-координата первого символа строки
+                float minY = m_charPositions[firstCharIdx].y;
+                float maxY = minY + lineSpacing;
+
+                // Так как строка может переноситься, её максимальный Y может быть гораздо ниже.
+                // Проверяем Y-координаты всех символов, принадлежащих этой физической строке.
+                for (size_t k = firstCharIdx; k <= lastCharIdx && k < m_charPositions.size(); ++k) {
+                    float charY = m_charPositions[k].y;
+                    if (charY + lineSpacing > maxY) {
+                        maxY = charY + lineSpacing;
+                    }
+                }
+
+                // 3. Отрисовываем единый прямоугольник подсветки от minY до maxY
+                sf::RectangleShape lineHighlight;
+                float startHighlightX = m_lineNumbersWidth; // Начинаем строго после номеров строк
+                float highlightWidth = getSize().x - m_lineNumbersWidth;
+                float totalHeight = maxY - minY;
+
+                lineHighlight.setPosition({ startHighlightX, minY });
+                lineHighlight.setSize({ highlightWidth, totalHeight });
+
+                // Мягкий желтый цвет (RGBA) с прозрачностью (45 из 255)
+                lineHighlight.setFillColor(sf::Color(255, 255, 0, 45));
+
+                // Подсветка должна двигаться по вертикали (Y), но оставаться на месте по горизонтали (X)
+                sf::RenderStates highlightStates = states;
+                highlightStates.transform.translate({ 0.f, -m_scrollOffset.y });
+
+                target.draw(lineHighlight, highlightStates);
+            }
+        }
+        // --- КОНЕЦ ПОДСВЕТКИ ФИЗИЧЕСКОЙ СТРОКИ ---
+
         // 1. Отрисовка выделения (под текстом)
         if (m_isActive && m_selectionStart != m_selectionEnd) {
             sf::RenderStates selectStates = scrolledStates;
@@ -682,6 +770,7 @@ protected:
         }
     }
 private:
+    size_t m_highlightedLineIndex = 0; // 0 — выключено, 1 — первая физическая строка, и т.д.
     sf::RectangleShape m_background;
     sf::VertexArray m_vertices;
     sf::String m_string;

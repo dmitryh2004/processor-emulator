@@ -14,7 +14,7 @@ set(SFML_DIR "C:/lib/SFML-3.1.0/lib/cmake/SFML")
 find_package(SFML 3 COMPONENTS Graphics Window System Audio REQUIRED)
 find_package(OpenGL REQUIRED)
 
-add_executable(${PROJECT_NAME} "ProcessorEmulator.cpp" "ProcessorEmulator.h" "ResourceManager.h" "ResourceManager.cpp" "SFML/BaseObject.h" "SFML/Button.h" "SFML/Image.h" "SFML/Text.h" "SFML/Panel.h" "SFML/Utilites/SFMLUtility.cpp" "SFML/Utilites/SFMLUtility.h" "SFML/InputField.h" "SFML/SyntaxHighlighter.h" "SFML/PortableFileDialogs.h" "SFML/RegisterContainer.h" "SFML/CurrentCommandContainer.h" "Emulator/Processor.h" "Emulator/RAM.h" "SFML/RAMCellContainer.h" "SFML/RAMViewer.h" "SFML/LogText.h" "SFML/SliderObject.h")
+add_executable(${PROJECT_NAME} "ProcessorEmulator.cpp" "ProcessorEmulator.h" "ResourceManager.h" "ResourceManager.cpp" "SFML/BaseObject.h" "SFML/Button.h" "SFML/Image.h" "SFML/Text.h" "SFML/Panel.h" "SFML/Utilites/SFMLUtility.cpp" "SFML/Utilites/SFMLUtility.h" "SFML/InputField.h" "SFML/SyntaxHighlighter.h" "SFML/PortableFileDialogs.h" "SFML/RegisterContainer.h" "SFML/CurrentCommandContainer.h" "Emulator/Processor.h" "Emulator/RAM.h" "SFML/RAMCellContainer.h" "SFML/RAMViewer.h" "SFML/LogText.h" "SFML/SliderObject.h" "SFML/WireImage.h" "SFML/FlagsController.h")
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics SFML::Window SFML::Audio SFML::System)
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics OpenGL::GL)
@@ -53,5 +53,18 @@ if(WIN32)
         "${CMAKE_CURRENT_SOURCE_DIR}/SFML/ColorConfigs"
         "$<TARGET_FILE_DIR:${PROJECT_NAME}>/SFML/ColorConfigs"
         COMMENT "Синхронизация папки SFML/ColorConfigs..."
+    )
+
+    # Автоматическое копирование всей папки Samples в выходную директорию
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_CURRENT_SOURCE_DIR}/Samples"
+        "$<TARGET_FILE_DIR:${PROJECT_NAME}>/Samples"
+        COMMENT "Синхронизация папки Samples..."
+    )
+
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/CustomAssemblerCodes"
+        COMMENT "Создание пустой папки для ассемблерных кодов пользователя..."
     )
 endif()

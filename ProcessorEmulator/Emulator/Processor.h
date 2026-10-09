@@ -50,6 +50,7 @@ public:
 	// выполнить парсинг
 	bool ParseProgram() {
 		parsedSuccessfully = false;
+		parsedProgram.clear();
 		std::vector<std::string> errors = std::vector<std::string>();
 		machineCodeProgram = std::vector<unsigned int>();
 
@@ -94,12 +95,14 @@ public:
 			}
 
 			machineCodeProgram.push_back(convertToMachineCode(splitted));
+			parsedProgram.push_back(line);
 		}
 
 		// логи
 		if (errors.size() > 0) {
 			parsedSuccessfully = false;
-			machineCodeProgram = std::vector<unsigned int>();
+			machineCodeProgram.clear();
+			parsedProgram.clear();
 
 			std::string totalError = "При парсинге обнаружены следующие ошибки:";
 			for (int i = 0; i < errors.size(); i++) {
@@ -112,9 +115,13 @@ public:
 		else {
 			parsedSuccessfully = true;
 			std::string successText = "Парсинг программы выполнен успешно!";
-			/* for (int i = 0; i < machineCodeProgram.size(); i++) {
+			
+			/*
+			for (int i = 0; i < machineCodeProgram.size(); i++) {
 				successText.append(std::format("\n0x{:08X}", machineCodeProgram[i]));
-			} */
+			} 
+			*/
+
 			logField->appendLog(successText);
 		}
 		
@@ -171,6 +178,16 @@ public:
 		return REGS[5] < machineCodeProgram.size();
 	}
 
+	unsigned int GetCurrentMachineCodeOperation() {
+		return (0 <= REGS[5] && REGS[5] < machineCodeProgram.size()) ? machineCodeProgram[REGS[5]] : 0;
+	}
+
+	std::string GetCurrentCommand() {
+		if (!(0 <= REGS[5] && REGS[5] < parsedProgram.size())) return "";
+		std::string commandStr = splitString(parsedProgram[REGS[5]], ' ')[0];
+		return commandStr;
+	}
+
 	unsigned int GetRegisterValue(int index) {
 		if (index < 0 || index > 6) {
 			throw std::out_of_range("Регистра с индексом " + std::to_string(index) + " не существует.");
@@ -215,7 +232,7 @@ private:
 	std::shared_ptr<LogText> logField;
 	bool parsedSuccessfully = false;
 	std::vector<unsigned int> machineCodeProgram;
-	std::vector<std::string> program;
+	std::vector<std::string> program, parsedProgram;
 
 	std::vector<std::string> splitString(const std::string& input, char delimiter) {
 		std::vector<std::string> tokens;
@@ -276,24 +293,31 @@ private:
 	uint32_t convertToMachineCode(std::vector<std::string> command) {
 		if (!command[0].size()) return 0;
 		uint32_t out = operators[command[0]], posa = 0, res = 3, reg;
-		switch ((out >> 28) & 0xF) {
-		case 0x0: 
-		case 0x1: 
-		case 0xa: 
-		case 0xe: 
-			posa = 20; 
-			break;
-		case 0x4:
-		case 0x5:
-		case 0x6:
-		case 0x7: 
-			res = 0; 
-			posa = 0; 
-			break;
-		default: 
-			posa = 16; 
-			break;
+		
+		// Выделяем старшую тетраду для общего разделения
+		uint32_t op_group = (out >> 28) & 0xF;
+		// Выделяем код операции (например, 0x052 для JMP)
+		uint32_t op_code = (out >> 20) & 0xFF;
+
+		// Если это JMP (у него op_code == 0x05) или другие переходы (0x45, 0x55 и т.д.)
+		if (op_group >= 0x4 && op_group <= 0x7 || op_code == 0x52) {
+			res = 0;
+			posa = 0;
 		}
+		else {
+			switch (op_group) {
+			case 0x0:
+			case 0x1:
+			case 0xa:
+			case 0xe:
+				posa = 20;
+				break;
+			default:
+				posa = 16;
+				break;
+			}
+		}
+
 		if (out == 0x00400000) 
 			posa = 24; 
 		if (out == 0xe5200000) 

@@ -34,7 +34,7 @@ int main()
     ResourceManager resources;
 
     const sf::Texture& backgroundTexture = resources.GetTexture("Assets/Sprites/background alpha.png");
-    const sf::Texture& backgroundMaskTexture = resources.GetTexture("Assets/Sprites/background mask.png");
+    const sf::Texture& backgroundMaskTexture = resources.GetTexture("Assets/Sprites/background mask 2.png");
 
     const sf::Texture& buttonTexture = resources.GetTexture("Assets/Sprites/ButtonTexture.png");
     const sf::Texture& infoButtonTexture = resources.GetTexture("Assets/Sprites/infoButtonSprite.png");
@@ -46,6 +46,16 @@ int main()
     const sf::Texture& ramResetButtonTexture = resources.GetTexture("Assets/Sprites/ramResetButtonSprite.png");
 
     const sf::Texture& sliderTexture = resources.GetTexture("Assets/Sprites/speed slider.png");
+
+    const sf::Texture& wireOutTexture = resources.GetTexture("Assets/Sprites/wire out.png");
+    const sf::Texture& wireIrTexture = resources.GetTexture("Assets/Sprites/wire ir.png");
+    const sf::Texture& wireMarTexture = resources.GetTexture("Assets/Sprites/wire mar.png");
+    const sf::Texture& wireMdrTexture = resources.GetTexture("Assets/Sprites/wire mdr.png");
+    const sf::Texture& wireAcTexture = resources.GetTexture("Assets/Sprites/wire ac.png");
+    const sf::Texture& wirePcTexture = resources.GetTexture("Assets/Sprites/wire pc.png");
+    const sf::Texture& wireFlagsTexture = resources.GetTexture("Assets/Sprites/wire flags.png");
+
+    const sf::Texture& flagFlareTexture = resources.GetTexture("Assets/Sprites/flag active.png");
 
     const sf::Font& textFont = resources.GetFont("Assets/Fonts/Rubik-Medium.ttf");
     const sf::Font& codeFont = resources.GetFont("Assets/Fonts/Courier-New.ttf");
@@ -179,7 +189,7 @@ int main()
     saveCodeButton->setShader(&shader);
     saveCodeButton->SetOnClickSound(&clickSound);
     saveCodeButton->SetOnClickAction([&window, &codeField, &logField]() {
-        auto dialog = pfd::save_file("Сохранить как...", ".",
+        auto dialog = pfd::save_file("Сохранить как...", "./CustomAssemblerCodes",
             { "Кастомный ассемблерный код (*.asmb)", "*.asmb",
               "Все файлы", "*" });
 
@@ -232,7 +242,7 @@ int main()
     loadCodeButton->setShader(&shader);
     loadCodeButton->SetOnClickSound(&clickSound);
     loadCodeButton->SetOnClickAction([&window, &codeField, &logField]() {
-        auto dialog = pfd::open_file("Выберите файл для загрузки", ".",
+        auto dialog = pfd::open_file("Выберите файл для загрузки", "./Samples",
             { "Кастомный ассемблерный код (*.asmb)", "*.asmb",
               "Все файлы", "*" });
 
@@ -363,12 +373,87 @@ int main()
         BaseObject::Anchor::TopCenter
     );
 
-    registerPanel->addObject(outRegister);
-    registerPanel->addObject(irRegister);
-    registerPanel->addObject(marRegister);
-    registerPanel->addObject(mdrRegister);
-    registerPanel->addObject(acRegister);
-    registerPanel->addObject(pcRegister);
+    std::shared_ptr<FlagsController> flags = std::make_shared<FlagsController>(
+        "flagsController",
+        flagFlareTexture,
+        processor,
+        registerPanel->getSize(),
+        registerTextColor,
+        sf::Vector2f(26.f, 405.f)
+    );
+
+    std::shared_ptr<WireImage> wireOut = std::make_shared<WireImage>(
+        "wireOut",
+        registerPanel->getSize(),
+        wireOutTexture,
+        0.1f,
+        registerPanel->getSize(),
+        registerTextColorModified
+    );
+    std::shared_ptr<WireImage> wireIr = std::make_shared<WireImage>(
+        "wireIr",
+        registerPanel->getSize(),
+        wireIrTexture,
+        0.1f,
+        registerPanel->getSize(),
+        registerTextColorModified
+    );
+    std::shared_ptr<WireImage> wireMar = std::make_shared<WireImage>(
+        "wireMar",
+        registerPanel->getSize(),
+        wireMarTexture,
+        0.1f,
+        registerPanel->getSize(),
+        registerTextColorModified
+    );
+    std::shared_ptr<WireImage> wireMdr = std::make_shared<WireImage>(
+        "wireMdr",
+        registerPanel->getSize(),
+        wireMdrTexture,
+        0.1f,
+        registerPanel->getSize(),
+        registerTextColorModified
+    );
+    std::shared_ptr<WireImage> wireAc = std::make_shared<WireImage>(
+        "wireAc",
+        registerPanel->getSize(),
+        wireAcTexture,
+        0.1f,
+        registerPanel->getSize(),
+        registerTextColorModified
+    );
+    std::shared_ptr<WireImage> wirePc = std::make_shared<WireImage>(
+        "wirePc",
+        registerPanel->getSize(),
+        wirePcTexture,
+        0.1f,
+        registerPanel->getSize(),
+        registerTextColorModified
+    );
+    std::shared_ptr<WireImage> wireFlags = std::make_shared<WireImage>(
+        "wireFlags",
+        registerPanel->getSize(),
+        wireOutTexture,
+        0.1f,
+        registerPanel->getSize(),
+        registerTextColorModified
+    );
+
+    registerPanel->addObject(wireOut);
+    registerPanel->addObject(wireIr);
+    registerPanel->addObject(wireMar);
+    registerPanel->addObject(wireMdr);
+    registerPanel->addObject(wireAc);
+    registerPanel->addObject(wirePc);
+    registerPanel->addObject(wireFlags);
+
+    registerPanel->addObject(outRegister, 1);
+    registerPanel->addObject(irRegister, 1);
+    registerPanel->addObject(marRegister, 1);
+    registerPanel->addObject(mdrRegister, 1);
+    registerPanel->addObject(acRegister, 1);
+    registerPanel->addObject(pcRegister, 1);
+    registerPanel->addObject(flags, 1);
     // registers panel - end
 
     // current command - start
@@ -383,7 +468,6 @@ int main()
         BaseObject::Anchor::TopRight);
 
     ccc->SetActive(false);
-    ccc->SetCurrentValues(3828350977, 7);
     // current command - end
 
     // ram viewer - start
@@ -555,34 +639,113 @@ int main()
         processor.LoadProgram(codeField->getTextString());
         running = processor.ParseProgram();
         stepsMode = false;
+    }); 
+    stepButton->SetOnClickAction([&processor, &codeField, &running, &stepsMode, &ramViewer,
+    &outRegister, &irRegister, &marRegister, &mdrRegister, &acRegister, &pcRegister,
+    &wireOut, &wireIr, &wireMar, &wireMdr, &wireAc, &wirePc, &wireFlags, &ccc] {
+        if (!running) {
+            processor.Reset();
+            processor.LoadProgram(codeField->getTextString());
+            running = processor.ParseProgram();
+            stepsMode = true;
+
+            if (running) {
+                ccc->SetActive(true);
+            }
+        }
+        else {
+            unsigned int oldOut = processor.GetRegisterValue(0);
+            unsigned int oldIr = processor.GetRegisterValue(1);
+            unsigned int oldMar = processor.GetRegisterValue(2);
+            unsigned int oldMdr = processor.GetRegisterValue(3);
+            unsigned int oldAc = processor.GetRegisterValue(4);
+            unsigned int oldPc = processor.GetRegisterValue(5);
+            unsigned int oldFlags = processor.GetRegisterValue(6);
+
+            running = processor.RunProgramOneStep();
+
+            ramViewer->onProcessorStep();
+
+            outRegister->onProcessorStep();
+            irRegister->onProcessorStep();
+            marRegister->onProcessorStep();
+            mdrRegister->onProcessorStep();
+            acRegister->onProcessorStep();
+            pcRegister->onProcessorStep();
+
+            wireOut->setVisible(processor.GetRegisterValue(0) != oldOut);
+            wireIr->setVisible(processor.GetRegisterValue(1) != oldIr);
+            wireMar->setVisible(processor.GetRegisterValue(2) != oldMar);
+            wireMdr->setVisible(processor.GetRegisterValue(3) != oldMdr);
+            wireAc->setVisible(processor.GetRegisterValue(4) != oldAc);
+            wirePc->setVisible(processor.GetRegisterValue(5) != oldPc);
+            wireFlags->setVisible(processor.GetRegisterValue(6) != oldFlags);
+
+            ccc->SetActive(running);
+        }
     });
-    stopButton->SetOnClickAction([&running] { running = false; });
+    stopButton->SetOnClickAction([&running, &logField, &ccc] { 
+        if (running) {
+            running = false;
+            ccc->SetActive(false);
+            logField->appendLog("Программа остановлена");
+        }
+    });
 
     sf::Clock clock;
     sf::Clock procClock;
     while (window.isOpen())
     {
         // update processor
-        if (running && !stepsMode) {
-            if (!procClock.isRunning()) procClock.start();
+        if (running) {
+            int currentLine = processor.GetRegisterValue(5) + 1;
+            codeField->setHighlightedLineIndex(currentLine);
 
-            if (procClock.getElapsedTime().asSeconds() > (1.f / slider->getValue())) {
-                procClock.restart();
-                logField->appendLog(std::format("Program is running... Line #{}", processor.GetRegisterValue(5) + 1));
-                running = processor.RunProgramOneStep();
+            unsigned int currentMachineCodeOperation = processor.GetCurrentMachineCodeOperation();
+            if (currentMachineCodeOperation != ccc->GetCurrentOperation()) {
+                ccc->SetCurrentValues(processor.GetCurrentMachineCodeOperation(), ccc->GetCommandIndex(processor.GetCurrentCommand()));
+            }
 
-                ramViewer->onProcessorStep();
+            if (!stepsMode) {
+                if (!procClock.isRunning()) procClock.start();
 
-                outRegister->onProcessorStep();
-                irRegister->onProcessorStep();
-                marRegister->onProcessorStep();
-                mdrRegister->onProcessorStep();
-                acRegister->onProcessorStep();
-                pcRegister->onProcessorStep();
+                if (procClock.getElapsedTime().asSeconds() > (1.f / slider->getValue())) {
+                    procClock.restart();
+
+                    unsigned int oldOut = processor.GetRegisterValue(0);
+                    unsigned int oldIr = processor.GetRegisterValue(1);
+                    unsigned int oldMar = processor.GetRegisterValue(2);
+                    unsigned int oldMdr = processor.GetRegisterValue(3);
+                    unsigned int oldAc = processor.GetRegisterValue(4);
+                    unsigned int oldPc = processor.GetRegisterValue(5);
+                    unsigned int oldFlags = processor.GetRegisterValue(6);
+
+                    // logField->appendLog(std::format("Program is running... Line #{}", processor.GetRegisterValue(5) + 1));
+                    running = processor.RunProgramOneStep();
+
+                    ramViewer->onProcessorStep();
+
+                    outRegister->onProcessorStep();
+                    irRegister->onProcessorStep();
+                    marRegister->onProcessorStep();
+                    mdrRegister->onProcessorStep();
+                    acRegister->onProcessorStep();
+                    pcRegister->onProcessorStep();
+                    flags->onProcessorStep();
+
+                    wireOut->setVisible(processor.GetRegisterValue(0) != oldOut);
+                    wireIr->setVisible(processor.GetRegisterValue(1) != oldIr);
+                    wireMar->setVisible(processor.GetRegisterValue(2) != oldMar);
+                    wireMdr->setVisible(processor.GetRegisterValue(3) != oldMdr);
+                    wireAc->setVisible(processor.GetRegisterValue(4) != oldAc);
+                    wirePc->setVisible(processor.GetRegisterValue(5) != oldPc);
+                    wireFlags->setVisible(processor.GetRegisterValue(6) != oldFlags);
+                }
             }
         }
         else {
             procClock.stop();
+            codeField->setHighlightedLineIndex(0);
         }
 
         // get mouse position
