@@ -114,6 +114,10 @@ public:
 		}
 		else {
 			parsedSuccessfully = true;
+			for (int i = 0; i < 7; i++) {
+				REGS[i] = 0;
+			}
+
 			std::string successText = "Парсинг программы выполнен успешно!";
 			
 			/*
@@ -146,7 +150,12 @@ public:
 		
 		int s8 = (REGS[1] >> 8) & MASK, s4 = (REGS[1] >> 4) & MASK, s0 = REGS[1] & MASK;
 		switch ((REGS[1] & ADDR) >> 12) {
-			case MOV:	REGS[s8] = REGS[s4]; break;
+			case MOV:	
+				if (s8 == 5)
+					REGS[s8] = REGS[s4] - 1;
+				else
+					REGS[s8] = REGS[s4]; 
+				break;
 			case INC:	REGS[s8] = REGS[s4] + 1; break;
 			case ADD:	REGS[s8] = REGS[s4] + REGS[s0]; break;
 			case ADDI:	REGS[s8] = REGS[s4] + REGS[s0] + 1; break;

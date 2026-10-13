@@ -72,7 +72,7 @@ public:
 
     void checkForEvents(const sf::Event& event, const sf::RenderWindow& window, sf::Vector2f localMousePos) override {
         sf::FloatRect globalBounds({ 0.f, 0.f }, getSize());
-        globalBounds = getTransform().transformRect(globalBounds);
+        // globalBounds = getTransform().transformRect(globalBounds);
 
         sf::Vector2f worldMousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 

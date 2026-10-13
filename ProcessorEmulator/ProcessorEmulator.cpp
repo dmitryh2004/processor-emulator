@@ -44,6 +44,8 @@ int main()
     const sf::Texture& stepButtonTexture = resources.GetTexture("Assets/Sprites/stepButtonSprite.png");
     const sf::Texture& stopButtonTexture = resources.GetTexture("Assets/Sprites/stopButtonSprite.png");
     const sf::Texture& ramResetButtonTexture = resources.GetTexture("Assets/Sprites/ramResetButtonSprite.png");
+    const sf::Texture& nextButtonTexture = resources.GetTexture("Assets/Sprites/nextSprite.png");
+    const sf::Texture& prevButtonTexture = resources.GetTexture("Assets/Sprites/prevSprite.png");
 
     const sf::Texture& sliderTexture = resources.GetTexture("Assets/Sprites/speed slider.png");
 
@@ -274,6 +276,9 @@ int main()
             }
             file.close();
 
+            // Убираем все переводы кареток
+            utf8Content.erase(std::remove(utf8Content.begin(), utf8Content.end(), '\r'), utf8Content.end());
+
             // Конвертируем UTF-8 (std::string) в sf::String. 
             // SFML 3 автоматически и корректно переведет многобайтовую кириллицу в UTF-32.
             sf::String sfStrContent = sf::String::fromUtf8(utf8Content.begin(), utf8Content.end());
@@ -493,8 +498,8 @@ int main()
         sf::Vector2f(24.f, 24.f),
         ramPanel->getSize(),
         sf::Vector2f(665.f, 6.f),
-        openButtonTexture,
-        openButtonTexture,
+        nextButtonTexture,
+        nextButtonTexture,
         BaseObject::Anchor::TopLeft,
         BaseObject::Anchor::TopLeft
     );
@@ -509,8 +514,8 @@ int main()
         sf::Vector2f(24.f, 24.f),
         ramPanel->getSize(),
         sf::Vector2f(584.f, 6.f),
-        openButtonTexture,
-        openButtonTexture,
+        prevButtonTexture,
+        prevButtonTexture,
         BaseObject::Anchor::TopLeft,
         BaseObject::Anchor::TopLeft
     );

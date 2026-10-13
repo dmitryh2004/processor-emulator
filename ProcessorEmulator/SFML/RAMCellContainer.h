@@ -159,15 +159,18 @@ private:
     void openEditDialog(const sf::ContextSettings& settings, const sf::Font& font, const sf::RenderWindow& mainWindowRef) {
         std::string title = "Ячейка " + std::to_string(m_address) + " - редактирование";
         std::string titleTextStr = std::format("Ячейка памяти 0х{:04X}", m_address);
-        sf::String inputLabelStr = "Значение:"_sf, hexLabelStr = "Hex-формат:"_sf, 
+        sf::String inputLabelStr = "Значение:"_sf, hexLabelStr = "Hex-формат:"_sf,
+            signedLabelStr = "В знаковом виде (int32):"_sf, // <-- Новый лейбл
+            negativeNumbersStr = "* Отрицательные числа необходимо записывать в дополнительном коде."_sf,
             saveTextStr = "Сохранить"_sf, cancelTextStr = "Отмена"_sf;
 
-        sf::RenderWindow dialog(sf::VideoMode({ 400, 250 }), sf::String::fromUtf8(title.begin(), title.end()), sf::State::Windowed, settings);
+        // Увеличили высоту окна с 250 до 280, чтобы поместилось новое поле, и сдвинули кнопки ниже
+        sf::RenderWindow dialog(sf::VideoMode({ 400, 320 }), sf::String::fromUtf8(title.begin(), title.end()), sf::State::Windowed, settings);
         dialog.setFramerateLimit(60);
 
         std::string decInput = std::to_string(m_value);
 
-        // Настройка UI элементов (остается прежней)
+        // Настройка UI элементов
         sf::Text titleText(font, sf::String::fromUtf8(titleTextStr.begin(), titleTextStr.end()), 18);
         titleText.setPosition({ 20.f, 20.f });
         titleText.setFillColor(sf::Color::White);
@@ -188,28 +191,40 @@ private:
         hexDisplay.setPosition({ 20.f, 150.f });
         hexDisplay.setFillColor(sf::Color::Yellow);
 
+        // --- НАЧАЛО НОВЫХ UI ЭЛЕМЕНТОВ ---
+        sf::Text signedLabel(font, signedLabelStr, 14);
+        signedLabel.setPosition({ 20.f, 185.f });
+        signedLabel.setFillColor(sf::Color::Cyan);
+
+        // Приведение uint32_t к int32_t автоматически покажет отрицательное число, если активен старший бит
+        sf::Text signedDisplay(font, std::to_string(static_cast<int32_t>(m_value)), 16);
+        signedDisplay.setPosition({ 20.f, 210.f });
+        signedDisplay.setFillColor(sf::Color::Magenta); // Выделим цветом для наглядности
+        // --- КОНЕЦ НОВЫХ UI ЭЛЕМЕНТОВ ---
+
+        sf::Text negativeNumbersLabel(font, negativeNumbersStr, 9);
+        negativeNumbersLabel.setPosition({ 20.f, 240.f }); // Сдвинуто вниз (было 175)
+        negativeNumbersLabel.setFillColor(sf::Color::White);
+
+        // Кнопки сдвинуты вниз по оси Y на 235 (было 200)
         sf::RectangleShape saveBtn({ 100.f, 35.f });
-        saveBtn.setPosition({ 160.f, 200.f });
+        saveBtn.setPosition({ 160.f, 275.f });
         saveBtn.setFillColor(sf::Color(0, 150, 0));
 
         sf::Text saveText(font, saveTextStr, 14);
-        saveText.setPosition({ 170.f, 208.f });
+        saveText.setPosition({ 170.f, 283.f });
 
         sf::RectangleShape cancelBtn({ 100.f, 35.f });
-        cancelBtn.setPosition({ 280.f, 200.f });
+        cancelBtn.setPosition({ 280.f, 275.f });
         cancelBtn.setFillColor(sf::Color(150, 0, 0));
 
         sf::Text cancelText(font, cancelTextStr, 14);
-        cancelText.setPosition({ 305.f, 208.f });
+        cancelText.setPosition({ 305.f, 283.f });
 
-        // Получаем неконстантную ссылку на главное окно для очистки его очереди событий
         auto& mainWindow = const_cast<sf::RenderWindow&>(mainWindowRef);
 
-        // Вложенный игровой цикл модального окна
         while (dialog.isOpen()) {
 
-            // --- РЕШЕНИЕ ПРОБЛЕМЫ ЗАВИСАНИЯ ОС ---
-            // Опрашиваем события главного окна. Игнорируем всё, кроме закрытия.
             while (const std::optional<sf::Event> mainEvent = mainWindow.pollEvent()) {
                 if (mainEvent->is<sf::Event::Closed>()) {
                     mainWindow.close();
@@ -218,7 +233,6 @@ private:
                 }
             }
 
-            // Опрашиваем события модального диалога
             while (const std::optional<sf::Event> optEvent = dialog.pollEvent()) {
                 const sf::Event& event = *optEvent;
 
@@ -226,28 +240,24 @@ private:
                     dialog.close();
                 }
 
-                // Обработка ввода текста с автозаменой при переполнении
                 if (auto* textEvent = event.getIf<sf::Event::TextEntered>()) {
                     uint32_t unicode = textEvent->unicode;
 
                     if (unicode >= '0' && unicode <= '9') {
-                        // Позволяем ввести до 12 символов, чтобы триггерить проверку на переполнение
                         if (decInput.length() < 12) {
                             decInput += static_cast<char>(unicode);
                         }
                     }
-                    else if (unicode == 8 || unicode == 127) { // Backspace
+                    else if (unicode == 8 || unicode == 127) {
                         if (!decInput.empty()) {
                             decInput.pop_back();
                         }
                     }
 
-                    // --- АВТОМАТИЧЕСКАЯ УСТАНОВКА МАКСИМУМА (CLAMPING) ---
                     if (!decInput.empty()) {
                         try {
                             unsigned long long val = std::stoull(decInput);
 
-                            // Если введено число больше макс. значения uint32_t (4294967295)
                             if (val > 4294967295ULL) {
                                 decInput = "4294967295";
                                 val = 4294967295ULL;
@@ -255,22 +265,24 @@ private:
 
                             uint32_t currentVal = static_cast<uint32_t>(val);
                             hexDisplay.setString(std::format("0x{:08X}", currentVal));
+
+                            // ОБНОВЛЕНИЕ ЗНАКОВОГО ПОЛЯ: явное преобразование в int32_t
+                            signedDisplay.setString(std::to_string(static_cast<int32_t>(currentVal)));
                         }
                         catch (...) {
-                            // Обработка исключения на случай ввода экстремально длинного числа
                             decInput = "4294967295";
                             hexDisplay.setString("0xFFFFFFFF");
+                            signedDisplay.setString("-1"); // 0xFFFFFFFF в int32_t — это -1
                         }
                     }
                     else {
                         hexDisplay.setString("0x00000000");
+                        signedDisplay.setString("0");
                     }
 
-                    // Обновляем текст на экране с курсором
                     inputDisplay.setString(decInput + "|");
                 }
 
-                // Обработка кликов по кнопкам
                 if (auto* mouseButtonEvent = event.getIf<sf::Event::MouseButtonPressed>()) {
                     if (mouseButtonEvent->button == sf::Mouse::Button::Left) {
                         sf::Vector2f mousePos = dialog.mapPixelToCoords(mouseButtonEvent->position);
@@ -291,13 +303,18 @@ private:
                 }
             }
 
-            // Рендеринг модального окна
             dialog.clear(sf::Color(30, 30, 30));
             dialog.draw(titleText);
             dialog.draw(inputLabel);
             dialog.draw(inputDisplay);
             dialog.draw(hexLabel);
             dialog.draw(hexDisplay);
+
+            // ОТРИСОВКА НОВЫХ ЭЛЕМЕНТОВ
+            dialog.draw(signedLabel);
+            dialog.draw(signedDisplay);
+
+            dialog.draw(negativeNumbersLabel);
             dialog.draw(saveBtn);
             dialog.draw(saveText);
             dialog.draw(cancelBtn);
@@ -305,4 +322,5 @@ private:
             dialog.display();
         }
     }
+
 };
