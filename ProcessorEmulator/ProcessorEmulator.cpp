@@ -4,15 +4,25 @@
 int main()
 {
     // initialization - start
-    std::random_device rd;
-    std::mt19937 gen(rd()); // Генератор
-    std::uniform_int_distribution<> dist(1, 8); // Распределение
 
     std::setlocale(LC_ALL, ".UTF-8"); // настройка консоли на отображение сообщений в utf-8
 
     std::shared_ptr<LogText> logField; // объявляем ссылку на лог-панель
+    
+    ResourceManager resources;
+    RandomSoundPlayer rsp_Errors({
+        "Assets/Sounds/empty_not wrote.mp3",
+        "Assets/Sounds/empty_no tech task.mp3",
+        "Assets/Sounds/empty_telepath.mp3",
+        "Assets/Sounds/empty_snatch.mp3",
+        "Assets/Sounds/empty_no action.mp3",
+        "Assets/Sounds/error_rubles.mp3",
+        "Assets/Sounds/error_metodichka.mp3",
+        "Assets/Sounds/error_wrong code.mp3",
+        "Assets/Sounds/error_syntax.mp3",
+        }, resources);
 
-    Processor processor(65536, logField);
+    Processor processor(65536, logField, rsp_Errors);
     RAM& ram = processor.GetRAM();
     bool running = false; // запущена ли программа
     bool stepsMode = false; // идем по шагам или без них
@@ -31,7 +41,6 @@ int main()
     sf::Color ccTextColorNotActive = sf::Color::Color(128, 128, 128);
 
     // resource initialization - start
-    ResourceManager resources;
 
     const sf::Texture& backgroundTexture = resources.GetTexture("Assets/Sprites/background alpha.png");
     const sf::Texture& backgroundMaskTexture = resources.GetTexture("Assets/Sprites/background mask 2.png");
@@ -63,7 +72,7 @@ int main()
     const sf::Font& codeFont = resources.GetFont("Assets/Fonts/Courier-New.ttf");
     const sf::Font& registerFont = resources.GetFont("Assets/Fonts/Seven Segment.ttf");
 
-    int i = dist(gen);
+    int i = Random::getInt(1, 8);
     sf::Music& bgMusic = resources.GetMusic("Assets/Sounds/background-music-" + std::to_string(i) + ".mp3");
     bgMusic.setLooping(true);
     bgMusic.play();
@@ -781,6 +790,8 @@ int main()
         ccc->update(deltaTime, window, mousePosFloat);
         ramPanel->update(deltaTime, window, mousePosFloat);
         logPanel->update(deltaTime, window, mousePosFloat);
+
+        rsp_Errors.Update();
         
         renderTexture.clear();
         renderTexture.draw(*slider);

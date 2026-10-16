@@ -7,7 +7,7 @@
 #include <optional>
 #include <filesystem>
 #include <clocale>
-#include <random>
+#include "Random.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>

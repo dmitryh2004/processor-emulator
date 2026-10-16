@@ -7,8 +7,11 @@
 #include <vector>
 #include <sstream> // Добавлено, так как используется std::stringstream
 #include "../SFML/LogText.h"
+#include "../SFML/RandomSoundPlayer.h"
 #include "RAM.h"
 #include <SFML/Graphics.hpp>
+
+#define MEMES
 
 #define ADDR 0xFFFF
 #define MASK 0xF
@@ -32,7 +35,7 @@
 
 class Processor {
 public:
-	Processor(int ramSize, std::shared_ptr<LogText> logFieldRef) : ram(ramSize), logField(logFieldRef)
+	Processor(int ramSize, std::shared_ptr<LogText> logFieldRef, RandomSoundPlayer& rsp) : ram(ramSize), logField(logFieldRef), randomSoundPlayer(rsp)
 	{
 		program = std::vector<std::string>(0);
 		machineCodeProgram = std::vector<unsigned int>(0);
@@ -43,8 +46,10 @@ public:
 	void LoadProgram(sf::String newProgram) {
 		std::string newProgramString = newProgram.toAnsiString();
 		program = splitString(newProgramString, '\n');
-		logField->appendLog("Начинаем парсинг программы...");
-		std::cout << "Program loaded" << std::endl;
+		if (logField->getTextString().getSize()) {
+			logField->appendLog("------------------------------");
+		}
+		logField->appendLog(GetRandomStringFromMap(startParsingPhrases));
 	}
 
 	// выполнить парсинг
@@ -55,7 +60,12 @@ public:
 		machineCodeProgram = std::vector<unsigned int>();
 
 		if (!program.size()) {
-			logField->appendLog("Чтобы запустить программу на процессоре, ее надо сначала написать, наверное? Сам-то как считаешь?");
+			int randomIndex = Random::getInt(0, emptyProgramPhrases.size() - 1);
+			std::string randomString = emptyProgramPhrases[randomIndex];
+			logField->appendLog(randomString);
+#ifdef MEMES
+			randomSoundPlayer.Play(randomIndex);
+#endif
 			return false;
 		}
 
@@ -104,13 +114,18 @@ public:
 			machineCodeProgram.clear();
 			parsedProgram.clear();
 
-			std::string totalError = "При парсинге обнаружены следующие ошибки:";
+			int randomIndex = Random::getInt(0, parsingFailedPhrases.size() - 1);
+			std::string totalError = parsingFailedPhrases[randomIndex];
 			for (int i = 0; i < errors.size(); i++) {
 				totalError += "\n" + errors[i];
 			}
 
 			if (logField != nullptr)
 				logField->appendLog(totalError);
+
+#ifdef MEMES
+			randomSoundPlayer.Play(randomIndex + emptyProgramPhrases.size());
+#endif
 		}
 		else {
 			parsedSuccessfully = true;
@@ -118,7 +133,7 @@ public:
 				REGS[i] = 0;
 			}
 
-			std::string successText = "Парсинг программы выполнен успешно!";
+			std::string successText = GetRandomStringFromMap(parsingSuccessPhrases);
 			
 			/*
 			for (int i = 0; i < machineCodeProgram.size(); i++) {
@@ -236,12 +251,47 @@ private:
 		{"OUT", 0x1}, {"IR",0x2}, {"MAR",0x3}, {"MDR",0x4}, {"AC",0x5}, {"PC",0x6}
 	};
 
+#ifdef MEMES
+	std::map<int, std::string> startParsingPhrases = { 
+		{0, "Опять ассемблер? Какое у нас там стоп-слово..."},
+		{1, "Опять работать? Тебе меня не жалко?"},
+		{2, "Может быть, сам на листочке скомпилируешь? Ну ладно, ладно, так уж и быть..."}
+	};
+	std::map<int, std::string> emptyProgramPhrases = { 
+		{0, "Чтобы запустить программу на процессоре, ее надо сначала написать, наверное? Сам-то как считаешь?"},
+		{1, "Нет ТЗ - результат хз\n(с) Конфуций, 485 г. до н.э."},
+		{2, "По-моему, ты забыл написать ассемблерный код. Или я его телепатией должен получить?"},
+		{3, "Код, видимо, это алмаз из \"Большого куша\"..."},
+		{4, "Ну, бездействие - это тоже в каком-то роде действие..."}
+	};
+	std::map<int, std::string> parsingFailedPhrases = { 
+		{0, "Если бы мне платили по одному рублю за каждую ошибку в ассемблере, я бы уже разбогател. Что тут не так:"},
+		{1, "Похоже, кто-то не читал методичку по ассемблеру этого процессора:"},
+		{2, "Прежде чем записывать сюда код, убедись, что он написан правильно:"},
+		{3, "Ты пишешь код на моем ассемблере, но делаешь это без знания синтаксиса:"}
+	};
+	std::map<int, std::string> parsingSuccessPhrases = {
+		{0, "Ну, похоже на правду. А вот работает ли это, это уже другой вопрос"},
+		{1, "Ладно, методичку по коду ты читал. На работу программы сейчас посмотрим..."}
+	};
+#else
+	std::map<int, std::string> startParsingPhrases = { {0, "Начинаем парсинг программы..."}};
+	std::map<int, std::string> emptyProgramPhrases = { {0, "Парсинг невозможен: программа пуста"} };
+	std::map<int, std::string> parsingFailedPhrases = { {0, "При парсинге найдены следующие ошибки: "} };
+	std::map<int, std::string> parsingSuccessPhrases = { {0, "Парсинг программы выполнен успешно!"} };
+#endif
+
 	unsigned int REGS[7]{ 0, 0, 0, 0, 0, 0, 0 };
 	RAM ram;
 	std::shared_ptr<LogText> logField;
 	bool parsedSuccessfully = false;
 	std::vector<unsigned int> machineCodeProgram;
 	std::vector<std::string> program, parsedProgram;
+	RandomSoundPlayer& randomSoundPlayer;
+
+	std::string GetRandomStringFromMap(std::map<int, std::string>& map) {
+		return map[Random::getInt(0, map.size() - 1)];
+	}
 
 	std::vector<std::string> splitString(const std::string& input, char delimiter) {
 		std::vector<std::string> tokens;
