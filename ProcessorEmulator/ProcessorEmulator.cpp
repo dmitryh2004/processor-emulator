@@ -70,7 +70,7 @@ int main()
 
     const sf::Font& textFont = resources.GetFont("Assets/Fonts/Rubik-Medium.ttf");
     const sf::Font& codeFont = resources.GetFont("Assets/Fonts/Courier-New.ttf");
-    const sf::Font& registerFont = resources.GetFont("Assets/Fonts/Seven Segment.ttf");
+    const sf::Font& registerFont = resources.GetFont("Assets/Fonts/Seven Segment v2.ttf");
 
     int i = Random::getInt(1, 8);
     sf::Music& bgMusic = resources.GetMusic("Assets/Sounds/background-music-" + std::to_string(i) + ".mp3");
@@ -655,7 +655,7 @@ int main()
         stepsMode = false;
     }); 
     stepButton->SetOnClickAction([&processor, &codeField, &running, &stepsMode, &ramViewer,
-    &outRegister, &irRegister, &marRegister, &mdrRegister, &acRegister, &pcRegister,
+    &outRegister, &irRegister, &marRegister, &mdrRegister, &acRegister, &pcRegister, &flags,
     &wireOut, &wireIr, &wireMar, &wireMdr, &wireAc, &wirePc, &wireFlags, &ccc] {
         if (!running) {
             processor.Reset();
@@ -686,6 +686,7 @@ int main()
             mdrRegister->onProcessorStep();
             acRegister->onProcessorStep();
             pcRegister->onProcessorStep();
+            flags->onProcessorStep();
 
             wireOut->setVisible(processor.GetRegisterValue(0) != oldOut);
             wireIr->setVisible(processor.GetRegisterValue(1) != oldIr);

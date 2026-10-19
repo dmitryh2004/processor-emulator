@@ -19,7 +19,7 @@
 #define MOV 0b0000
 #define INC 0b0001
 #define ADD 0b0010
-#define ADDI 0b0011
+#define JC 0b0011
 #define JNE 0b0100
 #define JL 0b0101
 #define JG 0b0110
@@ -28,7 +28,7 @@
 #define DIV 0b1001
 #define NOT 0b1010
 #define OR 0b1011
-#define SUBD 0b1100
+#define JNC 0b1100
 #define SUB 0b1101
 #define DEC 0b1110
 #define AND 0b1111
@@ -155,52 +155,85 @@ public:
 		if (!parsedSuccessfully || (REGS[5] >= machineCodeProgram.size())) return false;
 
 		int t, c, k;
-		REGS[1] = machineCodeProgram[REGS[5]]; 
+		REGS[1] = machineCodeProgram[REGS[5]];
 		REGS[5]++;
-		k = REGS[1] & ADDR; 
+		k = REGS[1] & ADDR;
 		k = (REGS[2] = (k) ? k : REGS[2]);
-		
-		REGS[1] >>= 16; 
+
+		REGS[1] >>= 16;
 		REGS[3] = ram.read(REGS[2]);
-		
+
 		int s8 = (REGS[1] >> 8) & MASK, s4 = (REGS[1] >> 4) & MASK, s0 = REGS[1] & MASK;
+
+		// Вспомогательные переменные для точного вычисления флага CF (без потери старшего бита)
+		unsigned int op1, op2, res_u;
+
 		switch ((REGS[1] & ADDR) >> 12) {
-			case MOV:	
-				if (s8 == 5)
-					REGS[s8] = REGS[s4] - 1;
-				else
-					REGS[s8] = REGS[s4]; 
-				break;
-			case INC:	REGS[s8] = REGS[s4] + 1; break;
-			case ADD:	REGS[s8] = REGS[s4] + REGS[s0]; break;
-			case ADDI:	REGS[s8] = REGS[s4] + REGS[s0] + 1; break;
-			case DEC:
-				c = REGS[s8] = (t = REGS[s4]) - 1; 
-				REGS[6] = (c) ? ((c < 0) ? 1 : 0) : 2; 
-				break;
-			case SUB:
-				c = REGS[s8] = (t = REGS[s4]) - REGS[s0];
-				REGS[6] = (c) ? ((c < t) ? 1 : 0) : 2; 
-				break;
-			case SUBD:
-				c = REGS[s8] = (t = REGS[s4]) - REGS[s0] - 1;
-				REGS[6] = (c) ? ((c < t) ? 1 : 0) : 2; 
-				break;
-			case NOT:	REGS[s8] = ~REGS[s4]; break;
-			case OR:	REGS[s8] = REGS[s4] | REGS[s0]; break;
-			case AND:	REGS[s8] = REGS[s4] & REGS[s0]; break;
-			case MUL:	REGS[s8] = REGS[s4] * REGS[s0]; break;
-			case DIV:	REGS[s8] = REGS[s4] / REGS[s0]; break;
-			case JE:	if (REGS[6] & 2) REGS[s8] = REGS[s4] - 1; break;
-			case JL:	if (REGS[6] & 1) REGS[s8] = REGS[s4] - 1; break;
-			case JG:	if (!REGS[6] & 1) REGS[s8] = REGS[s4] - 1; break;
-			case JNE:	if (!(REGS[6] & 2)) REGS[s8] = REGS[s4] - 1; break;
-			default: break;
+		case MOV:
+			if (s8 == 5)
+				REGS[s8] = REGS[s4] - 1;
+			else
+				REGS[s8] = REGS[s4];
+			break;
+
+		case INC:
+			op1 = (unsigned int)REGS[s4];
+			res_u = op1 + 1;
+			c = REGS[s8] = (int)res_u;
+
+			// Выставляем флаги: CF(4) если был перенос, ZF(2) если ноль, SF(1) если c < 0
+			REGS[6] = ((res_u < op1) ? 4 : 0) | ((c == 0) ? 2 : 0) | ((c < 0) ? 1 : 0);
+			break;
+
+		case ADD:
+			op1 = (unsigned int)REGS[s4];
+			op2 = (unsigned int)REGS[s0];
+			res_u = op1 + op2;
+			c = REGS[s8] = (int)res_u;
+
+			REGS[6] = ((res_u < op1) ? 4 : 0) | ((c == 0) ? 2 : 0) | ((c < 0) ? 1 : 0);
+			break;
+
+		case DEC:
+			op1 = (unsigned int)REGS[s4];
+			res_u = op1 - 1;
+			c = REGS[s8] = (int)res_u;
+
+			// При вычитании CF означает заем (borrow), т.е. когда вычитаемое больше уменьшаемого
+			REGS[6] = ((op1 < 1) ? 4 : 0) | ((c == 0) ? 2 : 0) | ((c < 0) ? 1 : 0);
+			break;
+
+		case SUB:
+			op1 = (unsigned int)REGS[s4];
+			op2 = (unsigned int)REGS[s0];
+			res_u = op1 - op2;
+			c = REGS[s8] = (int)res_u;
+
+			REGS[6] = ((op1 < op2) ? 4 : 0) | ((c == 0) ? 2 : 0) | ((c < 0) ? 1 : 0);
+			break;
+
+		case NOT:	REGS[s8] = ~REGS[s4]; break;
+		case OR:	REGS[s8] = REGS[s4] | REGS[s0]; break;
+		case AND:	REGS[s8] = REGS[s4] & REGS[s0]; break;
+		case MUL:	REGS[s8] = REGS[s4] * REGS[s0]; break;
+		case DIV:	REGS[s8] = REGS[s4] / REGS[s0]; break;
+
+			// Логика переходов: исправлена приоритетность оператора !
+		case JE:	if (REGS[6] & 2) REGS[s8] = REGS[s4] - 1; break;
+		case JL:	if (REGS[6] & 1) REGS[s8] = REGS[s4] - 1; break;
+		case JG:	if (!(REGS[6] & 1)) REGS[s8] = REGS[s4] - 1; break;
+		case JNE:	if (!(REGS[6] & 2)) REGS[s8] = REGS[s4] - 1; break;
+
+		case JC:	if (REGS[6] & 4) REGS[s8] = REGS[s4] - 1; break;
+		case JNC:	if (!(REGS[6] & 4)) REGS[s8] = REGS[s4] - 1; break;
+
+		default: break;
 		}
 		if (k == REGS[2]) ram.write(REGS[2], REGS[3]);
 
 		return REGS[5] < machineCodeProgram.size();
 	}
+
 
 	unsigned int GetCurrentMachineCodeOperation() {
 		return (0 <= REGS[5] && REGS[5] < machineCodeProgram.size()) ? machineCodeProgram[REGS[5]] : 0;
@@ -243,9 +276,9 @@ public:
 private:
 	std::unordered_map<std::string, int> operators = {
 		{"LOAD", 0x04000000}, {"STOR", 0x00400000}, {"INC",  0x14000000}, {"ADD",  0x24400000},
-		{"ADDI", 0x34400000}, {"JNE",  0x45200000}, {"JL",   0x55200000}, {"JG",   0x65200000},
+		{"JC", 0x35200000}, {"JNE",  0x45200000}, {"JL",   0x55200000}, {"JG",   0x65200000},
 		{"JE",   0x75200000}, {"MUL",  0x84400000}, {"DIV",  0x94400000}, {"NOT",  0xa4000000},
-		{"OR",   0xb4400000}, {"SUBD", 0xc4400000}, {"SUB",  0xd4400000}, {"DEC",  0xe4000000},
+		{"OR",   0xb4400000}, {"JNC", 0xc5200000}, {"SUB",  0xd4400000}, {"DEC",  0xe4000000},
 		{"AND",  0xf4400000}, {"JMP",  0x05200000}, {"CLS",  0x04200000}
 	}, regs = {
 		{"OUT", 0x1}, {"IR",0x2}, {"MAR",0x3}, {"MDR",0x4}, {"AC",0x5}, {"PC",0x6}
