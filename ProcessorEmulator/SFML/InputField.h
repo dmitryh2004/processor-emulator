@@ -15,10 +15,12 @@ public:
         unsigned int characterSize = 24,
         sf::Vector2f offset = sf::Vector2f(0.f, 0.f),
         Anchor parentAnchor = Anchor::TopLeft,
-        Anchor localAnchor = Anchor::TopLeft)
+        Anchor localAnchor = Anchor::TopLeft,
+        bool isCodeField = false)
         : BaseObject(name, size, parentSize, offset, parentAnchor, localAnchor),
         m_font(&font), m_characterSize(characterSize), m_isActive(false), m_cursorIndex(0), m_string(""),
-        m_scrollOffset(0.f, 0.f), m_lineNumbersWidth(50.f) // Начальная ширина панели номеров строк
+        m_scrollOffset(0.f, 0.f), m_lineNumbersWidth(50.f), // Начальная ширина панели номеров строк
+        m_isCodeField(isCodeField)
     {
         // Настройка фона
         m_background.setSize(getSize());
@@ -290,14 +292,60 @@ private:
     // Автоматическая подгонка ширины колонки номеров строк в зависимости от их количества
     void updateLineNumbersWidth(size_t totalLines) {
         int digits = 1;
-        size_t temp = totalLines;
-        while (temp /= 10) digits++;
-        // Примерно по 12 пикселей на цифру + отступы (минимум 40px)
+        // Если это поле кода, максимальная длина зависит от hex-представления
+        if (m_isCodeField) {
+            // Считаем количество значащих строк кода во всем тексте
+            size_t maxCodeLineNum = 0;
+            size_t currentLineNum = 1;
+            size_t currentCodeLineNum = 0;
+
+            size_t i = 0;
+            while (i <= m_string.getSize()) {
+                bool hasContentBeforeSemicolon = false;
+                bool insideComment = false;
+                bool isNotEmpty = false;
+
+                while (i < m_string.getSize() && m_string[i] != '\n') {
+                    char32_t c = m_string[i];
+                    if (c != ' ' && c != '\t' && c != '\r') {
+                        isNotEmpty = true;
+                    }
+                    if (!insideComment) {
+                        if (c == ';') {
+                            insideComment = true;
+                        }
+                        else if (c != ' ' && c != '\t' && c != '\r') {
+                            hasContentBeforeSemicolon = true;
+                        }
+                    }
+                    i++;
+                }
+
+                bool isCodeLine = isNotEmpty && (!insideComment || hasContentBeforeSemicolon);
+                if (isCodeLine) {
+                    currentCodeLineNum++;
+                    maxCodeLineNum = currentCodeLineNum;
+                }
+                currentLineNum++;
+                i++;
+            }
+
+            if (maxCodeLineNum > 0) {
+                // Вычисляем длину hex-строки для максимального номера
+                std::stringstream ss;
+                ss << std::hex << std::uppercase << maxCodeLineNum;
+                digits = ss.str().length();
+            }
+        }
+        else {
+            size_t temp = totalLines;
+            while (temp /= 10) digits++;
+        }
+
         m_lineNumbersWidth = std::max(40.f, digits * 12.f + 15.f);
-        m_lineNumbersBackground.setSize({
-         m_lineNumbersWidth, getSize().y }
-         );
+        m_lineNumbersBackground.setSize({ m_lineNumbersWidth, getSize().y });
     }
+
     void rebuildVertices() {
         m_vertices.clear();
         m_charPositions.clear();
@@ -394,9 +442,67 @@ private:
         m_charPositions[0] = { xOffset, yOffset };
         size_t currentLineNum = 1;
 
+        // Вспомогательная функция перевода числа в HEX с заполнением нулями до нужной ширины
+        auto toHexPadded = [](size_t num, int width) {
+            std::stringstream ss;
+            ss << std::hex << std::uppercase << num;
+            std::string res = ss.str();
+            if (res.length() < static_cast<size_t>(width)) {
+                res = std::string(width - res.length(), '0') + res;
+            }
+            return sf::String(res);
+        };
+
+        // Сначала собираем информацию о физических строках: являются ли они строками кода
+        std::vector<bool> isCodeLineVector;
+        size_t totalCodeLines = 0;
+        {
+            size_t idx = 0;
+            while (idx <= m_string.getSize()) {
+                bool hasContentBeforeSemicolon = false;
+                bool insideComment = false;
+                bool isNotEmpty = false;
+
+                while (idx < m_string.getSize() && m_string[idx] != '\n') {
+                    char32_t c = m_string[idx];
+                    if (c != ' ' && c != '\t' && c != '\r') isNotEmpty = true;
+                    if (!insideComment) {
+                        if (c == ';') {
+                            insideComment = true;
+                        }
+                        else if (c != ' ' && c != '\t' && c != '\r') {
+                            hasContentBeforeSemicolon = true;
+                        }
+                    }
+                    idx++;
+                }
+                bool isCode = isNotEmpty && (!insideComment || hasContentBeforeSemicolon);
+                isCodeLineVector.push_back(isCode);
+                if (isCode) totalCodeLines++;
+                idx++;
+            }
+        }
+
+        // Определяем необходимую разрядность (hex Width)
+        int hexWidth = 1;
+        if (totalCodeLines > 0) {
+            std::stringstream ss;
+            ss << std::hex << totalCodeLines;
+            hexWidth = ss.str().length();
+        }
+
         // Отрисовка номера строки
-        auto addLineNumberVertices = [&](size_t num, float y) {
-            sf::String numStr = std::to_string(num);
+        auto addLineNumberVertices = [&](size_t physicalLine, float y, size_t codeLineNum) {
+            sf::String numStr;
+            if (m_isCodeField) {
+                // Если это не строка кода — номер не выводим
+                if (!isCodeLineVector[physicalLine - 1]) return;
+                numStr = toHexPadded(codeLineNum, hexWidth);
+            }
+            else {
+                numStr = std::to_string(physicalLine);
+            }
+
             float numX = m_lineNumbersWidth - 10.f;
             for (int i = numStr.getSize() - 1; i >= 0; --i) {
                 char32_t c = numStr[i];
@@ -421,7 +527,53 @@ private:
             }
         };
 
-        addLineNumberVertices(currentLineNum, yOffset);
+        // Запуск симуляции виртуальных строк (копируем логику из исходного кода, обновляя totalLines для ширины)
+        virtualLinesCount = 1;
+        {
+            float simX = startX;
+            size_t i = 0;
+            while (i < m_string.getSize()) {
+                if (m_string[i] == '\n') { virtualLinesCount++; simX = startX; i++; continue; }
+                std::vector<CharMetrics> wordMetrics;
+                while (i < m_string.getSize() && m_string[i] != '\n' && m_string[i] != ' ' && m_string[i] != '\t') {
+                    char32_t c = m_string[i];
+                    float adv = m_font->getGlyph(c, m_characterSize, false).advance;
+                    if (!wordMetrics.empty()) adv += m_font->getKerning(wordMetrics.back().character, c, m_characterSize);
+                    wordMetrics.push_back({ i, c, adv }); i++;
+                }
+                if (!wordMetrics.empty()) {
+                    float wordWidth = 0.f; for (const auto& cm : wordMetrics) wordWidth += cm.advance;
+                    if (simX + wordWidth > startX + maxTextWidth) {
+                        if (wordWidth > maxTextWidth) {
+                            for (const auto& cm : wordMetrics) {
+                                if (simX + cm.advance > startX + maxTextWidth) { virtualLinesCount++; simX = startX; }
+                                simX += cm.advance;
+                            }
+                        }
+                        else { virtualLinesCount++; simX = startX + wordWidth; }
+                    }
+                    else { simX += wordWidth; }
+                }
+                if (i < m_string.getSize() && (m_string[i] == ' ' || m_string[i] == '\t')) {
+                    char32_t c = m_string[i];
+                    float adv = (c == '\t') ? m_font->getGlyph(' ', m_characterSize, false).advance * 4 : m_font->getGlyph(c, m_characterSize, false).advance;
+                    if (simX + adv > startX + maxTextWidth) { virtualLinesCount++; simX = startX; }
+                    else { simX += adv; }
+                    i++;
+                }
+            }
+        }
+
+        updateLineNumbersWidth(virtualLinesCount);
+
+        xOffset = startX;
+        yOffset = startY;
+        m_charPositions[0] = { xOffset, yOffset };
+
+        currentLineNum = 1;
+        size_t currentCodeLineNum = isCodeLineVector[0] ? 1 : 0;
+
+        addLineNumberVertices(currentLineNum, yOffset, currentCodeLineNum);
 
         // Подготовка цветов подсветки синтаксиса
         // Подготовка цветов подсветки синтаксиса с использованием UTF-32
@@ -463,7 +615,10 @@ private:
                 yOffset += lineSpacing;
                 m_charPositions[i + 1] = { xOffset, yOffset };
                 currentLineNum++;
-                addLineNumberVertices(currentLineNum, yOffset);
+                if (currentLineNum <= isCodeLineVector.size() && isCodeLineVector[currentLineNum - 1]) {
+                    currentCodeLineNum++;
+                }
+                addLineNumberVertices(currentLineNum, yOffset, currentCodeLineNum);
                 m_contentSize.y = std::max(m_contentSize.y, yOffset + lineSpacing);
                 i++;
                 continue;
@@ -781,6 +936,7 @@ private:
     sf::RectangleShape m_cursor;
     sf::Time m_cursorTimer;
     bool m_showCursor = false;
+    bool m_isCodeField = false;
     size_t m_cursorIndex;
     std::vector<sf::Vector2f> m_charPositions;
     SyntaxHighlighter m_highlighter;

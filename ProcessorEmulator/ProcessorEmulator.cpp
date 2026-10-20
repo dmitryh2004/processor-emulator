@@ -185,7 +185,10 @@ int main()
         codePanel->getSize(),
         codeFont,
         18,
-        sf::Vector2f(8.f, 44.f)
+        sf::Vector2f(8.f, 44.f),
+        BaseObject::Anchor::TopLeft,
+        BaseObject::Anchor::TopLeft,
+        true
     );
 
     std::shared_ptr<Button> saveCodeButton = std::make_shared<Button>("saveCodeButton",
