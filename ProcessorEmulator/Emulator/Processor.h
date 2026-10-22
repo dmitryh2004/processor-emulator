@@ -94,15 +94,15 @@ public:
 				break;
 			}
 
-			if (command == "CLS") {
-				continue;
+			if (command != "CLS") {
+				std::string address = splitted[1];
+				if (int errorCode = check_address(address)) {
+					std::string error = "Строка " + std::to_string(i + 1) + " - некорректный адрес (код " + std::to_string(errorCode) + ")\n" + line + "\n";
+					errors.push_back(error);
+					break;
+				}
 			}
-			std::string address = splitted[1];
-			if (int errorCode = check_address(address)) {
-				std::string error = "Строка " + std::to_string(i+1) + " - некорректный адрес (код " + std::to_string(errorCode) + ")\n" + line + "\n";
-				errors.push_back(error);
-				break;
-			}
+			
 
 			machineCodeProgram.push_back(convertToMachineCode(splitted));
 			parsedProgram.push_back(line);
@@ -158,7 +158,8 @@ public:
 		REGS[1] = machineCodeProgram[REGS[5]];
 		REGS[5]++;
 		k = REGS[1] & ADDR;
-		k = (REGS[2] = (k) ? k : REGS[2]);
+		if (k) REGS[2] = k; 
+		// k = (REGS[2] = (k) ? k : REGS[2]);
 
 		REGS[1] >>= 16;
 		REGS[3] = ram.read(REGS[2]);
@@ -170,6 +171,7 @@ public:
 
 		switch ((REGS[1] & ADDR) >> 12) {
 		case MOV:
+			if (s4 == 2) REGS[2] = k;
 			if (s8 == 5)
 				REGS[s8] = REGS[s4] - 1;
 			else
