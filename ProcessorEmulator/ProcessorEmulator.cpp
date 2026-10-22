@@ -182,7 +182,7 @@ int main()
     std::shared_ptr<InputField> codeField = std::make_shared<InputField>(
         "codeField",
         sf::Vector2f(447.f, 493.f),
-        codePanel->getSize(),
+        codePanel->getSize(), 
         codeFont,
         18,
         sf::Vector2f(8.f, 44.f),
