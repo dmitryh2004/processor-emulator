@@ -3,7 +3,7 @@
 #include <random>
 #include <string>
 #include <vector>
-#include <stdexcept> // Для обработки пустых массивов ассетов
+#include <stdexcept> // Р”Р»СЏ РѕР±СЂР°Р±РѕС‚РєРё РїСѓСЃС‚С‹С… РјР°СЃСЃРёРІРѕРІ Р°СЃСЃРµС‚РѕРІ
 #include "../ResourceManager.h"
 #include "../Random.h"
 
@@ -12,10 +12,10 @@ public:
     RandomSoundPlayer(std::vector<std::string> assetsNames, ResourceManager& resourceManager) :
         resourceManager(resourceManager),
         soundAssets(std::move(assetsNames)),
-        // 1. Инициализируем sf::Sound первым доступным буфером, чтобы избежать ошибки
+        // 1. РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј sf::Sound РїРµСЂРІС‹Рј РґРѕСЃС‚СѓРїРЅС‹Рј Р±СѓС„РµСЂРѕРј, С‡С‚РѕР±С‹ РёР·Р±РµР¶Р°С‚СЊ РѕС€РёР±РєРё
         currentSound(resourceManager.GetSoundBuffer(soundAssets.at(0)))
     {
-        // Проверка на случай, если передан пустой вектор ассетов
+        // РџСЂРѕРІРµСЂРєР° РЅР° СЃР»СѓС‡Р°Р№, РµСЃР»Рё РїРµСЂРµРґР°РЅ РїСѓСЃС‚РѕР№ РІРµРєС‚РѕСЂ Р°СЃСЃРµС‚РѕРІ
         if (soundAssets.empty()) {
             throw std::runtime_error("RandomSoundPlayer: assetsNames list cannot be empty!");
         }
@@ -35,16 +35,16 @@ public:
             ", is playing = " << IsPlaying() << std::endl;
         if (IsPlaying()) return false;
 
-        // Выбираем случайный индекс
+        // Р’С‹Р±РёСЂР°РµРј СЃР»СѓС‡Р°Р№РЅС‹Р№ РёРЅРґРµРєСЃ
         currentAssetIndex = Random::getInt(0, soundAssets.size() - 1);
 
-        // В SFML 3 мы меняем буфер через setBuffer
+        // Р’ SFML 3 РјС‹ РјРµРЅСЏРµРј Р±СѓС„РµСЂ С‡РµСЂРµР· setBuffer
         currentSound.setBuffer(resourceManager.GetSoundBuffer(soundAssets[currentAssetIndex]));
 
-        // Запускаем воспроизведение
+        // Р—Р°РїСѓСЃРєР°РµРј РІРѕСЃРїСЂРѕРёР·РІРµРґРµРЅРёРµ
         currentSound.play();
 
-        // В SFML 3 метод getBuffer() возвращает прямую ссылку (а не указатель), это безопасно
+        // Р’ SFML 3 РјРµС‚РѕРґ getBuffer() РІРѕР·РІСЂР°С‰Р°РµС‚ РїСЂСЏРјСѓСЋ СЃСЃС‹Р»РєСѓ (Р° РЅРµ СѓРєР°Р·Р°С‚РµР»СЊ), СЌС‚Рѕ Р±РµР·РѕРїР°СЃРЅРѕ
         currentAssetLength = currentSound.getBuffer().getDuration().asSeconds();
         clock.restart();
 
@@ -58,16 +58,16 @@ public:
             ", is playing = " << IsPlaying() << std::endl;
         if (IsPlaying()) return false;
 
-        // Выбираем случайный индекс
+        // Р’С‹Р±РёСЂР°РµРј СЃР»СѓС‡Р°Р№РЅС‹Р№ РёРЅРґРµРєСЃ
         currentAssetIndex = index;
 
-        // В SFML 3 мы меняем буфер через setBuffer
+        // Р’ SFML 3 РјС‹ РјРµРЅСЏРµРј Р±СѓС„РµСЂ С‡РµСЂРµР· setBuffer
         currentSound.setBuffer(resourceManager.GetSoundBuffer(soundAssets[currentAssetIndex]));
 
-        // Запускаем воспроизведение
+        // Р—Р°РїСѓСЃРєР°РµРј РІРѕСЃРїСЂРѕРёР·РІРµРґРµРЅРёРµ
         currentSound.play();
 
-        // В SFML 3 метод getBuffer() возвращает прямую ссылку (а не указатель), это безопасно
+        // Р’ SFML 3 РјРµС‚РѕРґ getBuffer() РІРѕР·РІСЂР°С‰Р°РµС‚ РїСЂСЏРјСѓСЋ СЃСЃС‹Р»РєСѓ (Р° РЅРµ СѓРєР°Р·Р°С‚РµР»СЊ), СЌС‚Рѕ Р±РµР·РѕРїР°СЃРЅРѕ
         currentAssetLength = currentSound.getBuffer().getDuration().asSeconds();
         clock.restart();
 
@@ -78,7 +78,7 @@ public:
     void Update() {
         if (!isPlaying) return;
 
-        // Проверяем таймер
+        // РџСЂРѕРІРµСЂСЏРµРј С‚Р°Р№РјРµСЂ
         if (clock.getElapsedTime().asSeconds() >= currentAssetLength) {
             // std::cout << "Random sound player - Update: clock timer > currentAssetLength" << std::endl;
             isPlaying = false;
@@ -93,7 +93,7 @@ private:
     int currentAssetIndex = 0;
     float currentAssetLength = 0.f;
 
-    // Поле теперь гарантированно инициализируется в списке инициализации конструктора
+    // РџРѕР»Рµ С‚РµРїРµСЂСЊ РіР°СЂР°РЅС‚РёСЂРѕРІР°РЅРЅРѕ РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚СЃСЏ РІ СЃРїРёСЃРєРµ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂР°
     sf::Sound currentSound;
     sf::Clock clock;
 };
