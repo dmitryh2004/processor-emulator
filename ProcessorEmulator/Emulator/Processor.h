@@ -147,10 +147,6 @@ public:
 		return parsedSuccessfully;
 	}
 
-	void RunProgram() {
-		// not implemented
-	}
-
 	bool RunProgramOneStep() {
 		if (!parsedSuccessfully || (REGS[5] >= machineCodeProgram.size())) return false;
 
@@ -161,10 +157,10 @@ public:
 		if (k) REGS[2] = k; 
 		// k = (REGS[2] = (k) ? k : REGS[2]);
 
-		REGS[1] >>= 16;
+		int instruction = REGS[1] >> 16;
 		REGS[3] = ram.read(REGS[2]);
 
-		int s8 = (REGS[1] >> 8) & MASK, s4 = (REGS[1] >> 4) & MASK, s0 = REGS[1] & MASK;
+		int s8 = (instruction >> 8) & MASK, s4 = (instruction >> 4) & MASK, s0 = instruction & MASK;
 
 		// Вспомогательные переменные для точного вычисления флага CF (без потери старшего бита)
 		unsigned int op1, op2, res_u;
