@@ -165,7 +165,7 @@ public:
 		// Вспомогательные переменные для точного вычисления флага CF (без потери старшего бита)
 		unsigned int op1, op2, res_u;
 
-		switch ((REGS[1] & ADDR) >> 12) {
+		switch ((instruction & ADDR) >> 12) {
 		case MOV:
 			if (s4 == 2) REGS[2] = k;
 			if (s8 == 5)
