@@ -20,9 +20,15 @@ int main()
         "Assets/Sounds/error_metodichka.mp3",
         "Assets/Sounds/error_wrong code.mp3",
         "Assets/Sounds/error_syntax.mp3",
+        "Assets/Sounds/another is running_0.mp3",
+        "Assets/Sounds/another is running_1.mp3",
+        "Assets/Sounds/another is running_2.mp3",
+        "Assets/Sounds/another is running_3.mp3"
         }, resources);
 
-    Processor processor(65536, logField, rsp_Errors);
+    ReplicaSoundManager rsm(rsp_Errors, 5, 4, 4);
+
+    Processor processor(65536, logField, rsm);
     RAM& ram = processor.GetRAM();
     bool running = false; // запущена ли программа
     bool stepsMode = false; // идем по шагам или без них
@@ -72,10 +78,16 @@ int main()
     const sf::Font& codeFont = resources.GetFont("Assets/Fonts/Courier-New.ttf");
     const sf::Font& registerFont = resources.GetFont("Assets/Fonts/Seven Segment v2.ttf");
 
-    int i = Random::getInt(1, 8);
-    sf::Music& bgMusic = resources.GetMusic("Assets/Sounds/background-music-" + std::to_string(i) + ".mp3");
-    bgMusic.setLooping(true);
-    bgMusic.play();
+    BackgroundMusicPlayer bmp({
+            "Assets/Sounds/background-music-1.mp3",
+            "Assets/Sounds/background-music-2.mp3",
+            "Assets/Sounds/background-music-3.mp3",
+            "Assets/Sounds/background-music-4.mp3",
+            "Assets/Sounds/background-music-5.mp3",
+            "Assets/Sounds/background-music-6.mp3",
+            "Assets/Sounds/background-music-7.mp3",
+            "Assets/Sounds/background-music-8.mp3",
+        }, resources, 5.0f);
 
     sf::Sound clickSound(resources.GetSoundBuffer("Assets/Sounds/click-sound.mp3"));
 
@@ -649,8 +661,22 @@ int main()
     // log panel - end
 
     processor.SetLogField(logField);
-    startButton->SetOnClickAction([&processor, &codeField, &running, &stepsMode] {
-        if (running) return;
+    startButton->SetOnClickAction([&processor, &codeField, &running, &stepsMode, &rsm, &logField] {
+        if (running) {
+            int apirsc = 0;
+#ifdef MEMES
+            apirsc = rsm.anotherProgramIsRunningSoundsCount();
+#endif
+            int apirpc = anotherProgramIsRunningPhrases.size();
+            int maxValue = apirsc > apirpc ? apirsc : apirpc;
+
+            int index = Random::getInt(0, maxValue - 1);
+            logField->appendLog(anotherProgramIsRunningPhrases[index]);
+#ifdef MEMES
+            rsm.playAnotherProgramIsRunningSound(index);
+#endif
+            return; 
+        }
 
         processor.Reset();
         processor.LoadProgram(codeField->getTextString());
@@ -796,6 +822,7 @@ int main()
         logPanel->update(deltaTime, window, mousePosFloat);
 
         rsp_Errors.Update();
+        bmp.update();
         
         renderTexture.clear();
         renderTexture.draw(*slider);
@@ -819,5 +846,5 @@ int main()
         window.display();
     }
 
-    bgMusic.stop();
+    bmp.stop();
 }

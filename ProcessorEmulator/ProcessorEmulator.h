@@ -3,6 +3,8 @@
 
 #pragma once
 
+#define MEMES
+
 #include <iostream>
 #include <optional>
 #include <filesystem>
@@ -26,6 +28,8 @@
 #include "SFML/SliderObject.h"
 #include "SFML/WireImage.h"
 #include "SFML/FlagsController.h"
+#include "SFML/ReplicaSoundManager.h"
+#include "SFML/BackgroundMusicPlayer.h"
 
 #include "SFML/Utilites/SFMLUtility.h"
 #include "SFML/PortableFileDialogs.h"

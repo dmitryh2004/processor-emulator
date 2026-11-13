@@ -7,11 +7,9 @@
 #include <vector>
 #include <sstream> // Добавлено, так как используется std::stringstream
 #include "../SFML/LogText.h"
-#include "../SFML/RandomSoundPlayer.h"
+#include "../SFML/ReplicaSoundManager.h"
 #include "RAM.h"
 #include <SFML/Graphics.hpp>
-
-#define MEMES
 
 #define ADDR 0xFFFF
 #define MASK 0xF
@@ -35,7 +33,7 @@
 
 class Processor {
 public:
-	Processor(int ramSize, std::shared_ptr<LogText> logFieldRef, RandomSoundPlayer& rsp) : ram(ramSize), logField(logFieldRef), randomSoundPlayer(rsp)
+	Processor(int ramSize, std::shared_ptr<LogText> logFieldRef, ReplicaSoundManager& rsm) : ram(ramSize), logField(logFieldRef), replicaSoundManager(rsm)
 	{
 		program = std::vector<std::string>(0);
 		machineCodeProgram = std::vector<unsigned int>(0);
@@ -64,13 +62,14 @@ public:
 			std::string randomString = emptyProgramPhrases[randomIndex];
 			logField->appendLog(randomString);
 #ifdef MEMES
-			randomSoundPlayer.Play(randomIndex);
+			replicaSoundManager.playProgramNotFoundSound(randomIndex);
 #endif
 			return false;
 		}
 
 		for (int i = 0; i < program.size(); i++) {
 			std::string line = program.at(i);
+			line = trim(line);
 			size_t pos = line.find_first_of(';');
 			
 			if (pos != std::string::npos) {
@@ -79,6 +78,11 @@ public:
 			}
 
 			if (line.size() == 0) continue;
+
+			auto new_end = std::unique(line.begin(), line.end(), [](char a, char b) { // склеиваем несколько пробелов в 1
+				return a == ' ' && b == ' ';
+			});
+			line.erase(new_end, line.end());
 
 			std::vector<std::string> splitted = splitString(line, ' ');
 			if ((splitted.size() > 2) || (splitted.size() > 1 && splitted[0] == "CLS")) {
@@ -124,7 +128,7 @@ public:
 				logField->appendLog(totalError);
 
 #ifdef MEMES
-			randomSoundPlayer.Play(randomIndex + emptyProgramPhrases.size());
+			replicaSoundManager.playProgramParseFailedSound(randomIndex);
 #endif
 		}
 		else {
@@ -282,43 +286,21 @@ private:
 		{"OUT", 0x1}, {"IR",0x2}, {"MAR",0x3}, {"MDR",0x4}, {"AC",0x5}, {"PC",0x6}
 	};
 
-#ifdef MEMES
-	std::map<int, std::string> startParsingPhrases = { 
-		{0, "Опять ассемблер? Какое у нас там стоп-слово..."},
-		{1, "Опять работать? Тебе меня не жалко?"},
-		{2, "Может быть, сам на листочке скомпилируешь? Ну ладно, ладно, так уж и быть..."}
-	};
-	std::map<int, std::string> emptyProgramPhrases = { 
-		{0, "Чтобы запустить программу на процессоре, ее надо сначала написать, наверное? Сам-то как считаешь?"},
-		{1, "Нет ТЗ - результат хз\n(с) Конфуций, 485 г. до н.э."},
-		{2, "По-моему, ты забыл написать ассемблерный код. Или я его телепатией должен получить?"},
-		{3, "Код, видимо, это алмаз из \"Большого куша\"..."},
-		{4, "Ну, бездействие - это тоже в каком-то роде действие..."}
-	};
-	std::map<int, std::string> parsingFailedPhrases = { 
-		{0, "Если бы мне платили по одному рублю за каждую ошибку в ассемблере, я бы уже разбогател. Что тут не так:"},
-		{1, "Похоже, кто-то не читал методичку по ассемблеру этого процессора:"},
-		{2, "Прежде чем записывать сюда код, убедись, что он написан правильно:"},
-		{3, "Ты пишешь код на моем ассемблере, но делаешь это без знания синтаксиса:"}
-	};
-	std::map<int, std::string> parsingSuccessPhrases = {
-		{0, "Ну, похоже на правду. А вот работает ли это, это уже другой вопрос"},
-		{1, "Ладно, методичку по коду ты читал. На работу программы сейчас посмотрим..."}
-	};
-#else
-	std::map<int, std::string> startParsingPhrases = { {0, "Начинаем парсинг программы..."}};
-	std::map<int, std::string> emptyProgramPhrases = { {0, "Парсинг невозможен: программа пуста"} };
-	std::map<int, std::string> parsingFailedPhrases = { {0, "При парсинге найдены следующие ошибки: "} };
-	std::map<int, std::string> parsingSuccessPhrases = { {0, "Парсинг программы выполнен успешно!"} };
-#endif
-
 	unsigned int REGS[7]{ 0, 0, 0, 0, 0, 0, 0 };
 	RAM ram;
 	std::shared_ptr<LogText> logField;
 	bool parsedSuccessfully = false;
 	std::vector<unsigned int> machineCodeProgram;
 	std::vector<std::string> program, parsedProgram;
-	RandomSoundPlayer& randomSoundPlayer;
+	ReplicaSoundManager& replicaSoundManager;
+
+	std::string trim(const std::string& str) {
+		const std::string whitespace = " \t\n\r\f\v"; // Пробельные символы
+		size_t start = str.find_first_not_of(whitespace);
+		if (start == std::string::npos) return ""; // Строка состоит только из пробелов
+		size_t end = str.find_last_not_of(whitespace);
+		return str.substr(start, end - start + 1);
+	}
 
 	std::string GetRandomStringFromMap(std::map<int, std::string>& map) {
 		return map[Random::getInt(0, map.size() - 1)];

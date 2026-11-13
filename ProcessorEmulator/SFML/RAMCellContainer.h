@@ -160,11 +160,10 @@ private:
         std::string title = "Ячейка " + std::to_string(m_address) + " - редактирование";
         std::string titleTextStr = std::format("Ячейка памяти 0х{:04X}", m_address);
         sf::String inputLabelStr = "Значение:"_sf, hexLabelStr = "Hex-формат:"_sf,
-            signedLabelStr = "В знаковом виде (int32):"_sf, // <-- Новый лейбл
-            negativeNumbersStr = "* Отрицательные числа необходимо записывать в дополнительном коде."_sf,
+            signedLabelStr = "В знаковом виде (int32):"_sf,
+            negativeNumbersStr = "* Допустимый диапазон: от -2 147 483 648 до 4 294 967 295."_sf,
             saveTextStr = "Сохранить"_sf, cancelTextStr = "Отмена"_sf;
 
-        // Увеличили высоту окна с 250 до 280, чтобы поместилось новое поле, и сдвинули кнопки ниже
         sf::RenderWindow dialog(sf::VideoMode({ 400, 320 }), sf::String::fromUtf8(title.begin(), title.end()), sf::State::Windowed, settings);
         dialog.setFramerateLimit(60);
 
@@ -191,22 +190,18 @@ private:
         hexDisplay.setPosition({ 20.f, 150.f });
         hexDisplay.setFillColor(sf::Color::Yellow);
 
-        // --- НАЧАЛО НОВЫХ UI ЭЛЕМЕНТОВ ---
         sf::Text signedLabel(font, signedLabelStr, 14);
         signedLabel.setPosition({ 20.f, 185.f });
         signedLabel.setFillColor(sf::Color::Cyan);
 
-        // Приведение uint32_t к int32_t автоматически покажет отрицательное число, если активен старший бит
         sf::Text signedDisplay(font, std::to_string(static_cast<int32_t>(m_value)), 16);
         signedDisplay.setPosition({ 20.f, 210.f });
-        signedDisplay.setFillColor(sf::Color::Magenta); // Выделим цветом для наглядности
-        // --- КОНЕЦ НОВЫХ UI ЭЛЕМЕНТОВ ---
+        signedDisplay.setFillColor(sf::Color::Magenta);
 
         sf::Text negativeNumbersLabel(font, negativeNumbersStr, 9);
-        negativeNumbersLabel.setPosition({ 20.f, 240.f }); // Сдвинуто вниз (было 175)
+        negativeNumbersLabel.setPosition({ 20.f, 240.f });
         negativeNumbersLabel.setFillColor(sf::Color::White);
 
-        // Кнопки сдвинуты вниз по оси Y на 235 (было 200)
         sf::RectangleShape saveBtn({ 100.f, 35.f });
         saveBtn.setPosition({ 160.f, 275.f });
         saveBtn.setFillColor(sf::Color(0, 150, 0));
@@ -222,6 +217,35 @@ private:
         cancelText.setPosition({ 305.f, 283.f });
 
         auto& mainWindow = const_cast<sf::RenderWindow&>(mainWindowRef);
+
+        // Вспомогательная лямбда для парсинга текущего ввода в uint32_t
+        auto parseCurrentValue = [&]() -> uint32_t {
+            if (decInput.empty() || decInput == "-") {
+                return 0;
+            }
+            try {
+                long long val = std::stoll(decInput);
+                if (val < -2147483648LL) {
+                    decInput = "-2147483648";
+                    val = -2147483648LL;
+                }
+                else if (val > 4294967295LL) {
+                    decInput = "4294967295";
+                    val = 4294967295LL;
+                }
+                return static_cast<uint32_t>(val);
+            }
+            catch (...) {
+                if (decInput[0] == '-') {
+                    decInput = "-2147483648";
+                    return 0x80000000U;
+                }
+                else {
+                    decInput = "4294967295";
+                    return 0xFFFFFFFFU;
+                }
+            }
+        };
 
         while (dialog.isOpen()) {
 
@@ -240,11 +264,34 @@ private:
                     dialog.close();
                 }
 
+                if (auto* keyEvent = event.getIf<sf::Event::KeyPressed>()) {
+                    if (keyEvent->code == sf::Keyboard::Key::Enter) {
+                        setValue(parseCurrentValue());
+                        dialog.close();
+                    }
+                    else if (keyEvent->code == sf::Keyboard::Key::Escape) {
+                        dialog.close();
+                    }
+                }
+
                 if (auto* textEvent = event.getIf<sf::Event::TextEntered>()) {
                     uint32_t unicode = textEvent->unicode;
 
-                    if (unicode >= '0' && unicode <= '9') {
-                        if (decInput.length() < 12) {
+                    // Разрешаем минус только в самом начале строки
+                    if (unicode == '-') {
+                        if (decInput.empty()) {
+                            decInput += '-';
+                        }
+                    }
+                    else if (unicode >= '0' && unicode <= '9') {
+                        // Убираем незначащий ведущий ноль при вводе следующей цифры
+                        if (decInput == "0") {
+                            decInput = static_cast<char>(unicode);
+                        }
+                        else if (decInput == "-0") {
+                            decInput = std::string("-") + static_cast<char>(unicode);
+                        }
+                        else if (decInput.length() < 12) {
                             decInput += static_cast<char>(unicode);
                         }
                     }
@@ -254,32 +301,9 @@ private:
                         }
                     }
 
-                    if (!decInput.empty()) {
-                        try {
-                            unsigned long long val = std::stoull(decInput);
-
-                            if (val > 4294967295ULL) {
-                                decInput = "4294967295";
-                                val = 4294967295ULL;
-                            }
-
-                            uint32_t currentVal = static_cast<uint32_t>(val);
-                            hexDisplay.setString(std::format("0x{:08X}", currentVal));
-
-                            // ОБНОВЛЕНИЕ ЗНАКОВОГО ПОЛЯ: явное преобразование в int32_t
-                            signedDisplay.setString(std::to_string(static_cast<int32_t>(currentVal)));
-                        }
-                        catch (...) {
-                            decInput = "4294967295";
-                            hexDisplay.setString("0xFFFFFFFF");
-                            signedDisplay.setString("-1"); // 0xFFFFFFFF в int32_t — это -1
-                        }
-                    }
-                    else {
-                        hexDisplay.setString("0x00000000");
-                        signedDisplay.setString("0");
-                    }
-
+                    uint32_t currentVal = parseCurrentValue();
+                    hexDisplay.setString(std::format("0x{:08X}", currentVal));
+                    signedDisplay.setString(std::to_string(static_cast<int32_t>(currentVal)));
                     inputDisplay.setString(decInput + "|");
                 }
 
@@ -291,12 +315,7 @@ private:
                             dialog.close();
                         }
                         else if (saveBtn.getGlobalBounds().contains(mousePos)) {
-                            if (!decInput.empty()) {
-                                setValue(static_cast<uint32_t>(std::stoull(decInput)));
-                            }
-                            else {
-                                setValue(0);
-                            }
+                            setValue(parseCurrentValue());
                             dialog.close();
                         }
                     }
@@ -309,11 +328,8 @@ private:
             dialog.draw(inputDisplay);
             dialog.draw(hexLabel);
             dialog.draw(hexDisplay);
-
-            // ОТРИСОВКА НОВЫХ ЭЛЕМЕНТОВ
             dialog.draw(signedLabel);
             dialog.draw(signedDisplay);
-
             dialog.draw(negativeNumbersLabel);
             dialog.draw(saveBtn);
             dialog.draw(saveText);

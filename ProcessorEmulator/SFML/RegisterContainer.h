@@ -67,7 +67,7 @@ public:
 
     void onProcessorStep() {
         int newValue = processor.GetRegisterValue(m_rn);
-        std::cout << "[" << getName() << "] - onProcessorStep. Register #" << m_rn << ", value = " << newValue << std::endl;
+        // std::cout << "[" << getName() << "] - onProcessorStep. Register #" << m_rn << ", value = " << newValue << std::endl;
         setValue(newValue);
     }
 
