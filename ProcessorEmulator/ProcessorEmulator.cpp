@@ -33,7 +33,7 @@ int main()
     bool running = false; // запущена ли программа
     bool stepsMode = false; // идем по шагам или без них
 
-    sf::RenderWindow window(sf::VideoMode({ 1440, 900 }), "Эмулятор процессора"_sf, sf::Style::Titlebar | sf::Style::Close);
+    sf::RenderWindow window(sf::VideoMode({ 1440, 900 }), "The common EMUlator"_sf, sf::Style::Titlebar | sf::Style::Close);
     window.setSize(sf::Vector2u(1440, 900));
     window.setFramerateLimit(60);
 
